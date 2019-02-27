@@ -15,6 +15,9 @@
   <depend>geometry_msgs</depend>
   <depend>tf</depend>
 
+  <test_depend>rostest</test_depend>
+  <test_depend>unittest</test_depend>
+
   <export>
   </export>
 </package>

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import unittest
 
@@ -9,10 +9,11 @@ class TestImport(unittest.TestCase):
         try:
             import pattern_manager.pattern
             return True
-        except ImportError:
-            self.fail("Could not import the base patterns module")
+        except ImportError as e:
+            self.fail("Could not import the base patterns module (%s)" % e)
 
 
 if __name__ == "__main__":
+
     test_runner = unittest.TextTestRunner()
     unittest.main(testRunner=test_runner)
