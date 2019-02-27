@@ -1,12 +1,33 @@
 #!/usr/bin/env python
 
+# Copyright 2019 Danish Technological Institute (DTI)
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Author: Mikkel Rath Hansen
+
+
+""" Provides a common base class for patterns, realized as plugins.
+
+This file is not meant to be used directly."""
+
+
 import geometry_msgs.msg as gm
 
 import numpy as np
 import math
 
-# TODO: How to include this in ROS2?
-#import tf.transformations as tft 
+import tf.transformations as tft 
 
 
 # logging output
@@ -15,7 +36,27 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 class Pattern(object):
-    """ Base class for all patterns, with common interface"""
+    """Base class for all patterns, with common interface.
+
+    Provides a common base class for all patterns, with common methods for iteration, generation, cleanup etc.
+
+    :param i: start iterator at this index (optional)
+    :type i: int
+    :param rev: iterate backwards (from n, rather than 0) (optional)
+    :type rev: bool
+    :param frame: frame name that this pattern is relative to (optional)
+    :type frame: str
+    :param name: name of the pattern (optional)
+    :type name: str
+    :param offset_xy: x and y position offset wrt. the frame (optional)
+    :type offset_xy: tuple
+    :param offset_rot: z rotation (yaw) offset wrt. the frame (optional)
+    :type offset_rot: float
+    :param order: explicit iteration order (optional)
+    :type order: list
+    :param static: lock the pattern for any future updates (optional)
+    :type static: bool
+    """
 
     _iterator = 0
     _parameterized = False
@@ -44,6 +85,11 @@ class Pattern(object):
         self._iterator = iterator
 
     def increase_iterator(self):
+        """Increase the iterator by 1.
+        
+        :return: the new value of the iterator, or False if the pattern was finished
+        :rtype: int if successful, bool if pattern was already finished 
+        """
         self.iterator += 1
         if not self.iterator < self._pattern.size:
             self._finished = True
@@ -52,13 +98,31 @@ class Pattern(object):
         return self.iterator
 
     def reset_iterator(self):
+        """Reset iterator to 0."""
         self.iterator = 0
 
     def set_iteration_order(self, order):
+        """Set iteration order explicitly.
+        
+        The order is specified as a list of indices. len(order) should be less than or equal to the pattern size.
+
+        :param order: iteration order (list of indices)
+        :type order: list
+        :return: success
+        :rtype: bool
+        """
         self._iteration_order = order
         return self.cleanup_iteration_order()
 
     def cleanup_iteration_order(self):
+        """Truncates or expands the current iteration order.
+        
+        This function makes sure the length of the internal iteration order is the same as the pattern size. 
+        If iteration order is shorter, it is expanded with missing indices. If it is longer, it is simply truncated.
+        
+        :return: success
+        :rtype: bool
+        """
         # make sure we have an order the exact length of the pattern
         if len(self._iteration_order) == 0:
             self._iteration_order = range(self.get_pattern_size())
@@ -71,7 +135,6 @@ class Pattern(object):
             for o in self._iteration_order:
                 orig_order.remove(o)
             self._iteration_order += orig_order
-        # else == pattern size
         # reorder the pattern
         iter_order_np = np.array(self._iteration_order)
         self._pattern = self._pattern[iter_order_np]
@@ -81,13 +144,20 @@ class Pattern(object):
         return self._finished
 
     def reset_pattern(self):
+        """Resets a pattern, by resetting iterator, and marking the pattern not finished."""
         self.reset_iterator()
         self._finished = False
 
     def get_pattern_size(self):
+        """Returns the size of the pattern in 1 dimension (number of indices)."""
         return self._pattern.size
 
     def get_pattern_shape(self):
+        """Returns the shape of the pattern.
+
+        :return: shape of pattern
+        :rtype: tuple
+        """
         return self._pattern.shape
 
     # DIRECTION FUNCTIONS
