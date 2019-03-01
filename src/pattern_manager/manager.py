@@ -236,5 +236,3 @@ class Pattern(object):
 
 if __name__ == '__main__':
     plugins['linear'].main()
-    plugins['rect'].main()
-    plugins['scatter'].main()
