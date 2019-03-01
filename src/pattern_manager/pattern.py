@@ -34,6 +34,14 @@ import tf.transformations as tft
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
+import pkg_resources
+
+plugins = {
+    entry_point.name: entry_point.load()
+    for entry_point
+    in pkg_resources.iter_entry_points('pattern_manager.plugins')
+}
+
 
 class Pattern(object):
     """Base class for all patterns, with common interface.
@@ -224,3 +232,9 @@ class Pattern(object):
     @pattern_name.setter
     def pattern_name(self, name):
         self._pattern_name = name
+
+
+if __name__ == '__main__':
+    plugins['linear'].main()
+    plugins['rect'].main()
+    plugins['scatter'].main()
