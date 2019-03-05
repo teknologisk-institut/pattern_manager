@@ -7,7 +7,7 @@ class TestImport(unittest.TestCase):
 
     def test_import_patterns(self):
         try:
-            import pattern_manager.pattern
+            import base_pattern.pattern
             return True
         except ImportError as e:
             self.fail("Could not import the base patterns module (%s)" % e)

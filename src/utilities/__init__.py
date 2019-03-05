@@ -1,3 +1,3 @@
 #!/usr/bin/env python
 
-from src import *
+from utils import *

@@ -23,24 +23,12 @@ This file is not meant to be used directly."""
 
 
 import geometry_msgs.msg as gm
-
 import numpy as np
-import math
-
-import tf.transformations as tft 
-
+from src import utilities
 
 # logging output
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-
-import pkg_resources
-
-plugins = {
-    entry_point.name: entry_point.load()
-    for entry_point
-    in pkg_resources.iter_entry_points('pattern_manager.plugins')
-}
 
 
 class Pattern(object):
@@ -234,5 +222,9 @@ class Pattern(object):
         self._pattern_name = name
 
 
-if __name__ == '__main__':
-    plugins['linear'].main()
+# if __name__ == '__main__':
+
+    # l = plugins['linear']
+    # l.main()
+    # linear = plugins['linear']
+    # linear = plugins['linear']

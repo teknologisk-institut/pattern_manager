@@ -6,10 +6,11 @@ setup_args = generate_distutils_setup(
     name='pattern_manager',
     package_dir={'': 'src'},
     packages=[
-        'pattern_manager',
+        'base_pattern',
         'linear_pattern',
         'rectangular_pattern',
-        'scatter_pattern'
+        'scatter_pattern',
+        'utilities'
     ],
     entry_points={
         'pattern_manager.plugins': [
