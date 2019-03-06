@@ -21,20 +21,20 @@
 
 This file is not meant to be used directly."""
 
+from .. import utils
 
 import geometry_msgs.msg as gm
 import numpy as np
-from src import utilities
+import pluginlib
+from pattern_manager.utils import *
 from tf import transformations as tfs
-
-# TODO: import utils
-#from utilities import *
 
 # logging output
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
+@pluginlib.Parent('pattern')
 class Pattern(object):
     """Base class for all patterns, with common interface.
 
@@ -161,7 +161,6 @@ class Pattern(object):
         return self._pattern.shape
 
     # DIRECTION FUNCTIONS
-
     @property
     def reverse_iteration(self):
         return self._reverse_iteration
@@ -171,7 +170,6 @@ class Pattern(object):
         self._reverse_iteration = reverse
 
     # INITIALIZED FUNCTIONS
-
     @property
     def generated(self):
         return self._generated
@@ -325,11 +323,3 @@ class Pattern(object):
         """
         i = self.iterator + 1
         return self.get_tf_from_iter(i)
-
-
-# if __name__ == '__main__':
-
-    # l = plugins['linear']
-    # l.main()
-    # linear = plugins['linear']
-    # linear = plugins['linear']
