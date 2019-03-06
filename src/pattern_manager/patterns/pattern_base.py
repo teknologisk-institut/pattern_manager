@@ -21,8 +21,6 @@
 
 This file is not meant to be used directly."""
 
-from .. import utils
-
 import geometry_msgs.msg as gm
 import numpy as np
 import pluginlib
