@@ -76,10 +76,6 @@ class Pattern(object):
         self._pattern = np.array(np.empty(0), dtype=gm.Transform)
 
     @pluginlib.abstractmethod
-    def set_pattern_parameters(self):
-        pass
-
-    @pluginlib.abstractmethod
     def generate_pattern(self):
         pass
 
