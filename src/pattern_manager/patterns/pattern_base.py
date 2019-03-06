@@ -21,16 +21,17 @@
 
 This file is not meant to be used directly."""
 
+from .. import utils
 
 import geometry_msgs.msg as gm
 import numpy as np
-from src import utilities
-
+import pluginlib
 # logging output
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
+@pluginlib.Parent('pattern')
 class Pattern(object):
     """Base class for all patterns, with common interface.
 
@@ -157,7 +158,6 @@ class Pattern(object):
         return self._pattern.shape
 
     # DIRECTION FUNCTIONS
-
     @property
     def reverse_iteration(self):
         return self._reverse_iteration
@@ -167,7 +167,6 @@ class Pattern(object):
         self._reverse_iteration = reverse
 
     # INITIALIZED FUNCTIONS
-
     @property
     def generated(self):
         return self._generated
@@ -220,11 +219,3 @@ class Pattern(object):
     @pattern_name.setter
     def pattern_name(self, name):
         self._pattern_name = name
-
-
-# if __name__ == '__main__':
-
-    # l = plugins['linear']
-    # l.main()
-    # linear = plugins['linear']
-    # linear = plugins['linear']
