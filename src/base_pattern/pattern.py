@@ -25,6 +25,10 @@ This file is not meant to be used directly."""
 import geometry_msgs.msg as gm
 import numpy as np
 from src import utilities
+from tf import transformations as tfs
+
+# TODO: import utils
+#from utilities import *
 
 # logging output
 import logging
@@ -59,7 +63,7 @@ class Pattern(object):
     _generated = False
     _finished = False
 
-    def __init__(self, i=0, rev=False, frame="", name="", offset_xy=(0,0), offset_rot=0, order=[], static=False):
+    def __init__(self, i=0, rev=False, frame="", name="", offset_xy=(0, 0), offset_rot=0, order=[], static=False):
         self.iterator = i
         self.reverse_iteration = rev
         self.pattern_frame_id = frame
@@ -185,6 +189,12 @@ class Pattern(object):
         self._parameterized = parameterized
 
     def can_generate(self):
+        """Check if the pattern has been correctly paramterized.
+        
+        :return: Can generate
+        :rtype: bool
+        """
+
         if not self.parameterized:
             logging.error("Pattern is not parameterized, can't generate")
             self.generated = False
@@ -193,9 +203,18 @@ class Pattern(object):
 
     # FRAME FUNCTIONS
 
-    def set_all_frame_parameters(self, frame_id='', pattern_transform=gm.TransformStamped()):
-        self.set_pattern_frame_id(frame_id)
-        self.set_pattern_transform(pattern_transform)
+    def set_all_frame_parameters(self, frame_id, pattern_transform=gm.TransformStamped()):
+        """Sets frame and transform from frame to pattern.
+                
+        :param frame_id: Name of the pattern frame in the tf tree
+        :param frame_id: str
+        :param pattern_transform: Transform from frame to pattern origin (1st position), defaults to zero transform
+        :param pattern_transform: geometry_msgs.TransformStamped, optional
+        """
+
+        if not frame_id == "":
+            self.pattern_frame_id = frame_id
+        self.pattern_transform = pattern_transform
 
     @property
     def pattern_frame_id(self):
@@ -212,6 +231,8 @@ class Pattern(object):
     @pattern_transform.setter
     def pattern_transform(self, transform):
         self._pattern_transform = transform
+        if transform.header.frame_id == "":
+            self._pattern_transform.header.frame_id = self.pattern_frame_id
 
     @property
     def pattern_name(self):
@@ -220,6 +241,90 @@ class Pattern(object):
     @pattern_name.setter
     def pattern_name(self, name):
         self._pattern_name = name
+
+    # OFFSET FUNCTIONS
+
+    def offset_pattern(self):
+        """Correctly offsets each position in the pattern.
+        
+        Will modify each position in the pattern, typically after generation, with the pattern offset from the parent frame to xy and yaw offset specified during initialization.
+        
+        """
+        # no offset
+        if self._pos_offset == (0, 0) and self._rot_offset == 0:
+            return
+        # offset
+        # just translate
+        if not self._pos_offset == (0, 0) and self._rot_offset == 0:
+            for pos in self._pattern:
+                pos.translation.x += self._pos_offset[0]
+                pos.translation.y += self._pos_offset[1]
+            return
+        # with rotation
+        if not self._rot_offset == 0:
+            transf_mat = tfs.compose_matrix(angles=[0, 0, self._rot_offset],
+                                            translate=[self._pos_offset[0], self._pos_offset[1], 0])
+            for pos in self._pattern:
+                mat = transform_to_matrix(pos)
+                new_pos = matrix_to_transform(np.dot(mat, transf_mat))
+                pos.rotation = new_pos.rotation
+                pos.translation = new_pos.translation
+            return
+
+    def finish_generation(self, ignore_offset=False):
+        """Mark generation finished, and do various cleanup.
+
+        Offsets the pattern, if specified, and cleans up the iteration order, if specified.
+
+        :param ignore_offset: Will ignore the xy and yaw offset given during intialization, defaults to False
+        :param ignore_offset: bool, optional
+        :return: Whether or not the pattern is correctly generated.
+        :rtype: bool
+        """
+        self._pattern = self._pattern.reshape(self._pattern.size)
+        if not ignore_offset:
+            self.offset_pattern()
+        self.cleanup_iteration_order()
+        self.generated = True
+        return True
+
+    def get_tf_from_iter(self, i):
+        """Get the transformation corresponding to a specific index in the pattern.
+
+        :param i: index of the position to query
+        :type i: int
+        :return: Transform from pattern parent frame to requested position index, if available
+        :rtype: geometry_msgs.TransformStamped, False otherwise
+        """
+        try:
+            if len(self._pattern) == 0:
+                return False
+            if self.reverse_iteration:
+                index = -(i + 1)
+            else:
+                index = i
+            t = self._pattern.item(index)
+            return t
+        except IndexError:
+            logging.error("Iterator value %s exceeded dimension of pattern size %s" % (i, self._pattern.shape))
+            return False
+
+    def get_current_tf(self):
+        """Get the transform corresponding to the current active pattern position.
+
+        :return: Transform of current position.
+        :rtype: geometry_msgs.TransformStamped
+        """
+        return self.get_tf_from_iter(self.iterator)
+
+    def get_next_tf(self):
+        """Get the transform corresponding to the next pattern position.
+
+        :return: Transform of next position.
+        :rtype: geometry_msgs.TransformStamped
+        """
+        i = self.iterator + 1
+        return self.get_tf_from_iter(i)
 
 
 # if __name__ == '__main__':
