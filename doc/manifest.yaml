@@ -1,0 +1,22 @@
+actions: []
+authors: ''
+brief: ''
+bugtracker: ''
+depends:
+- catkin
+- unittest
+- std_msgs
+- python-catkin-pkg
+- rostest
+- rospy
+- tf
+- geometry_msgs
+description: A ROS-Industrial component for defining, configuring, and using patterns
+  in industrial robot applications
+license: Apache-2.0
+maintainers: Mikkel Rath Hansen <mrp@teknologisk.dk>, Mads Baatrup <mvb@teknologisk.dk>
+msgs: []
+package_type: package
+repo_url: ''
+srvs: []
+url: ''
