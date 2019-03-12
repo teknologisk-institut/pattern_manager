@@ -32,7 +32,7 @@ import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
-@pluginlib.Parent('pattern')
+@pluginlib.Parent('pattern', group='patterns')
 class Pattern(object):
     """Base class for all patterns, with common interface.
 

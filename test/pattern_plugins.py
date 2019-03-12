@@ -1,22 +1,33 @@
 #!/usr/bin/env python
 import pluginlib
-from pattern_manager.patterns import pattern_base
+
+from pattern_manager.patterns import PatternLinear
+from pattern_manager.patterns import PatternRectangular
+from pattern_manager.patterns import PatternScatter
 
 import unittest
 
+loader = pluginlib.PluginLoader(group='patterns')
+
 
 class TestPlugins(unittest.TestCase):
-    def test_pattern_plugins(self):
-        try:
-            loader = pluginlib.PluginLoader()
-            plugins = loader.plugins
-            print(plugins['pattern']['linear'])
-            print(plugins['pattern']['rectangular'])
-            print(plugins['pattern']['scatter'])
+    def test_pattern_plugin_keys_exist(self):
+        p = ['linear', 'rectangular', 'scatter']
+        for k in p:
+            self.assertIn(k, loader.plugins['pattern'].keys())
 
-            return True
-        except AttributeError as e:
-            self.fail("Could not load plugins (%s)" % e)
+    def test_pattern_plugins_exist(self):
+        for k in loader.plugins:
+            self.assertIsNotNone(loader.plugins[k])
+
+    def test_pattern_plugin_types(self):
+            l = loader.get_plugin('pattern', 'linear')()
+            r = loader.get_plugin('pattern', 'rectangular')()
+            s = loader.get_plugin('pattern', 'scatter')()
+
+            self.assertIsInstance(l, PatternLinear)
+            self.assertIsInstance(r, PatternRectangular)
+            self.assertIsInstance(s, PatternScatter)
 
 
 if __name__ == "__main__":

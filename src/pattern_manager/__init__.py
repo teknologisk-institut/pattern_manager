@@ -2,4 +2,4 @@
 
 from utils import *
 from manager import *
-import patterns
+from patterns import *
