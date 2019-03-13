@@ -27,10 +27,6 @@ import pluginlib
 from pattern_manager.utils import *
 from tf import transformations as tfs
 
-# logging output
-import logging
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-
 
 @pluginlib.Parent('pattern', group='patterns')
 class Pattern(object):
@@ -129,7 +125,7 @@ class Pattern(object):
         if len(self._iteration_order) == 0:
             self._iteration_order = range(self.get_pattern_size())
         elif len(self._iteration_order) > self.get_pattern_size():
-            logging.warning("Specified iteration order is larger than pattern size, cropping order")
+            output.warning("Specified iteration order is larger than pattern size, cropping order")
             self._iteration_order = self._iteration_order[:self.get_pattern_size()]
         elif len(self._iteration_order) < self.get_pattern_size():
             # find uniques
@@ -196,7 +192,7 @@ class Pattern(object):
         """
 
         if not self.parameterized:
-            logging.error("Pattern is not parameterized, can't generate")
+            output.error("Pattern is not parameterized, can't generate")
             self.generated = False
             return False
         return True

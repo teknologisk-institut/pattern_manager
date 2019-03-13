@@ -31,12 +31,12 @@ class PatternScatter(pattern_base.Pattern):
 
     def set_pattern_parameters(self, point_list):
         if not type(point_list) == list:
-            utils.output("ERROR: Point input is not a list of points")
+            utils.output.error("Point input is not a list of points")
             return False
         self._input_points = []
         for p in point_list:
             if not type(p) == list:
-                utils.output("ERROR: Single input point is not a list")
+                utils.output.error("Single input point is not a list")
                 return False
             self._input_points.append(p)
         self.set_parameterized(True)
@@ -64,7 +64,7 @@ class PatternScatter(pattern_base.Pattern):
                 t.rotation.z = q[2]
                 t.rotation.w = q[3]
             else:
-                utils.output("ERROR: Incorrect point length (%s), aborting pattern generation" % len(p))
+                utils.output.error("Incorrect point length (%s), aborting pattern generation" % len(p))
                 return False
             self._pattern[i] = t
             i += 1
