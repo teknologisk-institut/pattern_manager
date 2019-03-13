@@ -8,7 +8,7 @@ import tf.transformations as tfs
 
 # logging output
 import logging
-logging.basicConfig(format='(Pattern Manager) %(levelname)s:%(message)s', level=logging.DEBUG)
+logging.basicConfig(format='(Pattern Manager) %(levelname)s: %(message)s', level=logging.DEBUG)
 output = logging
 
 
