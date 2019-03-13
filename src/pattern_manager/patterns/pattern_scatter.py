@@ -39,7 +39,7 @@ class PatternScatter(pattern_base.Pattern):
                 utils.output.error("Single input point is not a list")
                 return False
             self._input_points.append(p)
-        self.set_parameterized(True)
+        self.parameterized = True
         return True
 
     def generate_pattern(self):

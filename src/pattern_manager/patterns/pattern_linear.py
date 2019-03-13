@@ -41,7 +41,7 @@ class PatternLinear(pattern_base.Pattern):
         self._points = po
         self._length = le
         self._axis = axis
-        self.set_parameterized(True)
+        self.parameterized = True
         return True
 
     def generate_pattern(self):

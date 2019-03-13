@@ -38,7 +38,7 @@ class PatternRectangular(pattern_base.Pattern):
         self._points = (px, py)
         self._step_size = (sx, sy)
         self._length = (lx, ly)
-        self.set_parameterized(True)
+        self.parameterized = True
         return True
 
     def generate_pattern(self):
