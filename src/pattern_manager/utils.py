@@ -6,8 +6,10 @@ import numpy as np
 import tf.transformations as tfs
 
 
-def output(msg):
-    print "PATTERN_MSG: " + msg
+# logging output
+import logging
+logging.basicConfig(format='(Pattern Manager) %(levelname)s: %(message)s', level=logging.DEBUG)
+output = logging
 
 
 # Helper functions
@@ -17,10 +19,10 @@ def handle_input_1d(number_of_points=0, step_size=0, line_length=0):
     out_l = 0.0  # line length
     # a pair must be specified
     if number_of_points == step_size == line_length == 0:
-        output("ERROR: 1D - No parameters specified")
+        output.error("1D - No parameters specified")
         return False
     elif 0 not in [number_of_points, step_size, line_length]:
-        output("ERROR: 1D - Ambiguous parameters, all three specified (number_of_points, step_size, "
+        output.error("1D - Ambiguous parameters, all three specified (number_of_points, step_size, "
                "line_length)")
         return False
     elif number_of_points == 0 and not step_size == line_length == 0:
