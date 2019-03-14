@@ -22,9 +22,9 @@
 This file is not meant to be used directly."""
 
 import geometry_msgs.msg as gm
-import numpy as np
 import pluginlib
-from pattern_manager.utils import *
+import numpy as np
+from pattern_manager.utils import transform_to_matrix, matrix_to_transform
 from tf import transformations as tfs
 
 # logging output
