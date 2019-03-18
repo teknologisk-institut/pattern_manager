@@ -18,8 +18,9 @@
 
 # from patterns import PatternLinear, PatternRectangular, PatternScatter
 # import pattern_manager.pattern_fitter as pattern_fitter
-import pluginlib
+from pluginlib import PluginLoader
 from pattern_manager.patterns import pattern_base
+
 
 class PatternFactory:
     def __init__(self):
@@ -28,24 +29,14 @@ class PatternFactory:
     def register_pattern_type(self, pattern_type, pattern):
         self._patterns[pattern_type] = pattern
 
-    def get_pattern(self, pattern_type):
+    def get_pattern(self, pattern_type, pattern_dict):
         pattern = self._patterns.get(pattern_type)
 
         if not pattern:
             raise ValueError(pattern_type)
 
-        return pattern()
+        return pattern(**pattern_dict)
 
-factory = PatternFactory()
-loader = pluginlib.PluginLoader(group='patterns')
-
-for k in loader.plugins['pattern'].keys():
-    factory.register_pattern_type(k, loader.get_plugin('pattern', k))
-
-class FactoryTest:
-    if __name__ == '__main__':
-        pattern = factory.get_pattern('scatter')
-        print(type(pattern))
 
 class PatternManager(object):
 
@@ -53,9 +44,17 @@ class PatternManager(object):
     _fitters = {}  # ICP pattern fitters corresponding to pattern ID
     _patterns_are_grouped = True  # whether or not all patterns are grouped (i.e. if the iterator overflows to next pattern or not)
     active_pattern = 0  # index of last pattern used
+    factory = PatternFactory()
+    loader = PluginLoader()
 
     def __init__(self, grouped_patterns=True):
         self.set_grouped_patterns(grouped_patterns)
+        self.loader = PluginLoader(group='patterns')
+        self._load_plugins()
+
+    def _load_plugins(self):
+        for k in self.loader.plugins['pattern'].keys():
+            self.factory.register_pattern_type(k, self.loader.get_plugin('pattern', k))
 
     def add_pattern(self, pattern):
         if len(self._patterns) == 0:
@@ -69,26 +68,7 @@ class PatternManager(object):
         del self._patterns[pattern_index]
 
     def create_pattern_from_dict(self, pattern_dict):
-        # TODO: implement checks...
-        if pattern_dict['pattern_type'] in ['LINEAR', 'RECTANGULAR', 'SCATTER']:
-            # immediately create it
-            p = patterns.create_pattern(**pattern_dict)
-        elif pattern_dict['pattern_type'] == 'STACKED':
-            # create base pattern first
-            base = self.create_child_pattern(pattern_dict, pattern_dict['base_pattern'], "_base")
-            pattern_dict['base_pattern'] = base
-            p = patterns.create_pattern(**pattern_dict)
-        elif pattern_dict['pattern_type'] == 'COMBINED2D':
-            # create patterns to combine
-            comb_patterns = []
-            for pat in pattern_dict['patterns']:
-                base = self.create_child_pattern(pattern_dict, pat)
-                comb_patterns.append(base)
-            pattern_dict['patterns'] = comb_patterns
-            p = patterns.create_pattern(**pattern_dict)
-        else:
-            return False
-        return p
+        return self.factory.get_pattern(pattern_dict['pattern_type'], pattern_dict)
 
     def create_child_pattern(self, pattern_dict, child_dict, name_suffix=""):
         child_args = child_dict
@@ -147,12 +127,12 @@ class PatternManager(object):
     # smart pattern interaction using extra classes
     def update_pattern(self, pattern_index, poses, fit_input_to_pattern, overwrite_orientation):
         #print "%s input poses" % len(poses)
-        if fit_input_to_pattern:
-            # only create the pattern fitter when we need it
-            if pattern_index not in self._fitters:
-                self._fitters[pattern_index] = pattern_fitter.PatternFitter(self._patterns[pattern_index])
-        self._fitters[pattern_index].update_pattern(poses, fit_input_to_pattern, overwrite_orientation)
-        self._patterns[pattern_index] = self._fitters[pattern_index].get_updated_pattern()
+        # if fit_input_to_pattern:
+        #     # only create the pattern fitter when we need it
+        #     if pattern_index not in self._fitters:
+        #         self._fitters[pattern_index] = pattern_fitter.PatternFitter(self._patterns[pattern_index])
+        # self._fitters[pattern_index].update_pattern(poses, fit_input_to_pattern, overwrite_orientation)
+        # self._patterns[pattern_index] = self._fitters[pattern_index].get_updated_pattern()
         return True
 
     # internal manager functions
@@ -254,3 +234,14 @@ class PatternManager(object):
             else:
                 pattern_i = 0
         return pattern_i
+
+
+if __name__ == '__main__':
+    man = PatternManager()
+    d = {
+        'pattern_type': 'linear', 
+        'step_size': 1, 
+        'length': 3.0,
+        'name': 'lord mads'
+        }
+    pat = man.create_pattern_from_dict(d)

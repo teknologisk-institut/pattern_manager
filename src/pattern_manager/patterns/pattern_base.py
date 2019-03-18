@@ -24,7 +24,7 @@ This file is not meant to be used directly."""
 import geometry_msgs.msg as gm
 import pluginlib
 import numpy as np
-from pattern_manager.utils import transform_to_matrix, matrix_to_transform
+from pattern_manager.utils import transform_to_matrix, matrix_to_transform, output, logging
 from tf import transformations as tfs
 
 
@@ -69,9 +69,9 @@ class Pattern(object):
         self.pattern_transform = gm.TransformStamped()
         self._pattern = np.array(np.empty(0), dtype=gm.Transform)
 
-    @pluginlib.abstractmethod
-    def generate_pattern(self):
-        pass
+    # @pluginlib.abstractmethod
+    # def generate_pattern(self):
+    #     pass
 
     # ITERATOR FUNCTIONS
     @property
