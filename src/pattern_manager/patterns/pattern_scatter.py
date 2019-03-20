@@ -26,8 +26,10 @@ import tf.transformations as tfs
 
 class PatternScatter(pattern_base.Pattern):
     _alias_ = 'scatter'
-
     _input_points = None
+
+    def __init__(self, base_params, point_list):
+        super(PatternScatter, self).__init__(**base_params)
 
     def set_pattern_parameters(self, point_list):
         if not type(point_list) == list:
@@ -71,11 +73,3 @@ class PatternScatter(pattern_base.Pattern):
         self._pattern_org_copy = np.copy(self._pattern)
         self.finish_generation()
         return True
-
-
-def main():
-    print('I\'m a linear plugin')
-
-
-if __name__ == '__main__':
-    main()
