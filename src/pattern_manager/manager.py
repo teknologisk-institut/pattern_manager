@@ -29,13 +29,13 @@ class PatternFactory:
     def register_pattern_type(self, pattern_type, pattern):
         self._patterns[pattern_type] = pattern
 
-    def get_pattern(self, pattern_type, pattern_dict):
+    def get_pattern(self, pattern_type, pattern_params, base_params):
         pattern = self._patterns.get(pattern_type)
 
         if not pattern:
             raise ValueError(pattern_type)
 
-        return pattern(**pattern_dict)
+        return pattern(base_params, **pattern_params)
 
 
 class PatternManager(object):
@@ -43,9 +43,8 @@ class PatternManager(object):
     _patterns = {}  # dict of patterns
     _fitters = {}  # ICP pattern fitters corresponding to pattern ID
     _patterns_are_grouped = True  # whether or not all patterns are grouped (i.e. if the iterator overflows to next pattern or not)
-    active_pattern = 0  # index of last pattern used
-    factory = PatternFactory()
-    loader = PluginLoader()
+    _active_pattern = 0  # index of last pattern used
+    _factory = PatternFactory()
 
     def __init__(self, grouped_patterns=True):
         self.set_grouped_patterns(grouped_patterns)
@@ -54,7 +53,7 @@ class PatternManager(object):
 
     def _load_plugins(self):
         for k in self.loader.plugins['pattern'].keys():
-            self.factory.register_pattern_type(k, self.loader.get_plugin('pattern', k))
+            self._factory.register_pattern_type(k, self.loader.get_plugin('pattern', k))
 
     def add_pattern(self, pattern):
         if len(self._patterns) == 0:
@@ -67,8 +66,8 @@ class PatternManager(object):
     def remove_pattern(self, pattern_index):
         del self._patterns[pattern_index]
 
-    def create_pattern_from_dict(self, pattern_dict):
-        return self.factory.get_pattern(pattern_dict['pattern_type'], pattern_dict)
+    def create_pattern_from_dict(self, pattern_type, pattern_params, base_params):
+        return self._factory.get_pattern(pattern_type, pattern_params, base_params)
 
     def create_child_pattern(self, pattern_dict, child_dict, name_suffix=""):
         child_args = child_dict
@@ -126,13 +125,13 @@ class PatternManager(object):
 
     # smart pattern interaction using extra classes
     def update_pattern(self, pattern_index, poses, fit_input_to_pattern, overwrite_orientation):
-        #print "%s input poses" % len(poses)
-        # if fit_input_to_pattern:
-        #     # only create the pattern fitter when we need it
-        #     if pattern_index not in self._fitters:
-        #         self._fitters[pattern_index] = pattern_fitter.PatternFitter(self._patterns[pattern_index])
-        # self._fitters[pattern_index].update_pattern(poses, fit_input_to_pattern, overwrite_orientation)
-        # self._patterns[pattern_index] = self._fitters[pattern_index].get_updated_pattern()
+        print "%s input poses" % len(poses)
+        if fit_input_to_pattern:
+            # only create the pattern fitter when we need it
+            if pattern_index not in self._fitters:
+                self._fitters[pattern_index] = pattern_fitter.PatternFitter(self._patterns[pattern_index])
+        self._fitters[pattern_index].update_pattern(poses, fit_input_to_pattern, overwrite_orientation)
+        self._patterns[pattern_index] = self._fitters[pattern_index].get_updated_pattern()
         return True
 
     # internal manager functions
@@ -167,7 +166,7 @@ class PatternManager(object):
 
     def set_active_pattern(self, pattern_index):
         if pattern_index in self._patterns.keys():
-            self.active_pattern = pattern_index
+            self._active_pattern = pattern_index
             return True
         else:
             return False
@@ -178,16 +177,16 @@ class PatternManager(object):
     def get_current_pattern(self):
         # not using groups?
         if not self._patterns_are_grouped:
-            return self.active_pattern, self._patterns[self.active_pattern]
+            return self._active_pattern, self._patterns[self._active_pattern]
         # we're currently working on a pattern
-        if not self.is_pattern_finished(self.active_pattern):
-            return self.active_pattern, self._patterns[self.active_pattern]
+        if not self.is_pattern_finished(self._active_pattern):
+            return self._active_pattern, self._patterns[self._active_pattern]
         # get first available unfinished pattern
         (k, p) = self.get_first_unfinished_pattern()
         if k is False:
             return k, p
         # if all patterns are finished
-        return self.active_pattern, self._patterns[self.active_pattern]
+        return self._active_pattern, self._patterns[self._active_pattern]
 
     def get_first_unfinished_pattern(self):
         # get first available unfinished pattern
@@ -196,7 +195,7 @@ class PatternManager(object):
             if self.is_pattern_finished(k):
                 continue
             else:
-                self.active_pattern = k
+                self._active_pattern = k
                 return k, self._patterns[k]
         return (False, False)
 
@@ -238,10 +237,23 @@ class PatternManager(object):
 
 if __name__ == '__main__':
     man = PatternManager()
-    d = {
+    d0 = {
         'pattern_type': 'linear', 
-        'step_size': 1, 
-        'length': 3.0,
-        'name': 'lord mads'
+        'pattern_params': {
+            'step_size': 0.1, 
+            'points': 3
+            }, 
+        'base_params': {
+            'i': 0,
+            'name': 'cheese',
+            'rev': False,
+            'frame': 'base_link',
+            'offset_xy': [0.5, 0.3],
+            'offset_rot': 0.2
+            }
         }
-    pat = man.create_pattern_from_dict(d)
+    pat = man._factory.get_pattern(
+        d0['pattern_type'], 
+        d0['pattern_params'], 
+        d0['base_params']
+        )

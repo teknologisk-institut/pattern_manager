@@ -26,8 +26,10 @@ import numpy as np
 class PatternLinear(pattern_base.Pattern):
     _alias_ = 'linear'
 
-    def __init__(self, points=0, step_size=0, length=0, axis='x', **kwargs):
-        super(PatternLinear, self).__init__(kwargs)
+    def __init__(self, base_params, points=0, step_size=0, length=0, axis='x'):
+        super(PatternLinear, self).__init__(**base_params)
+
+        print(step_size)
 
         try:
             (p, s, l) = handle_input_1d(points, step_size, length)
@@ -43,4 +45,3 @@ class PatternLinear(pattern_base.Pattern):
         self._pattern = frames_along_axis(points, step_size, axis=axis)
         self.finish_generation()
         self._pattern_org_copy = np.copy(self._pattern)
-
