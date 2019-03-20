@@ -29,8 +29,6 @@ class PatternLinear(pattern_base.Pattern):
     def __init__(self, base_params, points=0, step_size=0, length=0, axis='x'):
         super(PatternLinear, self).__init__(**base_params)
 
-        print(step_size)
-
         try:
             (p, s, l) = handle_input_1d(points, step_size, length)
         except TypeError as error:
