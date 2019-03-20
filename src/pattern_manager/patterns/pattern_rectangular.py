@@ -26,20 +26,25 @@ import geometry_msgs.msg as gm
 
 class PatternRectangular(pattern_base.Pattern):
     _alias_ = 'rectangular'
-    _parameterized = False
 
-    def __init__(self, base_params, points=(0, 0), step_sizes=(0.0, 0.0), lengths=(0, 0)):
+    _points = (0, 0)
+    _step_size = (0.0, 0.0)
+    _length = (0.0, 0.0)
+
+    def __init__(self, base_params):
         super(PatternRectangular, self).__init__(**base_params)
 
+    def set_pattern_parameters(self, points_x=0, points_y=0, step_x=0, step_y=0, len_x=0, len_y=0):
         try:
-            (px, sx, lx) = utils.handle_input_1d(points[0], step_sizes[0], lengths[0])
-            (py, sy, ly) = utils.handle_input_1d(points[1], step_sizes[1], lengths[1])
-            self.points = (px, py)
-            self.step_sizes = (sx, sy)
-            self.lengths = (lx, ly)
-            self._parameterized = True
-        except TypeError as error:
-            print(error)
+            (px, sx, lx) = utils.handle_input_1d(points_x, step_x, len_x)
+            (py, sy, ly) = utils.handle_input_1d(points_y, step_y, len_y)
+        except TypeError:
+            return False
+        self._points = (px, py)
+        self._step_size = (sx, sy)
+        self._length = (lx, ly)
+        self._parameterized = True
+        return True
 
     def generate_pattern(self):
         if not self.can_generate():

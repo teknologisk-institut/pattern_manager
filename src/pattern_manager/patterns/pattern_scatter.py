@@ -28,7 +28,7 @@ class PatternScatter(pattern_base.Pattern):
     _alias_ = 'scatter'
     _input_points = None
 
-    def __init__(self, base_params, point_list):
+    def __init__(self, base_params):
         super(PatternScatter, self).__init__(**base_params)
 
     def set_pattern_parameters(self, point_list):
@@ -41,7 +41,7 @@ class PatternScatter(pattern_base.Pattern):
                 utils.output.error("Single input point is not a list")
                 return False
             self._input_points.append(p)
-        self.parameterized = True
+        self._parameterized = True
         return True
 
     def generate_pattern(self):

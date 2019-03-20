@@ -84,9 +84,9 @@ class Pattern(object):
 
     def increase_iterator(self):
         """Increase the iterator by 1.
-        
+
         :return: the new value of the iterator, or False if the pattern was finished
-        :rtype: int if successful, bool if pattern was already finished 
+        :rtype: int if successful, bool if pattern was already finished
         """
         self.iterator += 1
         if not self.iterator < self._pattern.size:
@@ -101,7 +101,7 @@ class Pattern(object):
 
     def set_iteration_order(self, order):
         """Set iteration order explicitly.
-        
+
         The order is specified as a list of indices. len(order) should be less than or equal to the pattern size.
 
         :param order: iteration order (list of indices)
@@ -114,10 +114,10 @@ class Pattern(object):
 
     def cleanup_iteration_order(self):
         """Truncates or expands the current iteration order.
-        
-        This function makes sure the length of the internal iteration order is the same as the pattern size. 
+
+        This function makes sure the length of the internal iteration order is the same as the pattern size.
         If iteration order is shorter, it is expanded with missing indices. If it is longer, it is simply truncated.
-        
+
         :return: success
         :rtype: bool
         """
@@ -186,7 +186,7 @@ class Pattern(object):
 
     def can_generate(self):
         """Check if the pattern has been correctly paramterized.
-        
+
         :return: Can generate
         :rtype: bool
         """
@@ -201,7 +201,7 @@ class Pattern(object):
 
     def set_all_frame_parameters(self, frame_id, pattern_transform=gm.TransformStamped()):
         """Sets frame and transform from frame to pattern.
-                
+
         :param frame_id: Name of the pattern frame in the tf tree
         :param frame_id: str
         :param pattern_transform: Transform from frame to pattern origin (1st position), defaults to zero transform
@@ -215,7 +215,7 @@ class Pattern(object):
     @property
     def pattern_frame_id(self):
         return self._pattern_frame_id
-    
+
     @pattern_frame_id.setter
     def pattern_frame_id(self, frame_name):
         self._pattern_frame_id = frame_name
@@ -242,9 +242,9 @@ class Pattern(object):
 
     def offset_pattern(self):
         """Correctly offsets each position in the pattern.
-        
+
         Will modify each position in the pattern, typically after generation, with the pattern offset from the parent frame to xy and yaw offset specified during initialization.
-        
+
         """
         # no offset
         if self._pos_offset == (0, 0) and self._rot_offset == 0:

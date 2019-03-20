@@ -29,6 +29,9 @@ from math import cos, sin, pi
 class PatternCircular(pattern_base.Pattern):
     _alias_ = 'circular'
 
+    def __init__(self, base_params):
+        super(PatternCircular, self).__init__(**base_params)
+
     def set_pattern_parameters(self, radius=0.0, number_of_points=0, tangent_rotation=False, clockwise=False, angular_section=0.0):
         if radius == 0.0:
             utils.output.error("A radius of 0 is specified, can't define this circular pattern")
@@ -49,7 +52,7 @@ class PatternCircular(pattern_base.Pattern):
             utils.output.debug("Clockwise rotation specified")
         if self._tan_rot:
             utils.output.debug("Rotation will follow tangent of circle")
-        self.parameterized = True
+        self._parameterized = True
         return True
 
     def generate_pattern(self):
