@@ -29,13 +29,13 @@ class PatternFactory:
     def register_pattern_type(self, pattern_type, pattern):
         self._patterns[pattern_type] = pattern
 
-    def get_pattern(self, pattern_type, base_params):
+    def get_pattern(self, pattern_type, base_params, pattern_params):
         pattern = self._patterns.get(pattern_type)
 
         if not pattern:
             raise ValueError(pattern_type)
 
-        return pattern(base_params)
+        return pattern(base_params, **pattern_params)
 
 
 class PatternManager(object):
@@ -66,17 +66,17 @@ class PatternManager(object):
         del self._patterns[pattern_index]
 
     def create_pattern_from_dict(self, pattern_type, pattern_params, base_params):
-        pattern = self._factory.get_pattern(pattern_type, base_params)
-        pattern.set_pattern_parameters(**pattern_params)
+        pattern = self._factory.get_pattern(pattern_type, base_params, pattern_params)
+        # pattern.set_pattern_parameters(**pattern_params)
 
         return pattern
 
-    def create_child_pattern(self, pattern_dict, child_dict, name_suffix=""):
-        child_args = child_dict
-        child_args['frame_id'] = pattern_dict['frame_id']
-        child_args['pattern_name'] = pattern_dict['pattern_name'] + name_suffix
-        p = self.create_pattern_from_dict(child_args)
-        return p
+    # def create_child_pattern(self, pattern_dict, child_dict, name_suffix=""):
+    #     child_args = child_dict
+    #     child_args['frame_id'] = pattern_dict['frame_id']
+    #     child_args['pattern_name'] = pattern_dict['pattern_name'] + name_suffix
+    #     p = self.create_pattern_from_dict(child_args)
+    #     return p
 
     def get_pattern_count(self):
         return len(self._patterns)
@@ -243,7 +243,7 @@ if __name__ == '__main__':
         'pattern_type': 'linear',
         'pattern_params': {
             'step_size': 0.1,
-            'number_of_points': 3
+            'points': 3
         },
         'base_params': {
             'i': 0,
@@ -251,23 +251,23 @@ if __name__ == '__main__':
             'rev': False,
             'frame': 'base_link',
             'offset_xy': [0.5, 0.3],
-            'offset_rot': 0.2
+            'offset_rot': 0.2,
+            'g_id': 0
         }
     }
 
     rect_d = {
         'pattern_type': 'rectangular',
         'pattern_params': {
-            'points_x': 3,
-            'step_x': 0.1,
-            'points_y': 2,
-            'step_y': 0.1
+            'points': (3,2),
+            'step': (0.1,0.1),
         },
         'base_params': {
             'i': 0,
             'name': 'cheese_rect',
             'rev': False,
-            'frame': 'base_link'
+            'frame': 'base_link',
+            'g_id': 0
         }
     }
 
@@ -291,7 +291,8 @@ if __name__ == '__main__':
             'i': 0,
             'name': 'cheese_scatter',
             'rev': False,
-            'frame': 'base_link'
+            'frame': 'base_link',
+            'g_id': 1
         }
     }
 
@@ -312,3 +313,8 @@ if __name__ == '__main__':
         scatter_d['pattern_params'],
         scatter_d['base_params']
     )
+
+    pat_list = [pat_linear, pat_rect, pat_scatter]
+
+    for pat in pat_list:
+        print(pat._g_id)

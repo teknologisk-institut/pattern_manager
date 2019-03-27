@@ -56,8 +56,9 @@ class Pattern(object):
     _parameterized = False
     _generated = False
     _finished = False
+    _g_id=0
 
-    def __init__(self, i=0, rev=False, frame="", name="", offset_xy=(0, 0), offset_rot=0, order=[], static=False):
+    def __init__(self, i=0, rev=False, frame="", name="", offset_xy=(0, 0), offset_rot=0, order=[], static=False, g_id=0):
         self.iterator = i
         self.reverse_iteration = rev
         self.pattern_frame_id = frame
@@ -68,10 +69,11 @@ class Pattern(object):
         self._rot_offset = offset_rot
         self.pattern_transform = gm.TransformStamped()
         self._pattern = np.array(np.empty(0), dtype=gm.Transform)
+        self._g_id = g_id
 
-    @pluginlib.abstractmethod
-    def generate_pattern(self):
-        pass
+    # @pluginlib.abstractmethod
+    # def generate_pattern(self):
+    #     pass
 
     # ITERATOR FUNCTIONS
     @property
@@ -184,18 +186,18 @@ class Pattern(object):
     def parameterized(self, parameterized):
         self._parameterized = parameterized
 
-    def can_generate(self):
-        """Check if the pattern has been correctly paramterized.
-
-        :return: Can generate
-        :rtype: bool
-        """
-
-        if not self.parameterized:
-            output.error("Pattern is not parameterized, can't generate")
-            self.generated = False
-            return False
-        return True
+    # def can_generate(self):
+    #     """Check if the pattern has been correctly paramterized.
+    #
+    #     :return: Can generate
+    #     :rtype: bool
+    #     """
+    #
+    #     if not self.parameterized:
+    #         output.error("Pattern is not parameterized, can't generate")
+    #         self.generated = False
+    #         return False
+    #     return True
 
     # FRAME FUNCTIONS
 
