@@ -26,11 +26,11 @@ import numpy as np
 class PatternLinear(pattern_base.Pattern):
     _alias_ = 'linear'
 
-    def __init__(self, base_params, points=0, step_size=0, length=0, axis='x'):
+    def __init__(self, base_params, num_points=0, step_size=0, length=0, axis='x'):
         super(PatternLinear, self).__init__(**base_params)
 
         try:
-            self.input = handle_input_1d(points, step_size, length)
+            self.input = handle_input_1d(num_points, step_size, length)
         except TypeError as error:
             print(error)
 

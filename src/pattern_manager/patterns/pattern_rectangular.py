@@ -26,12 +26,12 @@ import geometry_msgs.msg as gm
 class PatternRectangular(pattern_base.Pattern):
     _alias_ = 'rectangular'
 
-    def __init__(self, base_params, points=(0, 0), step=(0.0, 0.0), length=(0.0, 0.0)):
+    def __init__(self, base_params, num_points=(0, 0), step_sizes=(0.0, 0.0), lengths=(0.0, 0.0)):
         super(PatternRectangular, self).__init__(**base_params)
 
         try:
-            self.inputX = handle_input_1d(points[0], step[0], length[0])
-            self.inputY = handle_input_1d(points[1], step[1], length[1])
+            self.inputX = handle_input_1d(num_points[0], step_sizes[0], lengths[0])
+            self.inputY = handle_input_1d(num_points[1], step_sizes[1], lengths[1])
         except TypeError as error:
             print(error)
 
