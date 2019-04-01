@@ -39,20 +39,20 @@ class PatternFactory:
 
 
 class PatternManager(object):
-    _patterns = {}  # dict of patterns
+    # _patterns = {}  # dict of patterns
     _fitters = {}  # ICP pattern fitters corresponding to pattern ID
-    _patterns_are_grouped = True  # whether or not all patterns are grouped (i.e. if the iterator overflows to next pattern or not)
-    _active_pattern = 0  # index of last pattern used
+    # _patterns_are_grouped = True  # whether or not all patterns are grouped (i.e. if the iterator overflows to next pattern or not)
+    # _active_pattern = 0  # index of last pattern used
     _factory = PatternFactory()
     _layers = {}
 
     def __init__(self, grouped_patterns=True):
-        self.set_grouped_patterns(grouped_patterns)
+        # self.set_grouped_patterns(grouped_patterns)
         self.loader = PluginLoader(group='patterns')
-        self._load_plugins()
+        self._load_patterns()
         self.i = 0
 
-    def _load_plugins(self):
+    def _load_patterns(self):
         for k in self.loader.plugins['pattern'].keys():
             self._factory.register_pattern_type(k, self.loader.get_plugin('pattern', k))
 
@@ -81,117 +81,93 @@ class PatternManager(object):
 
         self.add_pattern(pattern, layer, group_id)
 
-    def get_pattern_count(self):
-        return len(self._patterns)
-
-    def set_grouped_patterns(self, grouped):
-        self._patterns_are_grouped = grouped
-
-    def get_pattern_indices(self):
-        return self._patterns.keys()
+    # def get_pattern_indices(self):
+    #     return self._patterns.keys()
 
     # Inidvidual pattern access
 
-    def is_pattern_finished(self, pattern_index):
-        return self._patterns[pattern_index].is_finished()
+    # def is_pattern_finished(self, pattern_index):
+    #     return self._patterns[pattern_index].is_finished()
 
-    def reset_pattern(self, pattern_index):
-        return self._patterns[pattern_index].reset_pattern()
+    # def reset_pattern(self, pattern_index):
+    #     return self._patterns[pattern_index].reset_pattern()
 
-    def get_iterator(self, pattern_index):
-        return self._patterns[pattern_index].get_iterator()
+    # def get_iterator(self, pattern_index):
+    #     return self._patterns[pattern_index].get_iterator()
 
-    def set_iterator(self, pattern_index, iterator):
-        self._patterns[pattern_index].set_iterator(iterator)
+    # def set_iterator(self, pattern_index, iterator):
+    #     self._patterns[pattern_index].set_iterator(iterator)
 
-    def is_reverse_iteration(self, pattern_index):
-        return self._patterns[pattern_index].is_reverse_iteration()
+    # def is_reverse_iteration(self, pattern_index):
+    #     return self._patterns[pattern_index].is_reverse_iteration()
 
-    def set_reverse_iteration(self, pattern_index, reverse):
-        return self._patterns[pattern_index].set_reverse_iteration(reverse)
+    # def set_reverse_iteration(self, pattern_index, reverse):
+    #     return self._patterns[pattern_index].set_reverse_iteration(reverse)
 
-    def get_pattern_size(self, pattern_index):
-        return self._patterns[pattern_index].get_pattern_size()
+    # def get_pattern_size(self, pattern_index):
+    #     return self._patterns[pattern_index].get_pattern_size()
 
-    def get_pattern_frame_id(self, pattern_index):
-        return self._patterns[pattern_index].get_pattern_frame_id()
+    # def get_pattern_frame_id(self, pattern_index):
+    #     return self._patterns[pattern_index].get_pattern_frame_id()
 
-    def get_pattern_name(self, pattern_index):
-        return self._patterns[pattern_index].get_pattern_name()
+    # def get_pattern_name(self, pattern_index):
+    #     return self._patterns[pattern_index].get_pattern_name()
 
-    def set_pattern_name(self, pattern_index, new_name):
-        return self._patterns[pattern_index].set_pattern_name(new_name)
+    # def set_pattern_name(self, pattern_index, new_name):
+    #     return self._patterns[pattern_index].set_pattern_name(new_name)
 
-    def get_pattern(self, pattern_index):
-        return self._patterns[pattern_index]._pattern
+    # def get_pattern(self, pattern_index):
+    #     return self._patterns[pattern_index]._pattern
 
-    def get_current_tf_in_pattern(self, pattern_index):
-        return self._patterns[pattern_index].get_current_tf()
+    # def get_current_tf_in_pattern(self, pattern_index):
+    #     return self._patterns[pattern_index].get_current_tf()
 
     # smart pattern interaction using extra classes
-    def update_pattern(self, pattern_index, poses, fit_input_to_pattern, overwrite_orientation):
-        print "%s input poses" % len(poses)
-        if fit_input_to_pattern:
-            # only create the pattern fitter when we need it
-            if pattern_index not in self._fitters:
-                self._fitters[pattern_index] = pattern_fitter.PatternFitter(self._patterns[pattern_index])
-        self._fitters[pattern_index].update_pattern(poses, fit_input_to_pattern, overwrite_orientation)
-        self._patterns[pattern_index] = self._fitters[pattern_index].get_updated_pattern()
-        return True
+    # def update_pattern(self, pattern_index, poses, fit_input_to_pattern, overwrite_orientation):
+    #     print "%s input poses" % len(poses)
+    #     if fit_input_to_pattern:
+    #         # only create the pattern fitter when we need it
+    #         if pattern_index not in self._fitters:
+    #             self._fitters[pattern_index] = pattern_fitter.PatternFitter(self._patterns[pattern_index])
+    #     self._fitters[pattern_index].update_pattern(poses, fit_input_to_pattern, overwrite_orientation)
+    #     self._patterns[pattern_index] = self._fitters[pattern_index].get_updated_pattern()
+    #     return True
 
-    # internal manager functions
+    # def get_pattern_by_name(self, layer, group_id, pattern_name):
+    #     try:
+    #         patterns = []
+    #         for p in self._layers[layer][group_id].keys():
+    #             if p == pattern_name:
+    #                 patterns.append(self._layers[layer][group_id][p])
+            
+    #         return patterns
+    #     except KeyError:
+    #         print 'error: pattern group does not exist'
+    #         return False
 
-    def find_pattern_by_name(self, name, exact_match=True):
-        indices = self.get_pattern_indices()
-        matches = []
-        for i in indices:
-            p_name = self.get_pattern_name(i)
-            if exact_match:
-                if p_name == name:
-                    matches.append(i)
-            else:
-                if name.lower() in p_name.lower():
-                    matches.append(i)
-        if len(matches) == 0:  # no matches
-            return False
-        elif len(matches) == 1:  # one match
-            return matches[0]
-        else:  # multiple matches
-            finished = [self.is_pattern_finished(i) for i in matches]
-            unstarted = [self.get_iterator(i) == 0 for i in matches]
-            if all(finished) or all(unstarted):
-                return matches[0]
-            else:
-                processing = [((not finished[i]) and (not unstarted[i])) for i in range(len(matches))]
-                if True in processing:
-                    # TODO: don't just return the first match?
-                    return matches[processing.index(True)]
-                else:
-                    return matches[unstarted.index(True)]
+    # def set_active_pattern(self, pattern_index):
+    #     if pattern_index in self._patterns.keys():
+    #         self._active_pattern = pattern_index
+    #         return True
+    #     else:
+    #         return False
 
-    def set_active_pattern(self, pattern_index):
-        if pattern_index in self._patterns.keys():
-            self._active_pattern = pattern_index
-            return True
-        else:
-            return False
+    # def sorted_pattern_ids(self):
+    #     return sorted(self._patterns.keys())
 
-    def sorted_pattern_ids(self):
-        return sorted(self._patterns.keys())
-
-    def get_current_pattern(self):
-        # not using groups?
-        if not self._patterns_are_grouped:
-            return self._active_pattern, self._patterns[self._active_pattern]
-        # we're currently working on a pattern
-        if not self.is_pattern_finished(self._active_pattern):
-            return self._active_pattern, self._patterns[self._active_pattern]
-        # get first available unfinished pattern
-        (k, p) = self.get_first_unfinished_pattern()
-        if k is False:
-            return k, p
-        # if all patterns are finished
-        return self._active_pattern, self._patterns[self._active_pattern]
+    # def get_current_pattern(self):
+    #     # not using groups?
+    #     if not self._patterns_are_grouped:
+    #         return self._active_pattern, self._patterns[self._active_pattern]
+    #     # we're currently working on a pattern
+    #     if not self.is_pattern_finished(self._active_pattern):
+    #         return self._active_pattern, self._patterns[self._active_pattern]
+    #     # get first available unfinished pattern
+    #     (k, p) = self.get_first_unfinished_pattern()
+    #     if k is False:
+    #         return k, p
+    #     # if all patterns are finished
+    #     return self._active_pattern, self._patterns[self._active_pattern]
 
     def get_first_unfinished_pattern(self):
         # get first available unfinished pattern
