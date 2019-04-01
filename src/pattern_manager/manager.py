@@ -20,7 +20,7 @@
 # import pattern_manager.pattern_fitter as pattern_fitter
 from pluginlib import PluginLoader
 from pattern_manager.patterns import pattern_base
-
+from pattern_manager.containers import PatternGroup
 
 class PatternFactory:
     def __init__(self):
@@ -50,41 +50,36 @@ class PatternManager(object):
         self.set_grouped_patterns(grouped_patterns)
         self.loader = PluginLoader(group='patterns')
         self._load_plugins()
+        self.i = 0
 
     def _load_plugins(self):
         for k in self.loader.plugins['pattern'].keys():
             self._factory.register_pattern_type(k, self.loader.get_plugin('pattern', k))
 
-    def add_pattern(self, pattern):
-        if len(self._patterns) == 0:
-            i = 0
+    def add_pattern(self, pattern, layer, group_id):
+        if layer in self._layers:
+            if group_id in self._layers[layer].keys():
+                self._layers[layer][group_id].add_pattern(pattern)
+            else:
+                self._layers[layer][group_id] = PatternGroup(pattern)
         else:
-            i = max(self._patterns.keys()) + 1
-        self._patterns[i] = pattern
-        return i
+            self._layers[layer] = {group_id: PatternGroup(pattern)}
 
-    def remove_pattern(self, pattern_index):
-        del self._patterns[pattern_index]
+    def remove_pattern(self, pattern, layer, group_id):
+        try:
+            self._layers[layer][group_id].remove_pattern(pattern)
+            return True
+        except KeyError:
+            print 'error: pattern not found'
+            return False
 
-    def create_pattern_from_dict(self, pattern_type, pattern_params, base_params, group_id, layer):
+    def create_pattern_from_dict(self, pattern_type, pattern_params, base_params):
+        layer = 0 if 'layer' not in base_params.keys() else base_params.pop('layer')
+        group_id = 0 if 'group_id' not in base_params.keys() else base_params.pop('group_id')
+
         pattern = self._factory.get_pattern(pattern_type, base_params, pattern_params)
 
-        if layer in self._layers:
-            if group_id in self._layers[layer]:
-                self._layers[layer][group_id].append(pattern)
-            else:
-                self._layers[layer][group_id] = [pattern]
-        else:
-            self._layers[layer] = {group_id : [pattern]}
-
-        return pattern
-
-    # def create_child_pattern(self, pattern_dict, child_dict, name_suffix=""):
-    #     child_args = child_dict
-    #     child_args['frame_id'] = pattern_dict['frame_id']
-    #     child_args['pattern_name'] = pattern_dict['pattern_name'] + name_suffix
-    #     p = self.create_pattern_from_dict(child_args)
-    #     return p
+        self.add_pattern(pattern, layer, group_id)
 
     def get_pattern_count(self):
         return len(self._patterns)
@@ -249,13 +244,31 @@ if __name__ == '__main__':
     man = PatternManager()
     linear_d = {
         'pattern_type': 'linear',
-        'layer': 0,
-        'group_id': 0,
         'pattern_params': {
             'step_size': 0.1,
             'num_points': 3
         },
         'base_params': {
+            'layer': 0,
+            'group_id': 0,
+            'i': 0,
+            'name': 'cheese_linear',
+            'rev': False,
+            'frame': 'base_link',
+            'offset_xy': [0.5, 0.3],
+            'offset_rot': 0.2,
+        }
+    }
+
+    linear_d2 = {
+        'pattern_type': 'linear',
+        'pattern_params': {
+            'step_size': 0.1,
+            'num_points': 3
+        },
+        'base_params': {
+            'layer': 0,
+            'group_id': 0,
             'i': 0,
             'name': 'cheese_linear',
             'rev': False,
@@ -267,13 +280,13 @@ if __name__ == '__main__':
 
     rect_d = {
         'pattern_type': 'rectangular',
-        'layer': 0,
-        'group_id': 0,
         'pattern_params': {
             'num_points': (3, 2),
             'step_sizes': (0.1, 0.1),
         },
         'base_params': {
+            'layer': 0,
+            'group_id': 1,
             'i': 0,
             'name': 'cheese_rect',
             'rev': False,
@@ -283,8 +296,6 @@ if __name__ == '__main__':
 
     scatter_d = {
         'pattern_type': 'scatter',
-        'layer': 1,
-        'group_id': 1,
         'pattern_params': {
             'point_list':
                 [
@@ -300,6 +311,8 @@ if __name__ == '__main__':
                 ]
         },
         'base_params': {
+            'layer': 1,
+            'group_id': 1,
             'i': 0,
             'name': 'cheese_scatter',
             'rev': False,
@@ -309,13 +322,13 @@ if __name__ == '__main__':
 
     circle_d = {
         'pattern_type': 'circular',
-        'layer': 1,
-        'group_id': 2,
         'pattern_params': {
             'r': 0.5,
             'num_points': 4,
         },
         'base_params': {
+            'layer': 1,
+            'group_id': 1,
             'i': 0,
             'name': 'cheese_circle',
             'rev': False,
@@ -326,40 +339,33 @@ if __name__ == '__main__':
     pat_linear = man.create_pattern_from_dict(
         linear_d['pattern_type'],
         linear_d['pattern_params'],
-        linear_d['base_params'],
-        linear_d['group_id'],
-        linear_d['layer']
+        linear_d['base_params']
+    )
+
+    pat_linear2 = man.create_pattern_from_dict(
+        linear_d2['pattern_type'],
+        linear_d2['pattern_params'],
+        linear_d2['base_params']
     )
 
     pat_rect = man.create_pattern_from_dict(
         rect_d['pattern_type'],
         rect_d['pattern_params'],
-        rect_d['base_params'],
-        rect_d['group_id'],
-        rect_d['layer']
+        rect_d['base_params']
     )
 
     pat_scatter = man.create_pattern_from_dict(
         scatter_d['pattern_type'],
         scatter_d['pattern_params'],
-        scatter_d['base_params'],
-        scatter_d['group_id'],
-        scatter_d['layer']
+        scatter_d['base_params']
     )
 
     pat_circle = man.create_pattern_from_dict(
         circle_d['pattern_type'],
         circle_d['pattern_params'],
-        circle_d['base_params'],
-        circle_d['group_id'],
-        circle_d['layer']
+        circle_d['base_params']
     )
 
-    pat_list = [pat_linear, pat_rect, pat_scatter, pat_circle]
+    pat_list = [pat_linear, pat_linear2, pat_rect, pat_scatter, pat_circle]
 
-    for layer in man._layers.keys():
-        print 'layer:', layer
-        for group in man._layers[layer].keys():
-            print '  group:', group
-            for pattern in man._layers[layer][group]:
-                print '    ', pattern.pattern_name
+    
