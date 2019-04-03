@@ -29,41 +29,52 @@ from math import cos, sin, pi
 class PatternCircular(pattern_base.Pattern):
     _alias_ = 'circular'
 
-    def set_pattern_parameters(self, radius=0.0, number_of_points=0, tangent_rotation=False, clockwise=False, angular_section=0.0):
-        if radius == 0.0:
-            utils.output.error("A radius of 0 is specified, can't define this circular pattern")
-            return False
-        if number_of_points == 0:
-            utils.output.error("Number of points is 0, can't define this circular pattern")
-            return False
-        self._radius = radius
-        self._num_points = number_of_points
-        self._tan_rot = tangent_rotation
-        if angular_section == 0 or abs(angular_section - 2 * pi) < 0.01:
-            self._ang_sec = 2 * pi
-        else:
-            self._ang_sec = angular_section
-            utils.output.debug("Creating an angular section of %srad" % self._ang_sec)
-        self._cw = clockwise
-        if self._cw:
-            utils.output.debug("Clockwise rotation specified")
-        if self._tan_rot:
-            utils.output.debug("Rotation will follow tangent of circle")
-        self.parameterized = True
-        return True
+    def __init__(self, base_params, r=0.0, num_points=0, tan_rot=False, cw=False, angular_section=0.0):
+        super(PatternCircular, self).__init__(**base_params)
 
-    def generate_pattern(self):
+        if abs(r) > 0:
+            if num_points > 0:
+                self._radius = r
+                self._num_points = num_points
+                self._tan_rot = tan_rot
+
+                if angular_section == 0 or abs(angular_section - 2 * pi) < 0.01:
+                    self._ang_sec = 2 * pi
+                else:
+                    self._ang_sec = angular_section
+                    utils.output.debug("Creating an angular section of %srad" % self._ang_sec)
+
+                self._cw = cw
+                if self._cw:
+                    utils.output.debug("Clockwise rotation specified")
+
+                if self._tan_rot:
+                    utils.output.debug("Rotation will follow tangent of circle")
+
+                self._parameterized = True
+                self._generate_pattern()
+            else:
+                utils.output.error("Number of points is 0, can't define this circular pattern")
+        else:
+            utils.output.error("A radius of 0 is specified, can't define this circular pattern")
+
+    def _generate_pattern(self):
         angular_resolution = self._ang_sec / self._num_points
+
         if self._cw:
             angular_resolution *= -1
+
         if not self._ang_sec == 2 * pi:
             self._num_points += 1
+
         self._pattern = np.array(np.empty(self._num_points), dtype=gm.Transform)
+            
         for i in range(self._num_points):
             t = gm.Transform()
             t.translation.x = self._radius * cos(i * angular_resolution)
             t.translation.y = self._radius * sin(i * angular_resolution)
             t.translation.z = 0.0
+
             if self._tan_rot:
                 yaw = pi / 2 + i * angular_resolution
                 M = pattern_base.tfs.euler_matrix(0, 0, yaw)
@@ -71,8 +82,11 @@ class PatternCircular(pattern_base.Pattern):
                 t.rotation = q
             else:
                 t.rotation.w = 1.0
+                
             self._pattern[i] = t
             del t
+
         self._pattern_org_copy = np.copy(self._pattern)
         self.finish_generation()
+
         return True

@@ -26,20 +26,23 @@ import numpy as np
 class PatternLinear(pattern_base.Pattern):
     _alias_ = 'linear'
 
-    def __init__(self, base_params, points=0, step_size=0, length=0, axis='x'):
+    def __init__(self, base_params, num_points=0, step_size=0, length=0, axis='x'):
         super(PatternLinear, self).__init__(**base_params)
 
         try:
-            (p, s, l) = handle_input_1d(points, step_size, length)
+            self.input = handle_input_1d(num_points, step_size, length)
         except TypeError as error:
             print(error)
-            return None
 
-        self.parameterized = True
-        self.points = p
-        self.step_size = s
-        self.length = l
-        self.axis = axis
-        self._pattern = frames_along_axis(points, step_size, axis=axis)
-        self.finish_generation()
-        self._pattern_org_copy = np.copy(self._pattern)
+        if self.input is not False:
+            self.points = self.input[0]
+            self.step_size = self.input[1]
+            self.length = self.input[2]
+            self.axis = axis
+            self._parameterized = True
+            self._generate_pattern()
+
+    def _generate_pattern(self):
+            self._pattern = frames_along_axis(self.points, self.step_size, axis='x')
+            self.finish_generation()
+            self._pattern_org_copy = np.copy(self._pattern)

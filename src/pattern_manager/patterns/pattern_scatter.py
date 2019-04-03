@@ -16,7 +16,7 @@
 
 # Author: Mikkel Rath Hansen
 
-from pattern_manager import utils
+from pattern_manager.utils import output
 
 import pattern_base
 import geometry_msgs.msg as gm
@@ -27,25 +27,30 @@ import tf.transformations as tfs
 class PatternScatter(pattern_base.Pattern):
     _alias_ = 'scatter'
 
-    _input_points = None
+    def __init__(self, base_params, point_list):
+        super(PatternScatter, self).__init__(**base_params)
+        
+        self.input_points = []
+        if type(point_list) == list:
+            for p in point_list:
+                if type(p) == list:
+                    self.input_points.append(p)
+                else:
+                    output.error("Single input point is not a list")
+        else:
+            output.error("Point input is not a list of points")
 
-    def set_pattern_parameters(self, point_list):
-        if not type(point_list) == list:
-            utils.output.error("Point input is not a list of points")
-            return False
-        self._input_points = []
-        for p in point_list:
-            if not type(p) == list:
-                utils.output.error("Single input point is not a list")
-                return False
-            self._input_points.append(p)
-        self.parameterized = True
-        return True
+        if len(self.input_points) > 0:
+            self._parameterized = True
+            self._generate_pattern()
+        else:
+            output.error("Scatter point list is empty")
 
-    def generate_pattern(self):
-        self._pattern = np.array(np.empty(len(self._input_points)), dtype=gm.Transform)
+    def _generate_pattern(self):
+        self._pattern = np.array(np.empty(len(self.input_points)), dtype=gm.Transform)
+
         i = 0
-        for p in self._input_points:
+        for p in self.input_points:
             t = gm.Transform()
             if len(p) == 3:
                 # it's just a coordinate
@@ -64,18 +69,12 @@ class PatternScatter(pattern_base.Pattern):
                 t.rotation.z = q[2]
                 t.rotation.w = q[3]
             else:
-                utils.output.error("Incorrect point length (%s), aborting pattern generation" % len(p))
+                output.error("Incorrect point length (%s), aborting pattern generation" % len(p))
                 return False
             self._pattern[i] = t
             i += 1
-        self._pattern_org_copy = np.copy(self._pattern)
+
         self.finish_generation()
+        self._pattern_org_copy = np.copy(self._pattern)
+
         return True
-
-
-def main():
-    print('I\'m a linear plugin')
-
-
-if __name__ == '__main__':
-    main()

@@ -1,0 +1,13 @@
+pattern_type: 'linear'
+base_params:
+  frame_id: 'base_link'
+  pattern_name: 'cheese'
+  pattern_type: 'linear'
+  start_at: 0
+  reverse_iteration: False
+  offset_xy: [0.5, 0.3]
+  offset_rot: 0.2
+pattern_params:
+  number_of_points: 3
+  step_size: 0.1
+  axis: 'x'

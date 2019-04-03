@@ -16,55 +16,40 @@
 
 # Author: Mikkel Rath Hansen
 
-from .. import utils
+from pattern_manager.utils import frames_along_axis, handle_input_1d
 
 import pattern_base
 import numpy as np
+import geometry_msgs.msg as gm
 
 
 class PatternRectangular(pattern_base.Pattern):
     _alias_ = 'rectangular'
 
-    _points = (0, 0)
-    _step_size = (0.0, 0.0)
-    _length = (0.0, 0.0)
+    def __init__(self, base_params, num_points=(0, 0), step_sizes=(0.0, 0.0), lengths=(0.0, 0.0)):
+        super(PatternRectangular, self).__init__(**base_params)
 
-    def set_pattern_parameters(self, points_x=0, points_y=0, step_x=0, step_y=0, len_x=0, len_y=0):
         try:
-            (px, sx, lx) = utils.handle_input_1d(points_x, step_x, len_x)
-            (py, sy, ly) = utils.handle_input_1d(points_y, step_y, len_y)
-        except TypeError:
-            return False
-        self._points = (px, py)
-        self._step_size = (sx, sy)
-        self._length = (lx, ly)
-        self.parameterized = True
-        return True
+            self.inputX = handle_input_1d(num_points[0], step_sizes[0], lengths[0])
+            self.inputY = handle_input_1d(num_points[1], step_sizes[1], lengths[1])
+        except TypeError as error:
+            print(error)
 
-    def generate_pattern(self):
-        if not self.can_generate():
-            return False
-        # pattern is x-major, numpy is row-major
-        self._pattern = np.array(np.empty((self._points[0], self._points[1])), dtype=gm.Transform)
-        #print self._pattern
-        x_pattern = utils.frames_along_axis(self._points[0],
-                                      self._step_size[0],
-                                      axis='x')
-        for x in range(self._points[0]):
-            y_pattern = utils.frames_along_axis(self._points[1],
-                                          self._step_size[1],
-                                          basis_frame=x_pattern[x],
-                                          axis='y')
-            self._pattern[x,:] = y_pattern
-            del y_pattern
-        self.finish_generation()
-        self._pattern_org_copy = np.copy(self._pattern)
-        return True
+        if self.inputX is not False and self.inputY is not False:
+            self.points = (self.inputX[0], self.inputY[0])
+            self.step_size = (self.inputX[1], self.inputY[1])
+            self.length = (self.inputX[2], self.inputY[2])
+            self._parameterized = True
+            self._generate_pattern()
 
+    def _generate_pattern(self):
+            self._pattern = np.array(np.empty((self.points[0], self.points[1])), dtype=gm.Transform)
+            x_pattern = frames_along_axis(self.points[0], self.step_size[0], axis='x')
 
-def main():
-    print('I\'m a linear plugin')
+            for x in range(self.points[0]):
+                y_pattern = frames_along_axis(self.points[1], self.step_size[1], basis_frame=x_pattern[x], axis='y')
+                self._pattern[x, :] = y_pattern
+                del y_pattern
 
-
-if __name__ == '__main__':
-    main()
+            self.finish_generation()
+            self._pattern_org_copy = np.copy(self._pattern)
