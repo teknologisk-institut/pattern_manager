@@ -21,6 +21,8 @@
 from pluginlib import PluginLoader
 from pattern_manager.patterns import pattern_base
 from pattern_manager.containers import PatternGroup
+from pattern_manager.containers import PatternLayer
+
 
 class PatternFactory:
     def __init__(self):
@@ -40,35 +42,15 @@ class PatternFactory:
 
 class PatternManager(object):
     _factory = PatternFactory()
-    _layers = {}
-    _group_iterator = 0
-    _active_group = ''
 
     def __init__(self, grouped_patterns=True):
         self.loader = PluginLoader(group='patterns')
-        self._load_patterns()
-        self.i = 0
+        self._load_pattern_types()
+        self.layers = {}
 
-    def _load_patterns(self):
+    def _load_pattern_types(self):
         for k in self.loader.plugins['pattern'].keys():
             self._factory.register_pattern_type(k, self.loader.get_plugin('pattern', k))
-
-    def add_pattern(self, pattern, layer, group_id):
-        if layer in self._layers:
-            if group_id in self._layers[layer].keys():
-                self._layers[layer][group_id].add_pattern(pattern)
-            else:
-                self._layers[layer][group_id] = PatternGroup(pattern)
-        else:
-            self._layers[layer] = {group_id: PatternGroup(pattern)}
-
-    def remove_pattern(self, pattern, layer, group_id):
-        try:
-            self._layers[layer][group_id].remove_pattern(pattern)
-            return True
-        except KeyError:
-            print 'error: pattern not found'
-            return False
 
     def create_pattern_from_dict(self, pattern_type, pattern_params, base_params):
         layer = 0 if 'layer' not in base_params.keys() else base_params.pop('layer')
@@ -76,29 +58,14 @@ class PatternManager(object):
 
         pattern = self._factory.get_pattern(pattern_type, base_params, pattern_params)
 
-        self.add_pattern(pattern, layer, group_id)
-
-    def set_active_group(self, layer, group_id):
-        if group_id in self._layers[layer].keys():
-            self._active_group = group_id
-            return True
+        if layer in self.layers.keys():
+            if group_id in self.layers[layer].groups:
+                self.layers[layer].groups[group_id].add_pattern(pattern)
+            else:
+                self.layers[layer].groups[group_id] = PatternGroup(pattern)
         else:
-            return False
-
-    def get_current_group(self, layer):
-        try:
-            (i, g) = self._active_group, self._layers[layer][self._active_group]
-            return (i, g)
-        except KeyError:
-            return False
-
-    def get_group(self, layer, group_id):
-        try:
-            g = self._layers[layer][group_id]
-            return g
-        except KeyError:
-            return False
-
+            self.layers[layer] = PatternLayer(PatternGroup(pattern), group_id)
+            
 
 if __name__ == '__main__':
     man = PatternManager()
@@ -226,9 +193,11 @@ if __name__ == '__main__':
         circle_d['base_params']
     )
 
-    for k in man._layers.keys():
-        print 'layer: {}'.format(k)
-        for g in man._layers[k].keys():
+    for l in man.layers.keys():
+        print 'layer: {}'.format(l)
+        for g in man.layers[l].groups.keys():
             print '  group: {}'.format(g)
-            for p in man._layers[k][g].patterns.keys():
-                print '    pattern {}: {}'.format(p, man._layers[k][g].patterns[p].pattern_name)
+            for p in man.layers[l].groups[g].patterns.keys():
+                print '    pattern {}: {}'.format(p, man.layers[l].groups[g].patterns[p].pattern_name)
+                for c in man.layers[l].groups[g].patterns[p]._pattern:
+                    print '      point: {}, {}, {}'.format(c.translation.x, c.translation.y, c.translation.z)
