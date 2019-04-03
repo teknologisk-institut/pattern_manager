@@ -16,12 +16,9 @@
 
 # Author: Mikkel Rath Hansen
 
-# from patterns import PatternLinear, PatternRectangular, PatternScatter
-# import pattern_manager.pattern_fitter as pattern_fitter
 from pluginlib import PluginLoader
 from pattern_manager.patterns import pattern_base
-from pattern_manager.containers import PatternGroup
-from pattern_manager.containers import PatternLayer
+from pattern_manager.collection import PatternGroup
 
 
 class PatternFactory:
@@ -58,17 +55,24 @@ class PatternManager(object):
 
         pattern = self._factory.get_pattern(pattern_type, base_params, pattern_params)
 
+        g = PatternGroup()
         if layer in self.layers.keys():
-            if group_id in self.layers[layer].groups:
-                self.layers[layer].groups[group_id].add_pattern(pattern)
+            if group_id in self.layers[layer].elements.keys():
+                g = self.layers[layer].elements[group_id]
+                g.add_element(pattern, g.element_count(), pattern.pattern_name)
             else:
-                self.layers[layer].groups[group_id] = PatternGroup(pattern)
+                g.add_element(pattern, 0, pattern.pattern_name)
+                self.layers[layer].elements[group_id] = g
         else:
-            self.layers[layer] = PatternLayer(PatternGroup(pattern), group_id)
+            g.add_element(pattern, 0, pattern.pattern_name)
+            l = PatternGroup()
+            l.add_element(g, group_id)
+            self.layers[layer] = l
             
 
 if __name__ == '__main__':
     man = PatternManager()
+
     linear_d = {
         'pattern_type': 'linear',
         'pattern_params': {
@@ -163,41 +167,27 @@ if __name__ == '__main__':
         }
     }
 
-    pat_linear = man.create_pattern_from_dict(
-        linear_d['pattern_type'],
-        linear_d['pattern_params'],
-        linear_d['base_params']
-    )
+    pat_dict_list = [linear_d, linear_d2, rect_d, scatter_d, circle_d]
 
-    pat_linear2 = man.create_pattern_from_dict(
-        linear_d2['pattern_type'],
-        linear_d2['pattern_params'],
-        linear_d2['base_params']
-    )
-
-    pat_rect = man.create_pattern_from_dict(
-        rect_d['pattern_type'],
-        rect_d['pattern_params'],
-        rect_d['base_params']
-    )
-
-    pat_scatter = man.create_pattern_from_dict(
-        scatter_d['pattern_type'],
-        scatter_d['pattern_params'],
-        scatter_d['base_params']
-    )
-
-    pat_circle = man.create_pattern_from_dict(
-        circle_d['pattern_type'],
-        circle_d['pattern_params'],
-        circle_d['base_params']
-    )
+    for d in pat_dict_list:
+        man.create_pattern_from_dict(
+            d['pattern_type'],
+            d['pattern_params'],
+            d['base_params']
+        )
 
     for l in man.layers.keys():
         print 'layer: {}'.format(l)
-        for g in man.layers[l].groups.keys():
+        for g in man.layers[l].elements.keys():
             print '  group: {}'.format(g)
-            for p in man.layers[l].groups[g].patterns.keys():
-                print '    pattern {}: {}'.format(p, man.layers[l].groups[g].patterns[p].pattern_name)
-                for c in man.layers[l].groups[g].patterns[p]._pattern:
-                    print '      point: {}, {}, {}'.format(c.translation.x, c.translation.y, c.translation.z)
+            for p in man.layers[l].elements[g].elements.keys():
+                print '    pattern {}: {}:'.format(p, man.layers[l].elements[g].names[p])
+                for c in man.layers[l].elements[g].elements[p]._pattern:
+                    print '      point: {}, {}, {}\n      rotation: {}, {}, {}, {}'.format(
+                        c.translation.x, 
+                        c.translation.y,
+                        c.translation.z,
+                        c.rotation.w, 
+                        c.rotation.x,
+                        c.rotation.y,
+                        c.rotation.z)

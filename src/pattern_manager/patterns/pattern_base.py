@@ -176,13 +176,13 @@ class Pattern(object):
     def generated(self, g):
         self._generated = g
 
-    @property
-    def parameterized(self):
-        return self._parameterized
+    # @property
+    # def parameterized(self):
+    #     return self._parameterized
 
-    @parameterized.setter
-    def parameterized(self, parameterized):
-        self._parameterized = parameterized
+    # @parameterized.setter
+    # def parameterized(self, parameterized):
+    #     self._parameterized = parameterized
 
     # def can_generate(self):
     #     """Check if the pattern has been correctly paramterized.
