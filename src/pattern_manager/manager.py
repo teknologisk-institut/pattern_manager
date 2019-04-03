@@ -41,6 +41,8 @@ class PatternFactory:
 class PatternManager(object):
     _factory = PatternFactory()
     _layers = {}
+    _group_iterator = 0
+    _active_group = ''
 
     def __init__(self, grouped_patterns=True):
         self.loader = PluginLoader(group='patterns')
@@ -75,6 +77,27 @@ class PatternManager(object):
         pattern = self._factory.get_pattern(pattern_type, base_params, pattern_params)
 
         self.add_pattern(pattern, layer, group_id)
+
+    def set_active_group(self, layer, group_id):
+        if group_id in self._layers[layer].keys():
+            self._active_group = group_id
+            return True
+        else:
+            return False
+
+    def get_current_group(self, layer):
+        try:
+            (i, g) = self._active_group, self._layers[layer][self._active_group]
+            return (i, g)
+        except KeyError:
+            return False
+
+    def get_group(self, layer, group_id):
+        try:
+            g = self._layers[layer][group_id]
+            return g
+        except KeyError:
+            return False
 
 
 if __name__ == '__main__':
@@ -203,6 +226,9 @@ if __name__ == '__main__':
         circle_d['base_params']
     )
 
-    pat_list = [pat_linear, pat_linear2, pat_rect, pat_scatter, pat_circle]
-
-    
+    for k in man._layers.keys():
+        print 'layer: {}'.format(k)
+        for g in man._layers[k].keys():
+            print '  group: {}'.format(g)
+            for p in man._layers[k][g].patterns.keys():
+                print '    pattern {}: {}'.format(p, man._layers[k][g].patterns[p].pattern_name)
