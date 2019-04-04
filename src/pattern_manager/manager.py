@@ -49,9 +49,10 @@ class PatternManager(object):
         for k in self.loader.plugins['pattern'].keys():
             self._factory.register_pattern_type(k, self.loader.get_plugin('pattern', k))
 
-    def create_pattern_from_dict(self, pattern_type, pattern_params, base_params):
+    def create_pattern_from_dict(self, pattern_params, base_params):
         layer = 0 if 'layer' not in base_params.keys() else base_params.pop('layer')
         group_id = 0 if 'group_id' not in base_params.keys() else base_params.pop('group_id')
+        pattern_type = pattern_params.pop('pattern_type')
 
         pattern = self._factory.get_pattern(pattern_type, base_params, pattern_params)
 
@@ -74,8 +75,8 @@ if __name__ == '__main__':
     man = PatternManager()
 
     linear_d = {
-        'pattern_type': 'linear',
         'pattern_params': {
+            'pattern_type': 'linear',
             'step_size': 0.1,
             'num_points': 3
         },
@@ -92,8 +93,8 @@ if __name__ == '__main__':
     }
 
     linear_d2 = {
-        'pattern_type': 'linear',
         'pattern_params': {
+            'pattern_type': 'linear',
             'step_size': 0.1,
             'num_points': 3
         },
@@ -110,8 +111,8 @@ if __name__ == '__main__':
     }
 
     rect_d = {
-        'pattern_type': 'rectangular',
         'pattern_params': {
+            'pattern_type': 'rectangular',
             'num_points': (3, 2),
             'step_sizes': (0.1, 0.1),
         },
@@ -126,8 +127,8 @@ if __name__ == '__main__':
     }
 
     scatter_d = {
-        'pattern_type': 'scatter',
         'pattern_params': {
+            'pattern_type': 'scatter',
             'point_list':
                 [
                     [1.0, 1.0, 1.0],
@@ -152,8 +153,9 @@ if __name__ == '__main__':
     }
 
     circle_d = {
-        'pattern_type': 'circular',
+        
         'pattern_params': {
+            'pattern_type': 'circular',
             'r': 0.5,
             'num_points': 4,
         },
@@ -171,7 +173,6 @@ if __name__ == '__main__':
 
     for d in pat_dict_list:
         man.create_pattern_from_dict(
-            d['pattern_type'],
             d['pattern_params'],
             d['base_params']
         )
