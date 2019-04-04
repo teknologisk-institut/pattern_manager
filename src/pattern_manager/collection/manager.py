@@ -1,7 +1,7 @@
 from bidict import bidict
 
 
-class PatternGroup(object):
+class Manager(object):
     def __init__(self):
         self.elements = {}
         self.names = bidict()

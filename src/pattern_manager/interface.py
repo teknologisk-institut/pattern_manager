@@ -18,7 +18,7 @@
 
 from pluginlib import PluginLoader
 from pattern_manager.patterns import pattern_base
-from pattern_manager.collection import PatternGroup
+from pattern_manager.collection import Manager
 
 
 class PatternFactory:
@@ -37,7 +37,7 @@ class PatternFactory:
         return pattern(base_params, **pattern_params)
 
 
-class PatternManager(object):
+class Interface(object):
     _factory = PatternFactory()
 
     def __init__(self, grouped_patterns=True):
@@ -50,13 +50,13 @@ class PatternManager(object):
             self._factory.register_pattern_type(k, self.loader.get_plugin('pattern', k))
 
     def create_pattern_from_dict(self, pattern_params, base_params):
+        pattern_type = pattern_params.pop('pattern_type')
         layer = 0 if 'layer' not in base_params.keys() else base_params.pop('layer')
         group_id = 0 if 'group_id' not in base_params.keys() else base_params.pop('group_id')
-        pattern_type = pattern_params.pop('pattern_type')
 
         pattern = self._factory.get_pattern(pattern_type, base_params, pattern_params)
 
-        g = PatternGroup()
+        g = Manager()
         if layer in self.layers.keys():
             if group_id in self.layers[layer].elements.keys():
                 g = self.layers[layer].elements[group_id]
@@ -66,13 +66,13 @@ class PatternManager(object):
                 self.layers[layer].elements[group_id] = g
         else:
             g.add_element(pattern, 0, pattern.pattern_name)
-            l = PatternGroup()
+            l = Manager()
             l.add_element(g, group_id)
             self.layers[layer] = l
             
 
 if __name__ == '__main__':
-    man = PatternManager()
+    man = Interface()
 
     linear_d = {
         'pattern_params': {

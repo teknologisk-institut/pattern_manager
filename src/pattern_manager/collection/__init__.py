@@ -1,3 +1,3 @@
 #!/usr/bin/env python
 
-from pattern_group import *
+from manager import *
