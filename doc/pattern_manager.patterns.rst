@@ -12,6 +12,14 @@ pattern_manager.patterns.pattern_base module
     :undoc-members:
     :show-inheritance:
 
+pattern_manager.patterns.pattern_circular module
+------------------------------------------------
+
+.. automodule:: pattern_manager.patterns.pattern_circular
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pattern_manager.patterns.pattern_linear module
 ----------------------------------------------
 

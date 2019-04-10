@@ -19,6 +19,10 @@ import catkin_pkg.package
 catkin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
 catkin_package = catkin_pkg.package.parse_package(os.path.join(catkin_dir, catkin_pkg.package.PACKAGE_MANIFEST_FILENAME))
 
+####
+# document the __init__ function
+autoclass_content = 'both'
+####
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

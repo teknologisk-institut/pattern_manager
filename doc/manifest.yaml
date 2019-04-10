@@ -4,11 +4,11 @@ brief: ''
 bugtracker: ''
 depends:
 - catkin
-- unittest
 - std_msgs
 - python-catkin-pkg
 - rostest
 - rospy
+- rosunit
 - tf
 - geometry_msgs
 description: A ROS-Industrial component for defining, configuring, and using patterns
