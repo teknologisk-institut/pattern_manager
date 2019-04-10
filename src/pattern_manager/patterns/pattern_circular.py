@@ -27,9 +27,31 @@ from math import cos, sin, pi
 
 
 class PatternCircular(pattern_base.Pattern):
+    """A circular pattern, with positions along the perimeter.
+    
+    Pattern is defined by a number of positions along the perimeter of a circle with specified radius. 
+    All positions have the same orientation as the parent frame, and listed in counter-clockwise order.
+
+    Optional parameters allow only having a section of a cirlce (an arc), clockwise direction, rotation following the tangent of the circle, or any combination of these.
+    """
     _alias_ = 'circular'
 
-    def set_pattern_parameters(self, radius=0.0, number_of_points=0, tangent_rotation=False, clockwise=False, angular_section=0.0):
+    def set_pattern_parameters(self, radius=0.0, number_of_points=0, tangent_rotation=False, clockwise=False, angular_section=2*pi):
+        """Set initialisation parameters for this pattern.
+        
+        :param radius: radius of the circular pattern  
+        :param radius: float
+        :param number_of_points: Number of points along the circle
+        :param number_of_points: int
+        :param tangent_rotation: Should the x-axis follow the tangent of the circle, defaults to False
+        :param tangent_rotation: bool, optional
+        :param clockwise: List the positions going clockwise around the circle center, defaults to False
+        :param clockwise: bool, optional
+        :param angular_section: Angular section to define the pattern for in rad, defaults to 2*pi
+        :param angular_section: float, optional
+        :return: Successfully set pattern parameters
+        :rtype: bool
+        """
         if radius == 0.0:
             utils.output.error("A radius of 0 is specified, can't define this circular pattern")
             return False
