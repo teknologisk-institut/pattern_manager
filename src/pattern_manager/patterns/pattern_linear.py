@@ -17,7 +17,7 @@
 # Author: Mikkel Rath Hansen
 
 from __future__ import division
-from .. import utils
+from pattern_manager.utils import handle_input_1d, frames_along_axis
 
 import pattern_base
 import numpy as np
@@ -26,31 +26,23 @@ import numpy as np
 class PatternLinear(pattern_base.Pattern):
     _alias_ = 'linear'
 
-    """ Points along x-axis of origin frame by default """
-    _points = 0
-    _step_size = 0
-    _length = 0
-    _axis = 'x'
+    def __init__(self, base_params, num_points=0, step_size=0, length=0, axis='x'):
+        super(PatternLinear, self).__init__(**base_params)
 
-    def set_pattern_parameters(self, number_of_points=0, step_size=0, line_length=0, axis='x'):
         try:
-            (po, st, le) = utils.handle_input_1d(number_of_points, step_size, line_length)
-        except TypeError:
-            return False
-        self._step_size = st
-        self._points = po
-        self._length = le
-        self._axis = axis
-        self.parameterized = True
-        return True
+            self.input = handle_input_1d(num_points, step_size, length)
+        except TypeError as error:
+            print(error)
 
-    def generate_pattern(self):
-        if not self.can_generate():
-            return False
-        self._pattern = utils.frames_along_axis(self._points,
-                                          self._step_size,
-                                          axis=self._axis)
-        self._pattern_org_copy = np.copy(self._pattern)
-        self.finish_generation()
-        self._pattern_org_copy = np.copy(self._pattern)
-        return True
+        if self.input is not False:
+            self.points = self.input[0]
+            self.step_size = self.input[1]
+            self.length = self.input[2]
+            self.axis = axis
+            self._parameterized = True
+            self._generate_pattern()
+
+    def _generate_pattern(self):
+            self._pattern = frames_along_axis(self.points, self.step_size, axis='x')
+            self.finish_generation()
+            self._pattern_org_copy = np.copy(self._pattern)

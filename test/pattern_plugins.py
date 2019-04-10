@@ -12,8 +12,7 @@ loader = pluginlib.PluginLoader(group='patterns')
 
 class TestPlugins(unittest.TestCase):
     def test_pattern_plugin_keys_exist(self):
-        p = ['linear', 'rectangular', 'scatter']
-        for k in p:
+        for k in ['linear', 'rectangular', 'scatter']:
             self.assertIn(k, loader.plugins['pattern'].keys())
 
     def test_pattern_plugins_exist(self):
