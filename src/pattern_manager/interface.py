@@ -56,6 +56,7 @@ class Interface(object):
         self._factory = PatternFactory()
         self.loader = PluginLoader(group='patterns')
         self._load_pattern_types()
+        self.patterns = {}
         self.groups = {}
 
     def _load_pattern_types(self):
@@ -73,6 +74,12 @@ class Interface(object):
         self.groups[id(manager)] = manager
 
         return id(manager)
+
+    def ungroup(self, id):
+        try:
+            del self.groups[id]
+        except KeyError:
+            return False
 
 
 if __name__ == '__main__':
@@ -163,43 +170,36 @@ if __name__ == '__main__':
 
     interface = Interface()
 
-    pats = []
+    i = 0
     for d in [linear_d, linear_d2, rect_d, scatter_d, circle_d]:
-        pats.append(interface.create_pattern_from_dict(
+        interface.patterns[i] = interface.create_pattern_from_dict(
             d['pattern_params'],
             d['base_params']
-        ))
+        )
+        i += 1
 
-    g1_dict = {
-        0: pats[0],
-        1: pats[1],
-        2: pats[2]
-    }
+    g_id1 = interface.group([
+        interface.patterns[0],
+        interface.patterns[1],
+        interface.patterns[2]]
+    )
 
-    g2_dict = {
-        0: pats[3],
-        1: pats[4]
-    }
-
-    g_id1 = interface.group(g1_dict)
-    g_id2 = interface.group(g2_dict)
+    g_id2 = interface.group([
+        interface.patterns[3],
+        interface.patterns[4]]
+    )
 
     g1 = interface.groups[g_id1]
     g2 = interface.groups[g_id2]
 
     print "group 1 id: {} | length: {}\ngroup 2 id: {} | length: {}".format(
         g_id1,
-        g1.element_count(),
+        g1.names.keys(),
         g_id2,
         g2.element_count()
     )
 
-    g3_dict = {
-        0: g1,
-        1: g2
-    }
-
-    g_id3 = interface.group(g3_dict)
+    g_id3 = interface.group([g1, g2])
 
     g3 = interface.groups[g_id3]
 
@@ -207,3 +207,9 @@ if __name__ == '__main__':
         g_id3,
         g3.element_count()
     )
+
+    print "total groups: {}".format(len(interface.groups))
+
+    interface.ungroup(g_id3)
+
+    print "total groups: {}".format(len(interface.groups))

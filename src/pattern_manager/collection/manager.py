@@ -2,24 +2,19 @@ from bidict import bidict
 
 
 class Manager(object):
-    def __init__(self, elements={}):
+    def __init__(self, elements=[]):
+        self.id = 0
+        
+        for e in elements:
+            self.add_element(e)
+        
         self.elements = elements
-        self.names = bidict()
         self.active_element = 0
         self.iterator = 0
         self.has_finished = False
 
-    def _handle_duplicate_names(self, name):
-        i = 0
-        for n in self.names.values():
-            if n.partition("(")[0] == name:
-                i += 1
-
-        return name if i == 0 else name + '(' + str(i) + ')'
-
-    def add_element(self, element, id=0, name=''):
+    def add_element(self, element):
         self.elements[id] = element
-        self.names[id] = self._handle_duplicate_names(name)
 
     def remove_element(self, id):
         try:
@@ -28,10 +23,10 @@ class Manager(object):
         except KeyError:
             return False
 
-    def get_element_by_name(self, name):
-        if name in self.names.keys():
-            return self.elements[self.names.inverse[name]]
-        else:
+    def pop_element(self, id):
+        try:
+            self.elements.pop(id)
+        except KeyError:
             return False
     
     def set_active_element(self, id):
@@ -41,18 +36,18 @@ class Manager(object):
             return False
         
         return True
-    
-    def get_current_element(self):
-        try:
-            (i, e) = self.elements[self.active_element]
-            return (i, e)
-        except KeyError:
-            return False
-
+   
     def get_element(self, id):
         try:
             e = self.elements[id]
             return e
+        except KeyError:
+            return False
+
+    def get_current_element(self):
+        try:
+            (i, e) = self.elements[self.active_element]
+            return (i, e)
         except KeyError:
             return False
 
@@ -87,9 +82,3 @@ class Manager(object):
 
     def sorted_ids(self):
         return sorted(self.elements.keys())
-
-    def get_element_id(self, name):
-        if name in self.names.values():
-            return self.names.inverse[name]
-        else:
-            return False
