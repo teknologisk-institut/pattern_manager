@@ -2,8 +2,8 @@ from bidict import bidict
 
 
 class Manager(object):
-    def __init__(self):
-        self.elements = {}
+    def __init__(self, elements={}):
+        self.elements = elements
         self.names = bidict()
         self.active_element = 0
         self.iterator = 0
