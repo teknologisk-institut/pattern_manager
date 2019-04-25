@@ -3,18 +3,18 @@ from bidict import bidict
 
 class Manager(object):
     def __init__(self, elements=[]):
-        self.id = 0
-        
-        for e in elements:
-            self.add_element(e)
-        
-        self.elements = elements
+        self.id = 0        
         self.active_element = 0
         self.iterator = 0
         self.has_finished = False
+        self.elements = {}
+        
+        for e in elements:
+            self.add_element(e)
 
     def add_element(self, element):
-        self.elements[id] = element
+        self.id += 1
+        self.elements[self.id] = element
 
     def remove_element(self, id):
         try:
