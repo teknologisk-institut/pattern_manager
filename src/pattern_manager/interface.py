@@ -21,7 +21,7 @@ from pattern_manager.patterns import pattern_base
 from pattern_manager.collection import Manager
 from copy import copy
 
-
+""" Factory for creating the specified pattern object """
 class PatternFactory:
     def __init__(self):
         self._patterns = {}
@@ -37,7 +37,7 @@ class PatternFactory:
 
         return pattern(base_params, **pattern_params)
 
-
+""" This singleton is the interface of the pattern manager """
 class Interface(object):
     _instance = None
 
@@ -54,7 +54,7 @@ class Interface(object):
         else:
             Interface._instance = self
 
-        self._factory = PatternFactory()
+        self.factory = PatternFactory()
         self.loader = PluginLoader(group='patterns')
         self._load_pattern_types()
         self.patterns = {}
@@ -68,19 +68,21 @@ class Interface(object):
                 d['base_params']
             )
 
+    """ Loads the different pattern types from plugin classes """
     def _load_pattern_types(self):
         for k in self.loader.plugins['pattern'].keys():
-            self._factory.register_pattern_type(
-                k, self.loader.get_plugin('pattern', k))
+            self.factory.register_pattern_type(k, self.loader.get_plugin('pattern', k))
 
+    """ Creates a pattern from a dictionary specifying the various pattern parameters """
     def create_pattern_from_dict(self, pattern_params, base_params):
         pattern_type = pattern_params.pop('pattern_type')
-        pattern = self._factory.get_pattern(pattern_type, base_params, pattern_params)
+        pattern = self.factory.get_pattern(pattern_type, base_params, pattern_params)
         self.patterns[self.pattern_id] = pattern
         self.pattern_id += 1
 
         return pattern
 
+    """ Group together objects of type Manager or Pattern """
     def group(self, elements):
         id = copy(self.group_id)
         manager = Manager(elements)
@@ -89,6 +91,7 @@ class Interface(object):
 
         return id
 
+    """ Removes the group from the groups dictionary """
     def ungroup(self, id):
         try:
             del self.groups[id]
@@ -202,7 +205,8 @@ if __name__ == '__main__':
     g0 = interface.groups[g_id0]
     g1 = interface.groups[g_id1]
 
-    print "group id: {} | length: {} | element ids: {} | elements type: {}\ngroup id: {} | length: {} | element ids: {} | elements type: {}".format(
+    print "group id: {} | length: {} | element ids: {} | elements type: {} \
+        \ngroup id: {} | length: {} | element ids: {} | elements type: {}".format(
         g_id0,
         g0.element_count(),
         g0.elements.keys(),
@@ -232,7 +236,6 @@ if __name__ == '__main__':
     print "all patterns: {}".format(interface.patterns.keys())
     print "all groups: {}".format(interface.groups.keys())
 
-    print "> remove group 2"
-    interface.ungroup(g_id2)
-
-    print "all groups: {}".format(interface.groups.keys())
+    while g2.has_finished() is not True:
+        print "g2 - current element: {} | next element: {}".format(g2.get_current_element(), g2.get_next_element())
+        g2.increase_iterator()
