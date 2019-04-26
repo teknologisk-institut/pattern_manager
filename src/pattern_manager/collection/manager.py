@@ -13,8 +13,8 @@ class Manager(object):
             self.add_element(e)
 
     def add_element(self, element):
-        self.id += 1
         self.elements[self.id] = element
+        self.id += 1
 
     def remove_element(self, id):
         try:

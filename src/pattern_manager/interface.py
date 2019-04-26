@@ -19,6 +19,7 @@
 from pluginlib import PluginLoader
 from pattern_manager.patterns import pattern_base
 from pattern_manager.collection import Manager
+from copy import copy
 
 
 class PatternFactory:
@@ -47,7 +48,7 @@ class Interface(object):
 
         return Interface._instance
 
-    def __init__(self, grouped_patterns=True):
+    def __init__(self, pattern_dicts=[]):
         if Interface._instance != None:
             raise Exception("Instance already exists!")
         else:
@@ -58,6 +59,14 @@ class Interface(object):
         self._load_pattern_types()
         self.patterns = {}
         self.groups = {}
+        self.id = 0
+
+        for i in range(len(pattern_dicts)):
+            self.patterns[i] = self.create_pattern_from_dict(
+                pattern_dicts[i]['pattern_params'],
+                pattern_dicts[i]['base_params']
+            )
+
 
     def _load_pattern_types(self):
         for k in self.loader.plugins['pattern'].keys():
@@ -70,10 +79,12 @@ class Interface(object):
         return self._factory.get_pattern(pattern_type, base_params, pattern_params)
 
     def group(self, elements):
+        id = copy(self.id)
         manager = Manager(elements)
-        self.groups[id(manager)] = manager
+        self.groups[id] = manager
+        self.id += 1
 
-        return id(manager)
+        return id
 
     def ungroup(self, id):
         try:
@@ -168,48 +179,57 @@ if __name__ == '__main__':
         }
     }
 
-    interface = Interface()
+    interface = Interface([linear_d, linear_d2, rect_d, scatter_d, circle_d])
 
-    i = 0
-    for d in [linear_d, linear_d2, rect_d, scatter_d, circle_d]:
-        interface.patterns[i] = interface.create_pattern_from_dict(
-            d['pattern_params'],
-            d['base_params']
-        )
-        i += 1
-
-    g_id1 = interface.group([
-        interface.patterns[0],
-        interface.patterns[1],
-        interface.patterns[2]]
+    g_id0 = interface.group(
+        [
+            interface.patterns[0],
+            interface.patterns[1],
+            interface.patterns[2]
+        ]
     )
 
-    g_id2 = interface.group([
-        interface.patterns[3],
-        interface.patterns[4]]
+    g_id1 = interface.group( 
+        [
+            interface.patterns[3],
+            interface.patterns[4]
+        ]
     )
 
+    g0 = interface.groups[g_id0]
     g1 = interface.groups[g_id1]
+
+    print "group 1 id: {} | length: {} | ids: {} | elements type: {}\ngroup 2 id: {} | length: {} | ids: {} | elements type: {}".format(
+        g_id0,
+        g0.element_count(),
+        g0.elements.keys(),
+        g0.elements[0].__class__.__base__.__name__,
+        g_id1,
+        g1.element_count(),
+        g1.elements.keys(),
+        g1.elements[0].__class__.__base__.__name__,
+    )
+
+    g_id2 = interface.group(
+        [
+            g0,
+            g1
+        ]
+    )
+
     g2 = interface.groups[g_id2]
 
-    print "group 1 id: {} | length: {}\ngroup 2 id: {} | length: {}".format(
-        g_id1,
-        g1.names.keys(),
+    print "group 3 id: {} | length: {} | ids: {} | elements type: {}".format(
         g_id2,
-        g2.element_count()
+        g2.element_count(),
+        g2.elements.keys(),
+        type(g2.elements[0]).__name__
     )
 
-    g_id3 = interface.group([g1, g2])
+    print "all patterns: {}".format(interface.patterns.keys())
+    print "all groups: {}".format(interface.groups.keys())
 
-    g3 = interface.groups[g_id3]
+    print "> remove group 2"
+    interface.ungroup(g_id2)
 
-    print "group 3 id: {} | length: {}".format(
-        g_id3,
-        g3.element_count()
-    )
-
-    print "total groups: {}".format(len(interface.groups))
-
-    interface.ungroup(g_id3)
-
-    print "total groups: {}".format(len(interface.groups))
+    print "all groups: {}".format(interface.groups.keys())
