@@ -59,14 +59,14 @@ class Interface(object):
         self._load_pattern_types()
         self.patterns = {}
         self.groups = {}
-        self.id = 0
+        self.pattern_id = 0
+        self.group_id = 0
 
-        for i in range(len(pattern_dicts)):
-            self.patterns[i] = self.create_pattern_from_dict(
-                pattern_dicts[i]['pattern_params'],
-                pattern_dicts[i]['base_params']
+        for d in pattern_dicts:
+            self.create_pattern_from_dict(
+                d['pattern_params'],
+                d['base_params']
             )
-
 
     def _load_pattern_types(self):
         for k in self.loader.plugins['pattern'].keys():
@@ -75,14 +75,17 @@ class Interface(object):
 
     def create_pattern_from_dict(self, pattern_params, base_params):
         pattern_type = pattern_params.pop('pattern_type')
+        pattern = self._factory.get_pattern(pattern_type, base_params, pattern_params)
+        self.patterns[self.pattern_id] = pattern
+        self.pattern_id += 1
 
-        return self._factory.get_pattern(pattern_type, base_params, pattern_params)
+        return pattern
 
     def group(self, elements):
-        id = copy(self.id)
+        id = copy(self.group_id)
         manager = Manager(elements)
         self.groups[id] = manager
-        self.id += 1
+        self.group_id += 1
 
         return id
 
@@ -199,7 +202,7 @@ if __name__ == '__main__':
     g0 = interface.groups[g_id0]
     g1 = interface.groups[g_id1]
 
-    print "group 1 id: {} | length: {} | ids: {} | elements type: {}\ngroup 2 id: {} | length: {} | ids: {} | elements type: {}".format(
+    print "group id: {} | length: {} | element ids: {} | elements type: {}\ngroup id: {} | length: {} | element ids: {} | elements type: {}".format(
         g_id0,
         g0.element_count(),
         g0.elements.keys(),
@@ -219,7 +222,7 @@ if __name__ == '__main__':
 
     g2 = interface.groups[g_id2]
 
-    print "group 3 id: {} | length: {} | ids: {} | elements type: {}".format(
+    print "group id: {} | length: {} | element ids: {} | elements type: {}".format(
         g_id2,
         g2.element_count(),
         g2.elements.keys(),
