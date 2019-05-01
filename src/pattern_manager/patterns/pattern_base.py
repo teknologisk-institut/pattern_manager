@@ -168,7 +168,7 @@ class Pattern(object):
     @property
     def reverse_iteration(self):
         """Pattern iterates reversed (n->0 vs. 0->n).
-        
+
         :getter: Return whether or not iteration is reversed.
         :setter: Set whether or not iteration is reversed.
         :type: bool
@@ -183,7 +183,7 @@ class Pattern(object):
     @property
     def generated(self):
         """Pattern is generated.
-        
+
         :getter: Return if pattern is generated
         :setter: Set that pattern is generated
         :type: bool
@@ -233,7 +233,7 @@ class Pattern(object):
     @property
     def pattern_frame_id(self):
         """Frame that the pattern positions are with reference to.
-        
+
         :type: str
         """
         return self._pattern_frame_id
@@ -245,7 +245,7 @@ class Pattern(object):
     @property
     def pattern_transform(self):
         """Transform of the pattern, wrt. pattern_frame_id.
-        
+
         :getter: Return the transform
         :setter: Set the transform. Fills in frame_id with pattern_frame_id, if unspecified.
         :type: gm.Transform
@@ -261,7 +261,7 @@ class Pattern(object):
     @property
     def pattern_name(self):
         """Human-readable name of this pattern.
-        
+
         :type: str
         """
         return self._pattern_name

@@ -44,15 +44,15 @@ class PatternCircular(pattern_base.Pattern):
         """Initialize pattern.
         
         :param r: radius of the circular pattern  
-        :param r: float
+        :type r: float
         :param num_points: Number of points along the circle
-        :param num_points: int
+        :type num_points: int
         :param tan_rot: Should the x-axis follow the tangent of the circle, defaults to False
-        :param tan_rot: bool, optional
+        :type tan_rot: bool, optional
         :param cw: List the positions going clockwise around the circle center, defaults to False
-        :param cw: bool, optional
+        :type cw: bool, optional
         :param angular_section: Angular section to define the pattern for in rad, defaults to 2*pi
-        :param angular_section: float, optional
+        :type angular_section: float, optional
         """
         super(PatternCircular, self).__init__(**base_params)
 
