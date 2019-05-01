@@ -125,10 +125,10 @@ def intf_example():
         },
         'base_params': {
             'i': 0,
-            'name': 'cheese_linear',
+            'name': 'cheese_linear2',
             'rev': False,
             'frame': 'base_link',
-            'offset_xy': [0.5, 0.3],
+            'offset_xy': [0.6, 0.4],
             'offset_rot': 0.2,
         }
     }
@@ -176,7 +176,7 @@ def intf_example():
         'pattern_params': {
             'pattern_type': 'circular',
             'r': 0.5,
-            'num_points': 4,
+            'num_points': 7,
         },
         'base_params': {
             'i': 0,
