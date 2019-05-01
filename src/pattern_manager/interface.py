@@ -37,6 +37,7 @@ class PatternFactory:
 
         return pattern(base_params, **pattern_params)
 
+
 """ This singleton is the interface of the pattern manager """
 class Interface(object):
     _instance = None
@@ -99,7 +100,7 @@ class Interface(object):
             return False
 
 
-if __name__ == '__main__':
+def intf_example():
     linear_d = {
         'pattern_params': {
             'pattern_type': 'linear',
@@ -208,11 +209,11 @@ if __name__ == '__main__':
     print "group id: {} | length: {} | element ids: {} | elements type: {} \
         \ngroup id: {} | length: {} | element ids: {} | elements type: {}".format(
         g_id0,
-        g0.element_count(),
+        g0.element_count,
         g0.elements.keys(),
         g0.elements[0].__class__.__base__.__name__,
         g_id1,
-        g1.element_count(),
+        g1.element_count,
         g1.elements.keys(),
         g1.elements[0].__class__.__base__.__name__,
     )
@@ -228,7 +229,7 @@ if __name__ == '__main__':
 
     print "group id: {} | length: {} | element ids: {} | elements type: {}".format(
         g_id2,
-        g2.element_count(),
+        g2.element_count,
         g2.elements.keys(),
         type(g2.elements[0]).__name__
     )
@@ -239,3 +240,9 @@ if __name__ == '__main__':
     while g2.has_finished() is not True:
         print "g2 - current element: {} | next element: {}".format(g2.get_current_element(), g2.get_next_element())
         g2.increase_iterator()
+
+    return interface
+
+
+if __name__ == '__main__':
+    intf = intf_example()
