@@ -1,0 +1,114 @@
+#!/usr/bin/env python
+
+# Copyright 2019 Danish Technological Institute (DTI)
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Author: Mikkel Rath Hansen
+
+# python
+import logging
+# pattern manager
+import pattern_manager.interface
+import pattern_manager.utils
+# ROS
+import rospy
+from tf2_ros import TransformBroadcaster
+import visualization_msgs.msg as viz_msg
+
+
+class PatternManagerNode(object):
+
+    def __init__(self, demo_mode=False):
+        if demo_mode:
+            rospy.logwarn("Loading example patterns to demonstrate node and concepts")
+            self._pmi = pattern_manager.interface.intf_example()
+        else:
+            self._pmi = pattern_manager.interface.Interface()
+
+        # publishers
+        self._marker_pub = rospy.Publisher('~pattern_markers', viz_msg.MarkerArray, queue_size=10)
+        self._tb = TransformBroadcaster()
+
+    def pub_markers(self):
+        ma = viz_msg.MarkerArray()
+        now = rospy.Time.now()
+        alpha = 1.0 #TODO: Highlight with alpa=1 the current pattern/group
+        # for each pattern
+        for pi, p in self._pmi.patterns.items():
+            frame = p.pattern_frame_id
+            size = p.get_pattern_size()
+            for i in range(size):
+                # color
+                if p.is_finished():
+                    color = 'r'
+                elif i < p.iterator:
+                    color = 'r'
+                elif i == p.iterator:
+                    color = 'y'
+                else:
+                    color = 'g'
+                # data
+                transf = p.get_tf_from_iter(i)
+                #ns = "pattern_" + str(pi)
+                ns = p.pattern_name
+                m = self.create_marker(frame, now, transf, ns, i, color, alpha)
+                ma.markers.append(m)
+        self._marker_pub.publish(ma)
+
+    def create_marker(self, frame_id, stamp, transform, ns, uid, color='g', alpha=1.0):
+        # color can be g/r/y
+        mark = viz_msg.Marker()
+        mark.header.frame_id = frame_id
+        mark.header.stamp = stamp
+        mark.ns = ns
+        mark.id = uid
+        mark.action = viz_msg.Marker.ADD
+        # pose
+        mark.pose.position.x = transform.translation.x
+        mark.pose.position.y = transform.translation.y
+        mark.pose.position.z = transform.translation.z
+        mark.pose.orientation.x = transform.rotation.x
+        mark.pose.orientation.y = transform.rotation.y
+        mark.pose.orientation.z = transform.rotation.z
+        mark.pose.orientation.w = transform.rotation.w
+        # appearance - TODO: This should be changeable
+        mark.type = viz_msg.Marker.CUBE
+        mark.scale.x = 0.02
+        mark.scale.y = 0.02
+        mark.scale.z = 0.02
+        if color == 'y':
+            mark.color.r = 1.0
+            mark.color.g = 1.0
+            mark.color.b = 0.0
+        elif color == 'r':
+            mark.color.r = 1.0
+            mark.color.g = 0.0
+            mark.color.b = 0.0
+        else:  # g
+            mark.color.r = 0.0
+            mark.color.g = 1.0
+            mark.color.b = 0.0
+        mark.color.a = alpha
+        mark.lifetime = rospy.Duration()
+        return mark
+
+if __name__ == "__main__":
+    rospy.init_node("pattern_manager", log_level=rospy.DEBUG)
+    pmn = PatternManagerNode(demo_mode=True)
+    rospy.loginfo("Pattern manager node started")
+
+    r = rospy.Rate(5)
+    while not rospy.is_shutdown():
+        pmn.pub_markers()
+        r.sleep()
