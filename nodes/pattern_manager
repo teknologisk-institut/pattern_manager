@@ -25,6 +25,8 @@ import pattern_manager.utils
 import rospy
 from tf2_ros import TransformBroadcaster
 import visualization_msgs.msg as viz_msg
+from std_srvs.srv import Trigger, TriggerResponse
+import pattern_manager.srv as pm_srv
 
 
 class PatternManagerNode(object):
@@ -36,9 +38,31 @@ class PatternManagerNode(object):
         else:
             self._pmi = pattern_manager.interface.Interface()
 
+        # services
+        self._iter_srv = rospy.Service('~iterate', Trigger, self.cb_iterate)
+        self._finished_srv = rospy.Service('~is_finished', pm_srv.GroupIndex, self.cb_finished)
+
         # publishers
         self._marker_pub = rospy.Publisher('~pattern_markers', viz_msg.MarkerArray, queue_size=10)
         self._tb = TransformBroadcaster()
+
+
+    ### SERVICE CALLBACKS ###
+
+    def cb_iterate(self, req):
+        rospy.logdebug("Received iterate request")
+        r = TriggerResponse()
+        #TODO: Actually iterate within the current group
+        r.success = False
+        r.message = "Not iterating at this point..."
+        return r
+
+    def cb_finished(self, req):
+        rospy.logdebug("Requesting finished status of group index {}".format(req.group_index))
+        #TODO: find out if group is finished
+        return False
+
+    ### PUBLISHERS ###
 
     def pub_markers(self):
         ma = viz_msg.MarkerArray()

@@ -1,0 +1,4 @@
+# SPECIFIES A SINGLE GROUP INDEX, USED FOR MULTIPLE SERVICES
+uint8 group_index
+---
+bool success
