@@ -24,7 +24,8 @@ class Manager(object):
         self.element_id = 0        
         self.iterator = 0
         self.finished = False
-        self.elements = {}
+        self.elements = bidict()
+        self.active = False
         
         for e in elements:
             self.add_element(e)
@@ -53,6 +54,12 @@ class Manager(object):
         except KeyError:
             return False
 
+    def get_element_id(self, element):
+        try:
+            return self.elements.inverse[element]
+        except KeyError:
+            return False
+
     def get_current_element(self):
         try:
             (i, e) = self.iterator, self.elements[self.iterator]
@@ -77,6 +84,25 @@ class Manager(object):
         
         return next_i
 
+    def group_elements(self, ids):
+        manager = Manager()
+
+        for i in ids:
+            if self.get_element(i) is False:
+                return False
+            
+            manager.add_element(self.elements.pop(i))
+        
+        self.add_element(manager)
+
+        return True
+
+    def set_active(self, active):
+        self.active = active
+
+    def get_element_type(self, id):
+        return self.get_element(id).__class__.__name__
+
     @property
     def element_count(self):
         return len(self.elements)
@@ -92,3 +118,6 @@ class Manager(object):
 
     def sorted_ids(self):
         return sorted(self.elements.keys())
+
+    def is_active(self):
+        return self.active
