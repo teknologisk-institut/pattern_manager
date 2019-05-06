@@ -33,6 +33,7 @@ class PatternManagerNode(object):
 
     def __init__(self, demo_mode=False):
         if demo_mode:
+            #TODO: Get rid of this once the configuration is implemented
             rospy.logwarn("Loading example patterns to demonstrate node and concepts")
             self._pmi = pattern_manager.interface.intf_example()
         else:
@@ -40,11 +41,10 @@ class PatternManagerNode(object):
 
         # services
         self._iter_srv = rospy.Service('~iterate', Trigger, self.cb_iterate)
-        self._finished_srv = rospy.Service('~is_finished', pm_srv.GroupIndex, self.cb_finished)
-        self._set_active_srv = rospy.Service('~set_active', pm_srv.GroupIndex, self.cb_set_active)
-        self._get_iterator_srv = rospy.Service('~get_iterator', pm_srv.GroupIndex, self.cb_get_iterator)
-        self._reset_srv = rospy.Service('~reset', pm_srv.GroupIndex, self.cb_reset)
-        self._find_group = rospy.Service('~find_group', pm_srv.FindGroup, self.cb_find_group)
+        self._finished_srv = rospy.Service('~is_finished', pm_srv.GroupName, self.cb_finished)
+        self._set_active_srv = rospy.Service('~set_active', pm_srv.GroupName, self.cb_set_active)
+        self._get_iterator_srv = rospy.Service('~get_iterator', pm_srv.GroupName, self.cb_get_iterator)
+        self._reset_srv = rospy.Service('~reset', pm_srv.GroupName, self.cb_reset)
         #self._get_groups_srv = rospy.Service('~get_all_groups', pm_srv.GroupIndex, self.cb_finished)
 
         # publishers
@@ -63,30 +63,25 @@ class PatternManagerNode(object):
         return r
 
     def cb_finished(self, req):
-        rospy.logdebug("Requesting finished status of group index {}".format(req.group_index))
+        rospy.logdebug("Requesting finished status of group: '{}'".format(req.group_name))
         #TODO: find out if group is finished
         return False
 
     def cb_set_active(self, req):
-        rospy.logdebug("Setting active group index {}".format(req.group_index))
+        rospy.logdebug("Setting active group: '{}'".format(req.group_name))
         #TODO: set group active
         return False
     
     def cb_get_iterator(self, req):
-        rospy.logdebug("Getting iterator of group index {}".format(req.group_index))
+        rospy.logdebug("Getting iterator of group: '{}'".format(req.group_name))
         #TODO: find iterator
         return False
 
     def cb_reset(self, req):
-        rospy.logdebug("Resetting group index {}".format(req.group_index))
+        rospy.logdebug("Resetting group: '{}'".format(req.group_name))
         #TODO: reset group
         return False
-
-    def cb_find_group(self, req):
-        rospy.logdebug("")
-        #TODO: Finding group
-        return False
-
+        
     ### PUBLISHERS ###
 
     def pub_markers(self):
