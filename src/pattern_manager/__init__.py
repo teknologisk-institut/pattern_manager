@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
+import patterns 
+
 from utils import *
-from interface import *
-from patterns import *
+from api import *
+
 from collection import *
+import examples

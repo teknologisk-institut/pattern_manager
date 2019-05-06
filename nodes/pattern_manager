@@ -19,8 +19,7 @@
 # python
 import logging
 # pattern manager
-import pattern_manager.interface
-import pattern_manager.utils
+import pattern_manager
 # ROS
 import rospy
 from tf2_ros import TransformBroadcaster
@@ -35,9 +34,13 @@ class PatternManagerNode(object):
         if demo_mode:
             #TODO: Get rid of this once the configuration is implemented
             rospy.logwarn("Loading example patterns to demonstrate node and concepts")
-            self._pmi = pattern_manager.interface.intf_example()
+            import pattern_manager.examples as ex
+            ds = [ex.linear_d, ex.linear_d2, ex.rect_d, ex.scatter_d, ex.circle_d]
+            self._pmi = pattern_manager.api.API(ds)
         else:
-            self._pmi = pattern_manager.interface.Interface()
+            self._pmi = pattern_manager.api.API()
+        self._top_man = self._pmi.manager
+
 
         # services
         self._iter_srv = rospy.Service('~iterate', Trigger, self.cb_iterate)
@@ -89,7 +92,7 @@ class PatternManagerNode(object):
         now = rospy.Time.now()
         alpha = 1.0 #TODO: Highlight with alpa=1 the current pattern/group
         # for each pattern
-        for pi, p in self._pmi.patterns.items():
+        for pi, p in self._top_man.patterns.items():
             frame = p.pattern_frame_id
             size = p.get_pattern_size()
             for i in range(size):
