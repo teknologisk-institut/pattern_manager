@@ -77,7 +77,7 @@ class API(object):
     def create_pattern_from_dict(self, pattern_params, base_params):
         pattern_type = pattern_params.pop('pattern_type')
         pattern = self.__factory.get_pattern(pattern_type, base_params, pattern_params)
-        self.manager.add_element(pattern)
+        self.manager.add_element(pattern, "base")
         
         return pattern
 
@@ -106,32 +106,32 @@ class API(object):
         g.get_current_element().iterate()
 
     def reset(self, element):
-        
-
+        print "gay"
 
 
 if __name__ == '__main__':
-    ds = [ex.linear_d, ex.linear_d2, ex.rect_d, ex.scatter_d, ex.circle_d]
+    # ds = [ex.linear_d, ex.linear_d2, ex.rect_d, ex.scatter_d, ex.circle_d]
 
-    interface = API(ds)
-    man = interface.manager
+    # interface = API(ds)
+    # man = interface.manager
     
-    for e in man.elements.keys():
-        print "index: {} | type: {}".format(e, man.get_element_type(e))
+    # for e in man.elements.keys():
+    #     print "index: {} | type: {}".format(e, man.get_element_type(e))
 
-    man.group_elements([0, 3])
-    print ""
+    # man.group_elements([0, 3])
+    # print ""
 
-    for e in man.elements.keys():
-        print "index: {} | type: {}".format(e, man.get_element_type(e))
+    # for e in man.elements.keys():
+    #     print "index: {} | type: {}".format(e, man.get_element_type(e))
 
-    print ""
+    # print ""
 
-    for e in man.get_element(5).elements.keys():
-        print "index: {} | type: {}".format(e, man.get_element(5).get_element_type(e))
+    # for e in man.get_element(5).elements.keys():
+    #     print "index: {} | type: {}".format(e, man.get_element(5).get_element_type(e))
 
-    man.set_active(True)
-    man.get_element(5).set_active(True)
+    # man.set_active(True)
+    # man.get_element(5).set_active(True)
 
-    g = interface.get_active_manager(man)
-    print man.get_element_id(g)
+    # g = interface.get_active_manager(man)
+    # print man.get_element_id(g)
+    print "hej"
