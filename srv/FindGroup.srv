@@ -1,0 +1,9 @@
+# find a group in the pattern manager with given name
+
+string name
+
+bool exact_match # only looks for patterns with exact name match
+
+---
+bool found_match
+uint8 group_index
