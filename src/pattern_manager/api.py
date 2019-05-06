@@ -42,24 +42,24 @@ class PatternFactory:
 
 """ This singleton is the interface of the pattern manager """
 class API(object):
-    __instance = None
+    _instance = None
 
     @staticmethod
     def getInstance():
-        if API.__instance == None:
+        if API._instance == None:
             API()
 
-        return API.__instance
+        return API._instance
 
     def __init__(self, pattern_dicts=[]):
-        if API.__instance != None:
+        if API._instance != None:
             raise Exception("Instance already exists!")
         else:
-            API.__instance = self
+            API._instance = self
 
-        self.__factory = PatternFactory()
-        self.__loader = PluginLoader(group='patterns')
-        self.__load_pattern_types()
+        self._factory = PatternFactory()
+        self._loader = PluginLoader(group='patterns')
+        self._load_pattern_types()
         self.manager = Manager("base")
 
         for d in pattern_dicts:
@@ -69,14 +69,14 @@ class API(object):
             )
 
     """ Loads the different pattern types from plugin classes """
-    def __load_pattern_types(self):
-        for k in self.__loader.plugins['pattern'].keys():
-            self.__factory.register_pattern_type(k, self.__loader.get_plugin('pattern', k))
+    def _load_pattern_types(self):
+        for k in self._loader.plugins['pattern'].keys():
+            self._factory.register_pattern_type(k, self._loader.get_plugin('pattern', k))
 
     """ Creates a pattern from a dictionary specifying the various pattern parameters """
     def create_pattern_from_dict(self, pattern_params, base_params):
         pattern_type = pattern_params.pop('pattern_type')
-        pattern = self.__factory.get_pattern(pattern_type, base_params, pattern_params)
+        pattern = self._factory.get_pattern(pattern_type, base_params, pattern_params)
         self.manager.add_element(pattern)
         
         return pattern

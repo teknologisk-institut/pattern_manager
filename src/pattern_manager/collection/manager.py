@@ -24,7 +24,7 @@ class Manager(object):
         self._name = name
         self.cur_index = 0
         self._iterator = 0
-        self.finished = False
+        self._finished = False
         self.elements = bidict()
         self._active = False
         
@@ -85,7 +85,7 @@ class Manager(object):
         if next_i < self.element_count:
             self._iterator += 1
         else:
-            self.finished = True
+            self._finished = True
             return False
         
         return next_i
@@ -108,15 +108,14 @@ class Manager(object):
 
     def reset(self):
         self._iterator = 0
-        self.finished = False
+        self._finished = False
+
+    def sorted_indices(self):
+        return sorted(self.elements.keys())
 
     @property
     def element_count(self):
         return len(self.elements)
-
-    @property
-    def finished(self):
-        return self.finished
 
     @property
     def element_finished(self, index):
@@ -125,36 +124,9 @@ class Manager(object):
         else:
             return False
 
-    def sorted_indices(self):
-        return sorted(self.elements.keys())
-
-    @property
-    def active(self):
-        return self._active
-
-    @active.setter
-    def active(self, active):
-        self._active = active
-
     @property
     def active_element(self):
-        if not self.finished:
+        if not self._finished:
             return self.get_current_element()
         else:
             return False
-
-    @property
-    def iterator(self):
-        return self._iterator
-
-    @iterator.setter
-    def _iterator(self, i):
-        self._iterator = i
-
-    @property
-    def name(self):
-        return self._name
-    
-    @name.setter
-    def _name(self, name):
-        self._name = name
