@@ -21,12 +21,12 @@ from bidict import bidict
 
 class Manager(object):
     def __init__(self, name, elements=[]):
-        self.name = name
+        self._name = name
         self.cur_index = 0
-        self.iterator = 0
+        self._iterator = 0
         self.finished = False
         self.elements = bidict()
-        self.active = False
+        self._active = False
         
         for e in elements:
             self.add_element(e)
@@ -68,22 +68,22 @@ class Manager(object):
 
     def get_current_element(self):
         try:
-            (i, e) = self.iterator, self.elements[self.iterator]
+            (i, e) = self._iterator, self.elements[self._iterator]
             return (i, e)
         except KeyError:
             return False
 
     def get_next_element(self):
-        next_i = self.iterator + 1
+        next_i = self._iterator + 1
         if next_i < self.element_count:
             return next_i
         else:
             return False
 
     def increase_iterator(self):
-        next_i = self.iterator + 1
+        next_i = self._iterator + 1
         if next_i < self.element_count:
-            self.iterator += 1
+            self._iterator += 1
         else:
             self.finished = True
             return False
@@ -107,7 +107,7 @@ class Manager(object):
         return self.get_element(index).__class__.__name__
 
     def reset(self):
-        self.iterator = 0
+        self._iterator = 0
         self.finished = False
 
     @property
@@ -120,7 +120,7 @@ class Manager(object):
 
     @property
     def element_finished(self, index):
-        if index < self.iterator:
+        if index < self._iterator:
             return True
         else:
             return False
@@ -130,11 +130,11 @@ class Manager(object):
 
     @property
     def active(self):
-        return self.active
+        return self._active
 
     @active.setter
-    def active(self, active):
-        self.active = active
+    def _active(self, active):
+        self._active = active
 
     @property
     def active_element(self):
@@ -144,17 +144,17 @@ class Manager(object):
             return False
 
     @property
-    def iterator(self):
-        return self.iterator
+    def _iterator(self):
+        return self._iterator
 
     @iterator.setter
-    def iterator(self, i):
-        self.iterator = i
+    def _iterator(self, i):
+        self._iterator = i
 
     @property
-    def name(self):
-        return self.name
+    def _name(self):
+        return self._name
     
     @name.setter
-    def name(self, name):
-        self.name = name
+    def _name(self, name):
+        self._name = name
