@@ -60,7 +60,7 @@ class API(object):
         self.__factory = PatternFactory()
         self.__loader = PluginLoader(group='patterns')
         self.__load_pattern_types()
-        self.manager = Manager()
+        self.manager = Manager("base")
 
         for d in pattern_dicts:
             self.create_pattern_from_dict(
@@ -77,7 +77,7 @@ class API(object):
     def create_pattern_from_dict(self, pattern_params, base_params):
         pattern_type = pattern_params.pop('pattern_type')
         pattern = self.__factory.get_pattern(pattern_type, base_params, pattern_params)
-        self.manager.add_element(pattern, "base")
+        self.manager.add_element(pattern)
         
         return pattern
 

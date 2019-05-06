@@ -133,7 +133,7 @@ class Manager(object):
         return self._active
 
     @active.setter
-    def _active(self, active):
+    def active(self, active):
         self._active = active
 
     @property
@@ -144,7 +144,7 @@ class Manager(object):
             return False
 
     @property
-    def _iterator(self):
+    def iterator(self):
         return self._iterator
 
     @iterator.setter
@@ -152,7 +152,7 @@ class Manager(object):
         self._iterator = i
 
     @property
-    def _name(self):
+    def name(self):
         return self._name
     
     @name.setter
