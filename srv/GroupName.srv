@@ -1,4 +1,4 @@
 # SPECIFIES A SINGLE GROUP INDEX, USED FOR MULTIPLE SERVICES
-uint8 group_index
+string group_name
 ---
 bool success
