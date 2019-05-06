@@ -88,7 +88,7 @@ class Pattern(object):
     def iterator(self, iterator):
         self._iterator = iterator
 
-    def increase_iterator(self):
+    def iterate(self):
         """Increase the iterator by 1.
 
         :return: the new value of the iterator, or False if the pattern was finished
@@ -147,7 +147,7 @@ class Pattern(object):
     def is_finished(self):
         return self._finished
 
-    def reset_pattern(self):
+    def reset(self):
         """Resets a pattern, by resetting iterator, and marking the pattern not finished."""
         self.reset_iterator()
         self._finished = False

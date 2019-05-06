@@ -81,25 +81,33 @@ class API(object):
         
         return pattern
 
-    def get_active_group(self, g):
+    def get_active_manager(self, m):
         a = None
-        for k in g.elements.keys():
-            e = g.get_element(k)
-            e_type = g.get_element_type(k)
+        for k in m.elements.keys():
+            e = m.get_element(k)
+            e_type = m.get_element_type(k)
 
             if not e_type == "Manager":
                 continue
-            elif e.is_active:
+            elif e.active:
                 a = e
                 break
         
         if a is not None:
-            return self.get_active_group(a)
+            return self.get_active_manager(a)
         else:
-            if g is not self:
-                return g
+            if m is not self.manager:
+                return m
             else:
                 return a
+    
+    def iterate(self):
+        g = self.get_active_manager(self.manager)
+        g.get_current_element().iterate()
+
+    def reset(self, element):
+        
+
 
 
 if __name__ == '__main__':
@@ -125,5 +133,5 @@ if __name__ == '__main__':
     man.set_active(True)
     man.get_element(5).set_active(True)
 
-    g = interface.get_active_group(man)
+    g = interface.get_active_manager(man)
     print man.get_element_id(g)

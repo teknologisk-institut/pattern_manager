@@ -97,20 +97,23 @@ class Manager(object):
 
         return True
 
-    def set_active(self, active):
-        self.active = active
-
     def get_element_type(self, id):
         return self.get_element(id).__class__.__name__
+
+    def reset(self):
+        self.iterator = 0
+        self.finished = False
 
     @property
     def element_count(self):
         return len(self.elements)
 
-    def has_finished(self):
+    @property
+    def finished(self):
         return self.finished
 
-    def has_element_finished(self, id):
+    @property
+    def element_finished(self, id):
         if id < self.iterator:
             return True
         else:
@@ -119,5 +122,25 @@ class Manager(object):
     def sorted_ids(self):
         return sorted(self.elements.keys())
 
-    def is_active(self):
+    @property
+    def active(self):
         return self.active
+
+    @active.setter
+    def active(self, active):
+        self.active = active
+
+    @property
+    def active_element(self):
+        if not self.finished:
+            return self.get_current_element()
+        else:
+            return False
+
+    @property
+    def iterator(self):
+        return self.iterator
+
+    @iterator.setter
+    def iterator(self, i):
+        self.iterator = i
