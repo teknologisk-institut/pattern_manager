@@ -7,15 +7,16 @@ Subpackages
 .. toctree::
 
     pattern_manager.collection
+    pattern_manager.examples
     pattern_manager.patterns
 
 Submodules
 ----------
 
-pattern_manager.interface module
---------------------------------
+pattern_manager.api module
+--------------------------
 
-.. automodule:: pattern_manager.interface
+.. automodule:: pattern_manager.api
     :members:
     :undoc-members:
     :show-inheritance:

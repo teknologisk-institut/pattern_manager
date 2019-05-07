@@ -61,7 +61,7 @@ class Pattern(object):
         self.iterator = i
         self.reverse_iteration = rev
         self.pattern_frame_id = frame
-        self.pattern_name = name
+        self.name = name
         self._iteration_order = order
         self._static = static
         self._pos_offset = tuple(offset_xy)
@@ -258,17 +258,17 @@ class Pattern(object):
         if transform.header.frame_id == "":
             self._pattern_transform.header.frame_id = self.pattern_frame_id
 
-    @property
-    def pattern_name(self):
-        """Human-readable name of this pattern.
+    # @property
+    # def name(self):
+    #     """Human-readable name of this pattern.
 
-        :type: str
-        """
-        return self._pattern_name
+    #     :type: str
+    #     """
+    #     return self._pattern_name
 
-    @pattern_name.setter
-    def pattern_name(self, name):
-        self._pattern_name = name
+    # @pattern_name.setter
+    # def name(self, name):
+    #     self._pattern_name = name
 
     # OFFSET FUNCTIONS
 

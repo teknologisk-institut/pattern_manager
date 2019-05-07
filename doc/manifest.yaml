@@ -18,5 +18,6 @@ maintainers: Mikkel Rath Hansen <mrp@teknologisk.dk>, Mads Baatrup <mvb@teknolog
 msgs: []
 package_type: package
 repo_url: ''
-srvs: []
+srvs:
+- GroupName
 url: ''

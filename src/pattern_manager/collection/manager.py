@@ -20,22 +20,50 @@ from bidict import bidict
 
 
 class Manager(object):
+    """This class contains and manages elements of various types.
+    
+    :param object: An object
+    :type object: object
+    """
+    
     def __init__(self, name, elements=[]):
-        self._name = name
+        """Class constructor
+        
+        :param name: The name of the manager
+        :type name: str
+        :param elements: Elements to add to manager, defaults to []
+        :type elements: list, optional
+        """
+
+        self.name = name
         self.cur_index = 0
-        self._iterator = 0
-        self._finished = False
+        self.iterator = 0
+        self.finished = False
         self.elements = bidict()
-        self._active = False
+        self.active = False
         
         for e in elements:
             self.add_element(e)
 
     def add_element(self, element):
+        """Adds an element to the dictionary of elements within the manager.
+        
+        :param element: An element
+        :type element: Object
+        """
+
         self.elements[self.cur_index] = element
         self.cur_index += 1
 
     def remove_element(self, index):
+        """Removes an element from the dictionary of elements within the manager.
+        
+        :param index: The index/key of the element to be removed
+        :type index: int
+        :return: Returns True if successfully removed, otherwise False
+        :rtype: True, False
+        """
+
         try:
             del self.elements[index]
             return True
@@ -43,12 +71,28 @@ class Manager(object):
             return False
 
     def pop_element(self, index):
+        """Pops an element from the dictionary of elements within the manager.
+        
+        :param index: The index/key of the element to be popped
+        :type index: int
+        :return: Returns the popped element if successful, otherwise False
+        :rtype: Object, False
+        """
+
         try:
             self.elements.pop(index)
         except KeyError:
             return False
    
     def get_element(self, index):
+        """Retrieves an element from the dictionary of elements within the manager.
+        
+        :param index: The index/key of the element to be retrieved
+        :type index: int
+        :return: Returns the requested element if successful, otherwise False
+        :rtype: Object, False
+        """
+
         try:
             e = self.elements[index]
             return e
@@ -56,41 +100,85 @@ class Manager(object):
             return False
 
     def get_element_index(self, element):
+        """Retrieves the element index from the element instance.
+        
+        :param element: An object from which to retrieve the index
+        :type element: Object
+        :return: Returns the requested index if successful, otherwise False
+        :rtype: Object, False
+        """
+
         try:
             return self.elements.inverse[element]
         except KeyError:
             return False
 
     def get_element_index_by_name(self, name):
+        """Retrieves the index of an element by the name of the element.
+        
+        :param name: A string specififying the name of the element of the index to be retrieved
+        :type name: str
+        :return: An index of the element
+        :rtype: int
+        """
+
         for k in self.elements:
             if self.elements[k].name == name:
                 return k
 
     def get_current_element(self):
+        """Retrieves the element currently iterated to.
+        
+        :return: Returns the currently active element if successful, otherwise False
+        :rtype: Object, False
+        """
+
         try:
-            (i, e) = self._iterator, self.elements[self._iterator]
+            (i, e) = self.iterator, self.elements[self.iterator]
             return (i, e)
         except KeyError:
             return False
 
     def get_next_element(self):
-        next_i = self._iterator + 1
+        """Retrieves the next element to become iterated to.
+        
+        :return: Returns the next element to become active if successful, otherwise False
+        :rtype: Object, False
+        """
+
+        next_i = self.iterator + 1
         if next_i < self.element_count:
             return next_i
         else:
             return False
 
     def increase_iterator(self):
-        next_i = self._iterator + 1
+        """Increases the iterator of the elements.
+        
+        :return: Returns the iterator increased to if successful. If iteration is finished, False
+        :rtype: int, False
+        """
+
+        next_i = self.iterator + 1
         if next_i < self.element_count:
-            self._iterator += 1
+            self.iterator += 1
         else:
-            self._finished = True
+            self.finished = True
             return False
         
         return next_i
 
     def group_elements(self, indices, name):
+        """Groups elements within a new manager places in the dictionary of elements.
+        
+        :param indices: Indices of the elements to be grouped
+        :type indices: int
+        :param name: The name of the newly created manager
+        :type name: str
+        :return: Returns True if the creation was successful, otherwise False
+        :rtype: bool
+        """
+
         manager = Manager(name)
 
         for i in indices:
@@ -104,29 +192,66 @@ class Manager(object):
         return True
 
     def get_element_type(self, index):
+        """Retrieves the type of the element at the specified index.
+        
+        :param index: The indix of the element of which the type is found
+        :type index: int
+        :return: Returns the class name of the specified element
+        :rtype: str
+        """
+
         return self.get_element(index).__class__.__name__
 
     def reset(self):
-        self._iterator = 0
-        self._finished = False
+        """Resets the iterator of the manager and sets finished to False
+        """
+
+        self.iterator = 0
+        self.finished = False
 
     def sorted_indices(self):
+        """Retrieves a sorted list of the keys of the elements.
+        
+        :return: A sorted list of keys
+        :rtype: list
+        """
+
         return sorted(self.elements.keys())
 
     @property
     def element_count(self):
+        """The number of elements within the dictionary of elements of the manager.
+        
+        :return: The length of the elements dictionary
+        :rtype: int
+        """
+
         return len(self.elements)
 
     @property
     def element_finished(self, index):
-        if index < self._iterator:
+        """Returns the finished status of the element at the specified index of the elements
+        
+        :param index: The index of the element
+        :type index: int
+        :return: Returns the status of the specified element
+        :rtype: bool
+        """
+
+        if index < self.iterator:
             return True
         else:
             return False
 
     @property
     def active_element(self):
-        if not self._finished:
+        """Retrieves the currently active element of the manager.
+        
+        :return: The currently active element of the manager
+        :rtype: Object
+        """
+
+        if not self.finished:
             return self.get_current_element()
         else:
-            return False
+            return None

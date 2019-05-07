@@ -23,15 +23,42 @@ from copy import copy
 
 import pattern_manager.examples as ex
 
-""" Factory for creating the specified pattern object """
+
 class PatternFactory:
+    """A factory for creating patterns
+    
+    :raises ValueError: Raised if pattern type does is None
+    :return: A type of pattern
+    :rtype: Pattern
+    """
+
     def __init__(self):
         self._patterns = {}
 
     def register_pattern_type(self, pattern_type, pattern):
+        """Registers a new pattern type.
+        
+        :param pattern_type: a string defining the pattern type to be retrieved
+        :type pattern_type: str
+        :param pattern: A Pattern object
+        :type pattern: Pattern
+        """
         self._patterns[pattern_type] = pattern
 
     def get_pattern(self, pattern_type, base_params, pattern_params):
+        """Retrieves a pattern object of specified type.
+        
+        :param pattern_type: A string defining the pattern type
+        :type pattern_type: str
+        :param base_params: A dictionary defining parameters for the Pattern base class
+        :type base_params: dict
+        :param pattern_params: A dictionary defining parameters for the pattern class
+        :type pattern_params: dict
+        :raises ValueError: Raised if the requested pattern type is None
+        :return: A pattern type inheriting from Pattern base class
+        :rtype: Pattern
+        """
+
         pattern = self._patterns.get(pattern_type)
 
         if not pattern:
@@ -40,18 +67,40 @@ class PatternFactory:
         return pattern(base_params, **pattern_params)
 
 
-""" This singleton is the interface of the pattern manager """
 class API(object):
+    """The interface class for the pattern manager package.
+
+    This class defines the interface which affords functionalities of the pattern manager package.
+    
+    :param object: An object
+    :type object: object
+    :raises Exception: Raised if an instance of API already exists
+    :return: Returns the single available instance of the API class
+    :rtype: API
+    """
+
     _instance = None
 
     @staticmethod
     def getInstance():
+        """Fetches the single instance of the API class.
+        
+        :return: The single instance of the API class
+        :rtype: API
+        """
+
         if API._instance == None:
             API()
 
         return API._instance
 
     def __init__(self, pattern_dicts=[]):
+        """Class constructor.
+        
+        :param pattern_dicts: a list of pattern dictionaries, defaults to []
+        :type pattern_dicts: list, optional
+        """
+
         if API._instance != None:
             raise Exception("Instance already exists!")
         else:
@@ -60,7 +109,9 @@ class API(object):
         self._factory = PatternFactory()
         self._loader = PluginLoader(group='patterns')
         self._load_pattern_types()
-        self.manager = Manager("base")
+        self.manager = Manager("group_0")
+        self.patterns = {}
+        self._pattern_index = 0
 
         for d in pattern_dicts:
             self.create_pattern_from_dict(
@@ -68,70 +119,138 @@ class API(object):
                 d['base_params']
             )
 
-    """ Loads the different pattern types from plugin classes """
     def _load_pattern_types(self):
+        """This function loads patterns from plugin classes.
+        """
+
         for k in self._loader.plugins['pattern'].keys():
-            self._factory.register_pattern_type(k, self._loader.get_plugin('pattern', k))
+            self._factory.register_pattern_type(
+                k, self._loader.get_plugin('pattern', k))
 
-    """ Creates a pattern from a dictionary specifying the various pattern parameters """
     def create_pattern_from_dict(self, pattern_params, base_params):
+        """This function creates and stores a pattern from a dictionary description.
+        
+        :param pattern_params: Parameters required for the instantiation of a pattern
+        :type pattern_params: dict
+        :param base_params: Parameters required for the pattern base class
+        :type base_params: dict
+        """
+
         pattern_type = pattern_params.pop('pattern_type')
-        pattern = self._factory.get_pattern(pattern_type, base_params, pattern_params)
+        pattern = self._factory.get_pattern(
+            pattern_type, base_params, pattern_params)
         self.manager.add_element(pattern)
-        
-        return pattern
 
-    def get_active_manager(self, m):
-        a = None
-        for k in m.elements.keys():
-            e = m.get_element(k)
-            e_type = m.get_element_type(k)
+        self.patterns[self._pattern_index] = pattern
+        self._pattern_index += 1
 
-            if not e_type == "Manager":
-                continue
-            elif e.active:
-                a = e
-                break
+    def get_active_manager(self, element=None):
+        """Retrieves the active manager lowest in the manager tree from the specified start element.
         
-        if a is not None:
-            return self.get_active_manager(a)
+        :param element: The element to begin search from, defaults to None
+        :type element: Manager, optional
+        :return: The active manager lowest in the tree
+        :rtype: Manager
+        """
+
+        if element is None:
+            element = self.manager
+
+        mans = []
+        for e in element.elements.values():
+            if isinstance(e, Manager) and e.active:
+                mans.append(e)
+
+        if len(mans) == 0:
+            return element
         else:
-            if m is not self.manager:
-                return m
-            else:
-                return a
-    
-    def iterate(self):
-        g = self.get_active_manager(self.manager)
-        g.get_current_element().iterate()
+            for m in mans:
+                return self.get_active_manager(m)
 
-    def reset(self, element):
-        print "gay"
+    def get_elements_from_manager_tree(self, arr, element=None):
+        """Retrieves all elements under the specified element in the tree.
+        
+        :param arr: An array to place the elements in
+        :type arr: list
+        :param element: The element to start the search from, defaults to None
+        :type element: Manager, Pattern, optional
+        """
+
+        if element == None:
+            element = self.manager
+
+        arr.append(element)
+
+        if isinstance(element, Manager):
+            for e in element.elements.values():
+                self.get_elements_from_manager_tree(arr, e)
+
+    def get_element_by_name(self, name, element=None):
+        """Retrieves an element with the specified name.
+        
+        :param name: The name of the requested element
+        :type name: str
+        :param element: The element in the tree to begin the search from, defaults to None
+        :type element: Manager, Patter, optional
+        :return: Return the element with the specified name
+        :rtype: Manager, Pattern
+        """
+
+        if element == None:
+            element = self.manager
+
+        elements = []
+        self.get_elements_from_manager_tree(elements, element)
+
+        for e in elements:
+            if e.name == name:
+                return e
+
+        return None
+
+    def reset_element(self, element):
+        """Reset all managers and/or patterns from (and including) the specified start element.
+        
+        :param element: The element in the tree to begin the search from
+        :type element: Manager, Pattern
+        """
+        
+        elements = []
+        self.get_elements_from_manager_tree(elements, element)
+
+        for e in elements:
+            e.reset()
 
 
 if __name__ == '__main__':
-    # ds = [ex.linear_d, ex.linear_d2, ex.rect_d, ex.scatter_d, ex.circle_d]
+    ds = [ex.linear_d, ex.linear_d2, ex.rect_d, ex.scatter_d, ex.circle_d]
 
-    # interface = API(ds)
-    # man = interface.manager
-    
-    # for e in man.elements.keys():
-    #     print "index: {} | type: {}".format(e, man.get_element_type(e))
+    api = API(ds)
+    man = api.manager
 
-    # man.group_elements([0, 3])
-    # print ""
+    man.group_elements([0, 1], "group_1")
+    man.group_elements([2, 3, 4], "group_2")
 
-    # for e in man.elements.keys():
-    #     print "index: {} | type: {}".format(e, man.get_element_type(e))
+    man.group_elements([5, 6], "group_3")
 
-    # print ""
+    man.active = True
+    man.elements[7].active = True
 
-    # for e in man.get_element(5).elements.keys():
-    #     print "index: {} | type: {}".format(e, man.get_element(5).get_element_type(e))
+    man.elements[7].elements[0].active = True
 
-    # man.set_active(True)
-    # man.get_element(5).set_active(True)
+    a_man = api.get_active_manager()
+    print "active manager: {}".format(a_man.name)
 
-    # g = interface.get_active_manager(man)
-    # print man.get_element_id(g)
-    print "hej"
+    b_man = api.get_element_by_name("group_2")
+    print "element found by name, 'group_2': {}".format(b_man.name)
+
+    arr = []
+    api.get_elements_from_manager_tree(arr)
+
+    print "all elements from root:"
+    for a in arr:
+        print "    {}".format(a.name)
+
+    print "re-setting all elements under root manager: "
+    api.reset_element(api.get_element_by_name("group_0"))
+    print "    done"
