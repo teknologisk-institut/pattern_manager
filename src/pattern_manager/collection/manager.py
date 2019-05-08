@@ -123,8 +123,8 @@ class Manager(object):
     def get_current_element(self):
         """Retrieves the element currently iterated to.
         
-        :return: Returns the currently active element if successful, otherwise False
-        :rtype: Object, False
+        :return: Returns internal iterator and the currently active element if successful, otherwise False
+        :rtype: tuple with iterator, Object, or False if failed
         """
 
         try:
@@ -146,13 +146,14 @@ class Manager(object):
         else:
             return False
 
-    def increase_iterator(self):
+    def iterate(self):
         """Increases the iterator of the elements.
         
         :return: Returns the iterator increased to if successful. If iteration is finished, False
         :rtype: int, False
         """
 
+        
         next_i = self.iterator + 1
         if next_i < self.element_count:
             self.iterator += 1
@@ -174,7 +175,7 @@ class Manager(object):
         """
 
         manager = Manager(name)
-
+        print "Grouping {}".format([self.get_element(i).name for i in indices])
         for i in indices:
             if self.get_element(i) is False:
                 return False

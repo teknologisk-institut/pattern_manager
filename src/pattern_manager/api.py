@@ -98,6 +98,7 @@ class API(object):
         self._loader = PluginLoader(group='patterns')
         self._load_pattern_types()
         self.manager = Manager("group_0")
+        self.manager.active = True
         self.patterns = {}
         self._pattern_index = 0
 
@@ -214,12 +215,12 @@ if __name__ == '__main__':
 
     api = API(ds)
     man = api.manager
-
+    print [e.name for e in man.elements.values()]
     man.group_elements([0, 1], "group_1")
     man.group_elements([2, 3, 4], "group_2")
 
     man.group_elements([5, 6], "group_3")
-
+    print [e.name for e in man.elements.values()]
     man.active = True
     man.elements[7].active = True
 

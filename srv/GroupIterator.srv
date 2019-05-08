@@ -1,0 +1,5 @@
+# GET ITERATOR FOR A SPECIFIC GROUP
+string group_name
+---
+uint8 iterator
+bool success
