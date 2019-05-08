@@ -25,6 +25,7 @@ import rospy
 from tf2_ros import TransformBroadcaster
 import visualization_msgs.msg as viz_msg
 from std_srvs.srv import Trigger, TriggerResponse, TriggerRequest
+import geometry_msgs.msg as gm
 import pattern_manager.srv as pm_srv
 
 
@@ -131,6 +132,21 @@ class PatternManagerNode(object):
         
     ### PUBLISHERS ###
 
+    def pub_current_tf(self):
+        man = self._pmi.get_active_manager()
+        p = man.active_element[1]
+        transf = p.get_current_tf()
+        if transf is False:
+            return
+        frame = p.pattern_frame_id
+        t = gm.TransformStamped()
+        t.header.frame_id = frame
+        t.header.stamp = rospy.Time.now()
+        t.child_frame_id = "pattern_current"
+        t.transform = transf
+        self._tb.sendTransform(t)
+
+
     def pub_markers(self):
         ma = viz_msg.MarkerArray()
         now = rospy.Time.now()
@@ -204,4 +220,5 @@ if __name__ == "__main__":
     r = rospy.Rate(5)
     while not rospy.is_shutdown():
         pmn.pub_markers()
+        pmn.pub_current_tf()
         r.sleep()
