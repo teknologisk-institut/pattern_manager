@@ -25,11 +25,9 @@ import pattern_manager.examples as ex
 
 
 class PatternFactory:
-    """A factory for creating patterns
-    
-    :raises ValueError: Raised if pattern type does is None
-    :return: A type of pattern
-    :rtype: Pattern
+    """A factory for creating patterns. 
+
+    Offers methods for generating internal model of patterns, based on pattern parameters.
     """
 
     def __init__(self):
@@ -55,7 +53,7 @@ class PatternFactory:
         :param pattern_params: A dictionary defining parameters for the pattern class
         :type pattern_params: dict
         :raises ValueError: Raised if the requested pattern type is None
-        :return: A pattern type inheriting from Pattern base class
+        :return: A specific pattern type inheriting from Pattern base class
         :rtype: Pattern
         """
 
@@ -72,11 +70,9 @@ class API(object):
 
     This class defines the interface which affords functionalities of the pattern manager package.
     
-    :param object: An object
-    :type object: object
+    :param pattern_dicts: a list of pattern dictionaries, defaults to []
+    :type pattern_dicts: list, optional
     :raises Exception: Raised if an instance of API already exists
-    :return: Returns the single available instance of the API class
-    :rtype: API
     """
 
     _instance = None
@@ -88,21 +84,13 @@ class API(object):
         :return: The single instance of the API class
         :rtype: API
         """
-
-        if API._instance == None:
+        if API._instance is not None:
             API()
-
         return API._instance
 
     def __init__(self, pattern_dicts=[]):
-        """Class constructor.
-        
-        :param pattern_dicts: a list of pattern dictionaries, defaults to []
-        :type pattern_dicts: list, optional
-        """
-
-        if API._instance != None:
-            raise Exception("Instance already exists!")
+        if API._instance is not None:
+            raise Exception("Instance already exists - this class is a singleton")
         else:
             API._instance = self
 
@@ -135,7 +123,6 @@ class API(object):
         :param base_params: Parameters required for the pattern base class
         :type base_params: dict
         """
-
         pattern_type = pattern_params.pop('pattern_type')
         pattern = self._factory.get_pattern(
             pattern_type, base_params, pattern_params)
@@ -173,7 +160,7 @@ class API(object):
         :param arr: An array to place the elements in
         :type arr: list
         :param element: The element to start the search from, defaults to None
-        :type element: Manager, Pattern, optional
+        :type element: Manager or Pattern, optional
         """
 
         if element == None:
@@ -191,9 +178,9 @@ class API(object):
         :param name: The name of the requested element
         :type name: str
         :param element: The element in the tree to begin the search from, defaults to None
-        :type element: Manager, Patter, optional
+        :type element: Manager or Pattern, optional
         :return: Return the element with the specified name
-        :rtype: Manager, Pattern
+        :rtype: Manager or Pattern
         """
 
         if element == None:
@@ -212,7 +199,7 @@ class API(object):
         """Reset all managers and/or patterns from (and including) the specified start element.
         
         :param element: The element in the tree to begin the search from
-        :type element: Manager, Pattern
+        :type element: Manager or Pattern
         """
         
         elements = []

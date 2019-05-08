@@ -22,19 +22,13 @@ from bidict import bidict
 class Manager(object):
     """This class contains and manages elements of various types.
     
-    :param object: An object
-    :type object: object
+    :param name: The unique name of this manager
+    :type name: str
+    :param elements: Elements to add to manager, defaults to []
+    :type elements: list, optional
     """
     
     def __init__(self, name, elements=[]):
-        """Class constructor
-        
-        :param name: The name of the manager
-        :type name: str
-        :param elements: Elements to add to manager, defaults to []
-        :type elements: list, optional
-        """
-
         self.name = name
         self.cur_index = 0
         self.iterator = 0
@@ -61,7 +55,7 @@ class Manager(object):
         :param index: The index/key of the element to be removed
         :type index: int
         :return: Returns True if successfully removed, otherwise False
-        :rtype: True, False
+        :rtype: bool
         """
 
         try:
@@ -199,7 +193,6 @@ class Manager(object):
         :return: Returns the class name of the specified element
         :rtype: str
         """
-
         return self.get_element(index).__class__.__name__
 
     def reset(self):
@@ -222,10 +215,8 @@ class Manager(object):
     def element_count(self):
         """The number of elements within the dictionary of elements of the manager.
         
-        :return: The length of the elements dictionary
-        :rtype: int
+        :type: int
         """
-
         return len(self.elements)
 
     @property
@@ -245,12 +236,10 @@ class Manager(object):
 
     @property
     def active_element(self):
-        """Retrieves the currently active element of the manager.
+        """The currently active element of the manager.
         
-        :return: The currently active element of the manager
-        :rtype: Object
+        :type: Object or None
         """
-
         if not self.finished:
             return self.get_current_element()
         else:

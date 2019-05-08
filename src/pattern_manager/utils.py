@@ -14,6 +14,19 @@ output = logging
 
 # Helper functions
 def handle_input_1d(number_of_points=0, step_size=0, line_length=0):
+    """Generates 1D spatial information from 3 inputs.
+
+    If any pair of inputs is specified, caluclates the third corresponding parameter. If 3 or a single input is specified, throws an error. 
+    
+    :param number_of_points: Number of points along the 1D axis, defaults to 0
+    :type number_of_points: float, optional
+    :param step_size: Step size between points on the axis, defaults to 0
+    :type step_size: float, optional
+    :param line_length: Length of the axis, between first and last point, defaults to 0
+    :type line_length: float, optional
+    :return: 3-tuple of number of points, step size between points, and distance from first to last point.
+    :rtype: tuple
+    """
     out_p = 0  # number of points
     out_s = 0.0  # step size
     out_l = 0.0  # line length
@@ -47,6 +60,19 @@ def handle_input_1d(number_of_points=0, step_size=0, line_length=0):
 
 
 def frames_along_axis(count, step_size, basis_frame=gm.Transform(), axis='x'):
+    """Generate a series of given number of frames along one axis, with given distance between frames.
+    
+    :param count: Number of frames to generate
+    :type count: int
+    :param step_size: Distance between frames, in m
+    :type step_size: float
+    :param basis_frame: Frame to use as basis for generation, defaults to empty geometry_msgs.Transform()
+    :type basis_frame: geometry_msgs.Transform optional
+    :param axis: Which axis to generate the frames along, defaults to 'x'
+    :type axis: str, optional
+    :return: List of the generated frames. 
+    :rtype: numpy.array with dtype geometry_msgs.Transform
+    """
     frames = np.array(np.empty(count), dtype=gm.Transform)
     for p in range(count):
         transf = deepcopy(basis_frame)
@@ -58,6 +84,13 @@ def frames_along_axis(count, step_size, basis_frame=gm.Transform(), axis='x'):
 
 
 def transform_to_matrix(transform):
+    """Convert a geometry_msgs.Transform to a 3x4 numpy transformation matrix.
+    
+    :param transform: Transform to convert
+    :type transform: geometry_msgs.Transform
+    :return: 3x4 Transformation matrix
+    :rtype: numpy.ndarray
+    """
     trans_mat = tfs.translation_matrix([transform.translation.x,
                                         transform.translation.y,
                                         transform.translation.z])
@@ -69,6 +102,13 @@ def transform_to_matrix(transform):
 
 
 def matrix_to_transform(matrix):
+    """Convert a 3x4 numpy transformation matrix to a geometry_msgs.Transform.
+    
+    :param matrix: 3x4 Transformation matrix to convert
+    :type matrix: numpy.ndarray
+    :return: Converted Transform 
+    :rtype: geometry_msgs.Transform
+    """
     t = gm.Transform()
     t.translation.x = matrix[0, 3]
     t.translation.y = matrix[1, 3]
