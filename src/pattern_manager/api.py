@@ -41,6 +41,7 @@ class PatternFactory:
         :param pattern: A Pattern object
         :type pattern: Pattern
         """
+
         self._patterns[pattern_type] = pattern
 
     def get_pattern(self, pattern_type, base_params, pattern_params):
@@ -84,6 +85,7 @@ class API(object):
         :return: The single instance of the API class
         :rtype: API
         """
+
         if API._instance is not None:
             API()
         return API._instance
@@ -124,6 +126,7 @@ class API(object):
         :param base_params: Parameters required for the pattern base class
         :type base_params: dict
         """
+
         pattern_type = pattern_params.pop('pattern_type')
         pattern = self._factory.get_pattern(
             pattern_type, base_params, pattern_params)
@@ -132,7 +135,7 @@ class API(object):
         self.patterns[self._pattern_index] = pattern
         self._pattern_index += 1
 
-    def get_active_manager(self, element=None):
+    def get_active_leaf_manager(self, element=None):
         """Retrieves the active manager lowest in the manager tree from the specified start element.
         
         :param element: The element to begin search from, defaults to None
@@ -153,9 +156,21 @@ class API(object):
             return element
         else:
             for m in mans:
-                return self.get_active_manager(m)
+                return self.get_active_leaf_manager(m)
 
-    def get_elements_from_manager_tree(self, arr, element=None):
+    def get_active_root_manager(self):
+        try:
+            man = self.get_active_leaf_manager()
+        except:
+            print "Error: No active manager!"
+            return None
+
+        while not man.parent == None and man.parent.active:
+            man = man.parent
+        
+        return man
+
+    def get_successors_from_manager_tree(self, arr, element=None):
         """Retrieves all elements under the specified element in the tree.
         
         :param arr: An array to place the elements in
@@ -171,7 +186,7 @@ class API(object):
 
         if isinstance(element, Manager):
             for e in element.elements.values():
-                self.get_elements_from_manager_tree(arr, e)
+                self.get_successors_from_manager_tree(arr, e)
 
     def get_element_by_name(self, name, element=None):
         """Retrieves an element with the specified name.
@@ -188,7 +203,7 @@ class API(object):
             element = self.manager
 
         elements = []
-        self.get_elements_from_manager_tree(elements, element)
+        self.get_successors_from_manager_tree(elements, element)
 
         for e in elements:
             if e.name == name:
@@ -196,7 +211,7 @@ class API(object):
 
         return None
 
-    def reset_element(self, element):
+    def reset_element_tree(self, element):
         """Reset all managers and/or patterns from (and including) the specified start element.
         
         :param element: The element in the tree to begin the search from
@@ -204,10 +219,27 @@ class API(object):
         """
         
         elements = []
-        self.get_elements_from_manager_tree(elements, element)
+        self.get_successors_from_manager_tree(elements, element)
 
         for e in elements:
             e.reset()
+
+    def iterate(self):
+        return self.get_active_leaf_manager().iterate()
+
+    def set_active_manager(self, element):
+        if not isinstance(element, Manager):
+            print "Error: element is not a manager!"
+            return False
+
+        done = False
+        while not done:
+            element.active = True
+
+            if element.parent == None:
+                done = True
+            else:
+                element = element.parent
 
 
 if __name__ == '__main__':
@@ -215,30 +247,50 @@ if __name__ == '__main__':
 
     api = API(ds)
     man = api.manager
-    print [e.name for e in man.elements.values()]
+
+    # group patterns and group managers
     man.group_elements([0, 1], "group_1")
     man.group_elements([2, 3, 4], "group_2")
-
     man.group_elements([5, 6], "group_3")
-    print [e.name for e in man.elements.values()]
-    man.active = True
-    man.elements[7].active = True
 
-    man.elements[7].elements[0].active = True
-
-    a_man = api.get_active_manager()
-    print "active manager: {}".format(a_man.name)
+    # manually set active elements
+    api.set_active_manager(man.elements[7].elements[0])
 
     b_man = api.get_element_by_name("group_2")
     print "element found by name, 'group_2': {}".format(b_man.name)
 
-    arr = []
-    api.get_elements_from_manager_tree(arr)
+    a_man = api.get_active_leaf_manager()
+    print "active leaf manager: {}".format(a_man.name)
 
-    print "all elements from root:"
+    c_man = api.get_active_root_manager()
+    print "active root manager: {}".format(c_man.name)
+
+    arr = []
+    api.get_successors_from_manager_tree(arr, None)
+
+    print ""
+
+    print "all nodes from root manager tree:"
     for a in arr:
         print "    {}".format(a.name)
 
+    print ""
+
+    man3 = api.get_element_by_name("group_3")
+    man3.allow_iterate = False
+
+    for i in range(3):
+        print "Current element (in {}): {}".format(a_man.name, a_man.get_current_element()[1].name)
+        api.iterate()
+        a_man = api.get_active_leaf_manager()
+
+    print ""
+
     print "re-setting all elements under root manager: "
-    api.reset_element(api.get_element_by_name("group_0"))
+    api.reset_element_tree(api.get_element_by_name("group_0"))
     print "    done"
+
+    print ""
+
+    man1 = api.get_element_by_name("group_1")
+    print "Current element (in {}): {}\n".format(man1.name, man1.get_current_element()[1].name)

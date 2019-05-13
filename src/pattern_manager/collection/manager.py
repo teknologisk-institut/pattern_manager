@@ -35,6 +35,8 @@ class Manager(object):
         self.finished = False
         self.elements = bidict()
         self.active = False
+        self.parent = None
+        self.allow_iterate = True
         
         for e in elements:
             self.add_element(e)
@@ -45,7 +47,7 @@ class Manager(object):
         :param element: An element
         :type element: Object
         """
-
+        element.parent = self
         self.elements[self.cur_index] = element
         self.cur_index += 1
 
@@ -155,10 +157,11 @@ class Manager(object):
 
         
         next_i = self.iterator + 1
-        if next_i < self.element_count:
+        if next_i < self.element_count and self.allow_iterate:
             self.iterator += 1
         else:
             self.finished = True
+            self.active = False
             return False
         
         return next_i
@@ -175,7 +178,7 @@ class Manager(object):
         """
 
         manager = Manager(name)
-        print "Grouping {}".format([self.get_element(i).name for i in indices])
+
         for i in indices:
             if self.get_element(i) is False:
                 return False
@@ -218,6 +221,7 @@ class Manager(object):
         
         :type: int
         """
+        
         return len(self.elements)
 
     @property
@@ -241,6 +245,7 @@ class Manager(object):
         
         :type: Object or None
         """
+
         if not self.finished:
             return self.get_current_element()
         else:

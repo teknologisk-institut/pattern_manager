@@ -68,6 +68,7 @@ class Pattern(object):
         self._rot_offset = offset_rot
         self.pattern_transform = gm.TransformStamped()
         self._pattern = np.array(np.empty(0), dtype=gm.Transform)
+        self.parent = None
 
     # @pluginlib.abstractmethod
     # def generate_pattern(self):
