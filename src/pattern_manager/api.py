@@ -159,6 +159,12 @@ class API(object):
                 return self.get_active_leaf_manager(m)
 
     def get_active_root_manager(self):
+        """Retrieves the active root of the active leaf manager
+        
+        :return: The active root manager
+        :rtype: Manager
+        """
+
         try:
             man = self.get_active_leaf_manager()
         except:
@@ -225,9 +231,25 @@ class API(object):
             e.reset()
 
     def iterate(self):
+        """Iterates through the active instances of the manager tree.
+        
+        :return: Returns the value of the currently active managers iterate function
+        :rtype: int, bool
+        """
+        
         return self.get_active_leaf_manager().iterate()
 
     def set_active_manager(self, element, active=True):
+        """Sets active the specified manager and all of its ancestors.
+        
+        :param element: The manager to set active
+        :type element: Manager
+        :param active: Whether the manager and ancestors should be activated or deactivated, defaults to True
+        :type active: bool, optional
+        :return: True if successful, else False
+        :rtype: bool
+        """
+
         if not isinstance(element, Manager):
             print "Error: element is not a manager!"
             return False
@@ -238,6 +260,8 @@ class API(object):
         while not element == None:
             element.active = active
             element = element.parent
+
+        return True
 
 
 if __name__ == '__main__':
