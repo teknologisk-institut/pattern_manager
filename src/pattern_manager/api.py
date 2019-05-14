@@ -227,19 +227,17 @@ class API(object):
     def iterate(self):
         return self.get_active_leaf_manager().iterate()
 
-    def set_active_manager(self, element):
+    def set_active_manager(self, element, active=True):
         if not isinstance(element, Manager):
             print "Error: element is not a manager!"
             return False
 
-        done = False
-        while not done:
-            element.active = True
+        if active:
+            self.set_active_manager(self.get_active_leaf_manager(), False)
 
-            if element.parent == None:
-                done = True
-            else:
-                element = element.parent
+        while not element == None:
+            element.active = active
+            element = element.parent
 
 
 if __name__ == '__main__':
