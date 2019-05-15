@@ -44,9 +44,8 @@ class PatternManagerNode(object):
             man.group_elements([2, 3, 4], "group_2")
             man.group_elements([5, 6], "group_3")
             print [e.name for e in man.elements.values()]
-            self._pmi.get_element_by_name("group_3").active = True
-            self._pmi.get_element_by_name("group_1").active = True
-            self._pmi.get_element_by_name("cheese_linear").active = True
+            self._pmi.set_active_manager(self._pmi.get_element_by_name("group_2"))
+            print self._pmi.get_active_leaf_manager().name
         else:
             self._pmi = pattern_manager.api.API()
         self._top_man = self._pmi.manager
@@ -67,16 +66,16 @@ class PatternManagerNode(object):
 
     def get_all_patterns(self):
         elements = []
-        self._pmi.get_elements_from_manager_tree(elements)
+        self._pmi.get_successors_from_manager_tree(elements)
         pattern_list = [p for p in elements if isinstance(p, pattern_manager.patterns.Pattern)]
         return pattern_list
 
-    # SERVICE CALLBACKS ###
+    # SERVICE CALLBACKS
 
     def cb_iterate(self, req):
         rospy.logdebug("Received iterate request")
         r = TriggerResponse()
-        ok = self._pmi.iterate()
+        ok = self._pmi.iterate_active()
         active_element = self._pmi.get_active_leaf_manager()
         if ok:
             r.success = True
@@ -126,11 +125,12 @@ class PatternManagerNode(object):
             rospy.logwarn("Group with name '{}' does not exist".format(req.group_name))
             return False
         
-    ### PUBLISHERS ###
+    # PUBLISHERS
 
     def pub_current_tf(self):
-        man = self._pmi.get_active_manager()
-        p = man.active_element[1]
+        man = self._pmi.get_active_leaf_manager()
+        i, p = man.get_current_element()
+        # TODO: This fails if the returned current element is not a Pattern
         transf = p.get_current_tf()
         if transf is False:
             return
