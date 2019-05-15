@@ -51,7 +51,6 @@ class PatternManagerNode(object):
             self._pmi = pattern_manager.api.API()
         self._top_man = self._pmi.manager
 
-
         # services
         self._iter_srv = rospy.Service('~iterate', Trigger, self.cb_iterate)
         self._finished_srv = rospy.Service('~is_finished', pm_srv.GroupName, self.cb_finished)
@@ -64,8 +63,7 @@ class PatternManagerNode(object):
         self._marker_pub = rospy.Publisher('~pattern_markers', viz_msg.MarkerArray, queue_size=10)
         self._tb = TransformBroadcaster()
 
-
-    ### API interface
+    # API interface
 
     def get_all_patterns(self):
         elements = []
@@ -73,20 +71,19 @@ class PatternManagerNode(object):
         pattern_list = [p for p in elements if isinstance(p, pattern_manager.patterns.Pattern)]
         return pattern_list
 
-    ### SERVICE CALLBACKS ###
+    # SERVICE CALLBACKS ###
 
     def cb_iterate(self, req):
         rospy.logdebug("Received iterate request")
         r = TriggerResponse()
-        man = self._pmi.get_active_manager()
-        active_pattern = man.active_element[1]
-        ok = active_pattern.iterate()
+        ok = self._pmi.iterate()
+        active_element = self._pmi.get_active_leaf_manager()
         if ok:
             r.success = True
             r.message = "New iterator is {}".format(ok)
         else:
             r.success = False
-            r.message = "Pattern {} is finished".format(active_pattern.name)
+            r.message = "Element {} is finished".format(active_element.name)
         return r
 
     def cb_finished(self, req):
@@ -102,8 +99,7 @@ class PatternManagerNode(object):
         rospy.logdebug("Setting active group: '{}'".format(req.group_name))
         e = self._pmi.get_element_by_name(req.group_name)
         if e is not None:
-            e.active = True
-            return True
+            return self._pmi.set_active_manager(e, active=True)
         else:
             rospy.logwarn("Group with name '{}' does not exist".format(req.group_name))
             return False
@@ -124,7 +120,7 @@ class PatternManagerNode(object):
         rospy.logdebug("Resetting group: '{}'".format(req.group_name))
         e = self._pmi.get_element_by_name(req.group_name)
         if e is not None:
-            e.reset()
+            self._pmi.reset_element_tree(e)
             return True
         else:
             rospy.logwarn("Group with name '{}' does not exist".format(req.group_name))
@@ -145,7 +141,6 @@ class PatternManagerNode(object):
         t.child_frame_id = "pattern_current"
         t.transform = transf
         self._tb.sendTransform(t)
-
 
     def pub_markers(self):
         ma = viz_msg.MarkerArray()

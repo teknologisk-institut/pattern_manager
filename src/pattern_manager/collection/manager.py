@@ -154,8 +154,6 @@ class Manager(object):
         :return: Returns the iterator increased to if successful. If iteration is finished, False
         :rtype: int, False
         """
-
-        
         next_i = self.iterator + 1
         if next_i < self.element_count and self.allow_iterate:
             self.iterator += 1

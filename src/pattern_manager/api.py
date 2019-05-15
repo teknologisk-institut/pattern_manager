@@ -25,7 +25,7 @@ import pattern_manager.examples as ex
 
 
 class PatternFactory:
-    """A factory for creating patterns. 
+    """A factory for creating patterns.
 
     Offers methods for generating internal model of patterns, based on pattern parameters.
     """
@@ -171,7 +171,7 @@ class API(object):
             print "Error: No active manager!"
             return None
 
-        while not man.parent == None and man.parent.active:
+        while man.parent is not None and man.parent.active:
             man = man.parent
         
         return man
@@ -185,7 +185,7 @@ class API(object):
         :type element: Manager or Pattern, optional
         """
 
-        if element == None:
+        if element is None:
             element = self.manager
 
         arr.append(element)
@@ -205,7 +205,7 @@ class API(object):
         :rtype: Manager or Pattern
         """
 
-        if element == None:
+        if element is None:
             element = self.manager
 
         elements = []
@@ -230,7 +230,7 @@ class API(object):
         for e in elements:
             e.reset()
 
-    def iterate(self):
+    def iterate_active(self):
         """Iterates through the active instances of the manager tree.
         
         :return: Returns the value of the currently active managers iterate function
@@ -257,7 +257,7 @@ class API(object):
         if active:
             self.set_active_manager(self.get_active_leaf_manager(), False)
 
-        while not element == None:
+        while element is not None:
             element.active = active
             element = element.parent
 
@@ -303,7 +303,7 @@ if __name__ == '__main__':
 
     for i in range(3):
         print "Current element (in {}): {}".format(a_man.name, a_man.get_current_element()[1].name)
-        api.iterate()
+        api.iterate_active()
         a_man = api.get_active_leaf_manager()
 
     print ""
