@@ -25,6 +25,7 @@ import geometry_msgs.msg as gm
 import pluginlib
 import numpy as np
 from pattern_manager.utils import transform_to_matrix, matrix_to_transform, output, logging
+from pattern_manager.collection import Manager
 from tf import transformations as tfs
 
 
@@ -48,63 +49,104 @@ class Pattern(object):
     :type offset_rot: float
     :param order: explicit iteration order (optional)
     :type order: list
-    :param static: lock the pattern for any future updates (optional)
-    :type static: bool
     """
 
-    _iterator = 0
-    _parameterized = False
-    _generated = False
-    _finished = False
-
-    def __init__(self, i=0, rev=False, frame="", name="", offset_xy=(0, 0), offset_rot=0, order=[], static=False):
-        self.iterator = i
-        self.reverse_iteration = rev
-        self.pattern_frame_id = frame
+    def __init__(self, i=0, rev=False, frame="", name="", offset_xy=(0, 0), offset_rot=0, order=[]):
+        self._manager = Manager("{}_manager".format(name))
+        self.parent = None
         self.name = name
+        self.pattern_frame_id = frame
         self._iteration_order = order
-        self._static = static
         self._pos_offset = tuple(offset_xy)
         self._rot_offset = offset_rot
         self.pattern_transform = gm.TransformStamped()
         self._pattern = np.array(np.empty(0), dtype=gm.Transform)
-        self.parent = None
 
-    # @pluginlib.abstractmethod
-    # def generate_pattern(self):
-    #     pass
+    @property
+    def finished(self):
+        return self._manager.finished
 
-    # ITERATOR FUNCTIONS
+    @finished.setter
+    def finished(self, f):
+        self._manager.finished = f
+
     @property
     def iterator(self):
-        """Iterator of this pattern.
-
-        :getter: Return the iterator value
-        :setter: Set the iterator value
-        :type: int
-        """
-        return self._iterator
+        return self._manager.iterator
 
     @iterator.setter
-    def iterator(self, iterator):
-        self._iterator = iterator
+    def iterator(self, i):
+        self._manager.iterator = i
+
+    @property
+    def active(self):
+        return self._manager.active
+
+    @active.setter
+    def active(self, a):
+        self._manager.active = a
+
+    @property
+    def elements(self):
+        return self._manager.elements
 
     def iterate(self):
-        """Increase the iterator by 1.
+        self._manager.iterate()
 
-        :return: the new value of the iterator, or False if the pattern was finished
-        :rtype: int if successful, bool if pattern was already finished
+    def get_pattern_size(self):
+        return self._manager.element_count
+
+    def add_element(self, e):
+        self._manager.add_element(e)
+    
+    def remove_element(self, i):
+        self._manager.remove_element(i)
+
+    def pop_element(self, i):
+        self._manager.pop_element(i)
+
+    def get_element(self, i):
+        return self._manager.get_element(i)
+
+    def get_element_index(self, e):
+        return self._manager.get_element_index(e)
+
+    def get_current_element(self):
+        return self._manager.get_current_element()
+
+    def get_next_element(self):
+        return self._manager.get_next_element()
+
+    def reset(self):
+        self._manager.reset()
+
+    @property
+    def pattern_frame_id(self):
+        """Frame that the pattern positions are with reference to.
+
+        :type: str
         """
-        self.iterator += 1
-        if not self.iterator < self._pattern.size:
-            self._finished = True
-            self.iterator -= 1
-            return False
-        return self.iterator
+        return self._pattern_frame_id
 
-    def reset_iterator(self):
-        """Reset iterator to 0."""
-        self.iterator = 0
+    @pattern_frame_id.setter
+    def pattern_frame_id(self, frame_name):
+        self._pattern_frame_id = frame_name
+
+    @property
+    def pattern_transform(self):
+        """Transform of the pattern, wrt. pattern_frame_id.
+
+        :getter: Return the transform
+        :setter: Set the transform. Fills in frame_id with pattern_frame_id, if unspecified.
+        :type: gm.Transform
+        """
+        return self._pattern_transform
+
+    @pattern_transform.setter
+    def pattern_transform(self, transform):
+        self._pattern_transform = transform
+        if transform.header.frame_id == "":
+            self._pattern_transform.header.frame_id = self.pattern_frame_id
 
     def set_iteration_order(self, order):
         """Set iteration order explicitly.
@@ -145,79 +187,6 @@ class Pattern(object):
         self._pattern = self._pattern[iter_order_np]
         return True
 
-    def is_finished(self):
-        return self._finished
-
-    def reset(self):
-        """Resets a pattern, by resetting iterator, and marking the pattern not finished."""
-        self.reset_iterator()
-        self._finished = False
-
-    def get_pattern_size(self):
-        """Returns the size of the pattern in 1 dimension (number of indices)."""
-        return self._pattern.size
-
-    def get_pattern_shape(self):
-        """Returns the shape of the pattern.
-
-        :return: shape of pattern
-        :rtype: tuple
-        """
-        return self._pattern.shape
-
-    # DIRECTION FUNCTIONS
-    @property
-    def reverse_iteration(self):
-        """Pattern iterates reversed (n->0 vs. 0->n).
-
-        :getter: Return whether or not iteration is reversed.
-        :setter: Set whether or not iteration is reversed.
-        :type: bool
-        """
-        return self._reverse_iteration
-
-    @reverse_iteration.setter
-    def reverse_iteration(self, reverse):
-        self._reverse_iteration = reverse
-
-    # INITIALIZED FUNCTIONS
-    @property
-    def generated(self):
-        """Pattern is generated.
-
-        :getter: Return if pattern is generated
-        :setter: Set that pattern is generated
-        :type: bool
-        """
-        return self._generated
-
-    @generated.setter
-    def generated(self, g):
-        self._generated = g
-
-    # @property
-    # def parameterized(self):
-    #     return self._parameterized
-
-    # @parameterized.setter
-    # def parameterized(self, parameterized):
-    #     self._parameterized = parameterized
-
-    # def can_generate(self):
-    #     """Check if the pattern has been correctly paramterized.
-    #
-    #     :return: Can generate
-    #     :rtype: bool
-    #     """
-    #
-    #     if not self.parameterized:
-    #         output.error("Pattern is not parameterized, can't generate")
-    #         self.generated = False
-    #         return False
-    #     return True
-
-    # FRAME FUNCTIONS
-
     def set_all_frame_parameters(self, frame_id, pattern_transform=gm.TransformStamped()):
         """Sets frame and transform from frame to pattern.
 
@@ -231,54 +200,13 @@ class Pattern(object):
             self.pattern_frame_id = frame_id
         self.pattern_transform = pattern_transform
 
-    @property
-    def pattern_frame_id(self):
-        """Frame that the pattern positions are with reference to.
-
-        :type: str
-        """
-        return self._pattern_frame_id
-
-    @pattern_frame_id.setter
-    def pattern_frame_id(self, frame_name):
-        self._pattern_frame_id = frame_name
-
-    @property
-    def pattern_transform(self):
-        """Transform of the pattern, wrt. pattern_frame_id.
-
-        :getter: Return the transform
-        :setter: Set the transform. Fills in frame_id with pattern_frame_id, if unspecified.
-        :type: gm.Transform
-        """
-        return self._pattern_transform
-
-    @pattern_transform.setter
-    def pattern_transform(self, transform):
-        self._pattern_transform = transform
-        if transform.header.frame_id == "":
-            self._pattern_transform.header.frame_id = self.pattern_frame_id
-
-    # @property
-    # def name(self):
-    #     """Human-readable name of this pattern.
-
-    #     :type: str
-    #     """
-    #     return self._pattern_name
-
-    # @pattern_name.setter
-    # def name(self, name):
-    #     self._pattern_name = name
-
-    # OFFSET FUNCTIONS
-
     def offset_pattern(self):
         """Correctly offsets each position in the pattern.
 
         Will modify each position in the pattern, typically after generation, with the pattern offset from the parent frame to xy and yaw offset specified during initialization.
 
         """
+
         # no offset
         if self._pos_offset == (0, 0) and self._rot_offset == 0:
             return
@@ -310,47 +238,10 @@ class Pattern(object):
         :return: Whether or not the pattern is correctly generated.
         :rtype: bool
         """
+        
         self._pattern = self._pattern.reshape(self._pattern.size)
         if not ignore_offset:
             self.offset_pattern()
         self.cleanup_iteration_order()
-        self.generated = True
+        # self.generated = True
         return True
-
-    def get_tf_from_iter(self, i):
-        """Get the transformation corresponding to a specific index in the pattern.
-
-        :param i: index of the position to query
-        :type i: int
-        :return: Transform from pattern parent frame to requested position index, if available
-        :rtype: geometry_msgs.TransformStamped, False otherwise
-        """
-        try:
-            if len(self._pattern) == 0:
-                return False
-            if self.reverse_iteration:
-                index = -(i + 1)
-            else:
-                index = i
-            t = self._pattern.item(index)
-            return t
-        except IndexError:
-            logging.error("Iterator value %s exceeded dimension of pattern size %s" % (i, self._pattern.shape))
-            return False
-
-    def get_current_tf(self):
-        """Get the transform corresponding to the current active pattern position.
-
-        :return: Transform of current position.
-        :rtype: geometry_msgs.TransformStamped
-        """
-        return self.get_tf_from_iter(self.iterator)
-
-    def get_next_tf(self):
-        """Get the transform corresponding to the next pattern position.
-
-        :return: Transform of next position.
-        :rtype: geometry_msgs.TransformStamped
-        """
-        i = self.iterator + 1
-        return self.get_tf_from_iter(i)

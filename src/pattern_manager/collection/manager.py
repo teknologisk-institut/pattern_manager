@@ -30,13 +30,13 @@ class Manager(object):
     
     def __init__(self, name, elements=[]):
         self.name = name
-        self.cur_index = 0
+        self._cur_index = 0
         self.iterator = 0
         self.finished = False
         self.elements = bidict()
         self.active = False
         self.parent = None
-        self.allow_iterate = True
+        self._allow_iterate = True
         
         for e in elements:
             self.add_element(e)
@@ -47,9 +47,10 @@ class Manager(object):
         :param element: An element
         :type element: Object
         """
+        
         element.parent = self
-        self.elements[self.cur_index] = element
-        self.cur_index += 1
+        self.elements[self._cur_index] = element
+        self._cur_index += 1
 
     def remove_element(self, index):
         """Removes an element from the dictionary of elements within the manager.
@@ -157,7 +158,7 @@ class Manager(object):
 
         
         next_i = self.iterator + 1
-        if next_i < self.element_count and self.allow_iterate:
+        if next_i < self.element_count and self._allow_iterate:
             self.iterator += 1
         else:
             self.finished = True

@@ -39,17 +39,20 @@ class PatternRectangular(pattern_base.Pattern):
             self.points = (self.inputX[0], self.inputY[0])
             self.step_size = (self.inputX[1], self.inputY[1])
             self.length = (self.inputX[2], self.inputY[2])
-            self._parameterized = True
             self._generate_pattern()
 
     def _generate_pattern(self):
-            self._pattern = np.array(np.empty((self.points[0], self.points[1])), dtype=gm.Transform)
-            x_pattern = frames_along_axis(self.points[0], self.step_size[0], axis='x')
+        pattern = np.array(np.empty((self.points[0], self.points[1])), dtype=gm.Transform)
+        x_pattern = frames_along_axis(self.points[0], self.step_size[0], axis='x')
 
-            for x in range(self.points[0]):
-                y_pattern = frames_along_axis(self.points[1], self.step_size[1], basis_frame=x_pattern[x], axis='y')
-                self._pattern[x, :] = y_pattern
-                del y_pattern
+        for x in range(self.points[0]):
+            y_pattern = frames_along_axis(self.points[1], self.step_size[1], basis_frame=x_pattern[x], axis='y')
+            pattern[x, :] = y_pattern
+            del y_pattern
 
-            self.finish_generation()
-            self._pattern_org_copy = np.copy(self._pattern)
+        self.finish_generation()
+
+        for f in pattern:
+            self.add_element(f)
+
+        return True

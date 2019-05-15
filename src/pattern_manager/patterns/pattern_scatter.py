@@ -41,13 +41,12 @@ class PatternScatter(pattern_base.Pattern):
             output.error("Point input is not a list of points")
 
         if len(self.input_points) > 0:
-            self._parameterized = True
             self._generate_pattern()
         else:
             output.error("Scatter point list is empty")
 
     def _generate_pattern(self):
-        self._pattern = np.array(np.empty(len(self.input_points)), dtype=gm.Transform)
+        pattern = np.array(np.empty(len(self.input_points)), dtype=gm.Transform)
 
         i = 0
         for p in self.input_points:
@@ -71,10 +70,12 @@ class PatternScatter(pattern_base.Pattern):
             else:
                 output.error("Incorrect point length (%s), aborting pattern generation" % len(p))
                 return False
-            self._pattern[i] = t
+            pattern[i] = t
             i += 1
 
         self.finish_generation()
-        self._pattern_org_copy = np.copy(self._pattern)
+
+        for f in pattern:
+            self.add_element(f)
 
         return True

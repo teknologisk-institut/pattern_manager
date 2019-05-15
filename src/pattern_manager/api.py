@@ -103,6 +103,7 @@ class API(object):
         self.manager.active = True
         self.patterns = {}
         self._pattern_index = 0
+        self.active_leaf = None
 
         for d in pattern_dicts:
             self.create_pattern_from_dict(
@@ -236,6 +237,9 @@ class API(object):
         :return: Returns the value of the currently active managers iterate function
         :rtype: int, bool
         """
+
+        if self.active_leaf.active:
+            return self.active_leaf.iterate()
         
         return self.get_active_leaf_manager().iterate()
 
