@@ -43,8 +43,6 @@ class PatternLinear(pattern_base.Pattern):
 
     def _generate_pattern(self):
         pattern = frames_along_axis(self.points, self.step_size, axis='x')
+        self.finish_generation(pattern)
 
-        self.finish_generation()
-
-        for f in pattern:
-            self.add_element(f)
+        return True

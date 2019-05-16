@@ -50,9 +50,6 @@ class PatternRectangular(pattern_base.Pattern):
             pattern[x, :] = y_pattern
             del y_pattern
 
-        self.finish_generation()
-
-        for f in pattern:
-            self.add_element(f)
+        self.finish_generation(pattern)
 
         return True

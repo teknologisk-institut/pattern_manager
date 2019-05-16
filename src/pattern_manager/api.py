@@ -103,7 +103,6 @@ class API(object):
         self.manager.active = True
         self.patterns = {}
         self._pattern_index = 0
-        self.active_leaf = None
 
         for d in pattern_dicts:
             self.create_pattern_from_dict(
@@ -136,46 +135,15 @@ class API(object):
         self.patterns[self._pattern_index] = pattern
         self._pattern_index += 1
 
-    def get_active_leaf_manager(self, element=None):
-        """Retrieves the active manager lowest in the manager tree from the specified start element.
-        
-        :param element: The element to begin search from, defaults to None
-        :type element: Manager, optional
-        :return: The active manager lowest in the tree
-        :rtype: Manager
-        """
-
+    def get_active_leaf(self, element=None):
         if element is None:
             element = self.manager
 
-        mans = []
         for e in element.elements.values():
-            if isinstance(e, Manager) and e.active:
-                mans.append(e)
-
-        if len(mans) == 0:
-            return element
-        else:
-            for m in mans:
-                return self.get_active_leaf_manager(m)
-
-    def get_active_root_manager(self):
-        """Retrieves the active root of the active leaf manager
+            if hasattr(e, 'active') and e.active:
+                return self.get_active_leaf(e)
         
-        :return: The active root manager
-        :rtype: Manager
-        """
-
-        try:
-            man = self.get_active_leaf_manager()
-        except:
-            print "Error: No active manager!"
-            return None
-
-        while not man.parent == None and man.parent.active:
-            man = man.parent
-        
-        return man
+        return element
 
     def get_successors_from_manager_tree(self, arr, element=None):
         """Retrieves all elements under the specified element in the tree.
@@ -238,12 +206,12 @@ class API(object):
         :rtype: int, bool
         """
 
-        if self.active_leaf.active:
-            return self.active_leaf.iterate()
+        # if self.active_leaf is None or self.active_leaf.active:
+        #     self.active_leaf = self.get_active_leaf()
         
-        return self.get_active_leaf_manager().iterate()
+        return self.get_active_leaf().iterate()
 
-    def set_active_manager(self, element, active=True):
+    def set_active_ancestors(self, element, active=True):
         """Sets active the specified manager and all of its ancestors.
         
         :param element: The manager to set active
@@ -254,18 +222,33 @@ class API(object):
         :rtype: bool
         """
 
-        if not isinstance(element, Manager):
-            print "Error: element is not a manager!"
-            return False
-
-        if active:
-            self.set_active_manager(self.get_active_leaf_manager(), False)
-
-        while not element == None:
-            element.active = active
+        while not element.parent == None:
             element = element.parent
 
+            if not element.active == active:
+                element.active = active
+            
         return True
+
+    def set_active_successors(self, element, active=True):
+        arr = []
+        self.get_successors_from_manager_tree(arr, element)
+
+        for e in arr:
+            e.active = active
+
+    def set_active_element(self, element, active=True):
+        if not element.active == active:
+            element.active = active
+
+    def set_active_manager(self, manager, active=True):
+        self.set_active_element(manager)
+        self.set_active_ancestors(manager)
+        self.set_active_successors(manager)
+
+    def set_active_pattern(self, pattern, active=True):
+        self.set_active_element(pattern)
+        self.set_active_ancestors(pattern)
 
 
 if __name__ == '__main__':
@@ -280,16 +263,16 @@ if __name__ == '__main__':
     man.group_elements([5, 6], "group_3")
 
     # manually set active elements
-    api.set_active_manager(man.elements[7].elements[0])
+    e = [api.get_element_by_name("cheese_linear"), api.get_element_by_name("cheese_linear2")]
+    api.set_active_pattern(e[0])
+    api.set_active_pattern(e[1])
+
 
     b_man = api.get_element_by_name("group_2")
     print "element found by name, 'group_2': {}".format(b_man.name)
 
-    a_man = api.get_active_leaf_manager()
-    print "active leaf manager: {}".format(a_man.name)
-
-    c_man = api.get_active_root_manager()
-    print "active root manager: {}".format(c_man.name)
+    a_man = api.get_active_leaf()
+    print "active leaf: {}".format(a_man.name)
 
     arr = []
     api.get_successors_from_manager_tree(arr, None)
@@ -302,13 +285,21 @@ if __name__ == '__main__':
 
     print ""
 
-    man3 = api.get_element_by_name("group_3")
-    man3.allow_iterate = False
+    print "all active nodes from root manager tree:"
+    for a in arr:
+        if a.active:
+            print "    {}".format(a.name)
 
-    for i in range(3):
-        print "Current element (in {}): {}".format(a_man.name, a_man.get_current_element()[1].name)
+    print ""
+
+    for i in range(10):
+        active_e = api.get_active_leaf()
+        print "Current element (in {}): {}".format(active_e.name, active_e.get_current_element())
+
+        if hasattr(active_e.get_current_element, 'name'):
+            print active_e.get_current_element()[1].name
+            
         api.iterate()
-        a_man = api.get_active_leaf_manager()
 
     print ""
 

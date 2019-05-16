@@ -21,13 +21,13 @@ from bidict import bidict
 
 class Manager(object):
     """This class contains and manages elements of various types.
-    
+
     :param name: The unique name of this manager
     :type name: str
     :param elements: Elements to add to manager, defaults to []
     :type elements: list, optional
     """
-    
+
     def __init__(self, name, elements=[]):
         self.name = name
         self._cur_index = 0
@@ -37,24 +37,26 @@ class Manager(object):
         self.active = False
         self.parent = None
         self._allow_iterate = True
-        
+
         for e in elements:
             self.add_element(e)
 
     def add_element(self, element):
         """Adds an element to the dictionary of elements within the manager.
-        
+
         :param element: An element
         :type element: Object
         """
-        
-        element.parent = self
+
+        if hasattr(element, 'parent'):
+            element.parent = self
+
         self.elements[self._cur_index] = element
         self._cur_index += 1
 
     def remove_element(self, index):
         """Removes an element from the dictionary of elements within the manager.
-        
+
         :param index: The index/key of the element to be removed
         :type index: int
         :return: Returns True if successfully removed, otherwise False
@@ -69,7 +71,7 @@ class Manager(object):
 
     def pop_element(self, index):
         """Pops an element from the dictionary of elements within the manager.
-        
+
         :param index: The index/key of the element to be popped
         :type index: int
         :return: Returns the popped element if successful, otherwise False
@@ -80,10 +82,10 @@ class Manager(object):
             self.elements.pop(index)
         except KeyError:
             return False
-   
+
     def get_element(self, index):
         """Retrieves an element from the dictionary of elements within the manager.
-        
+
         :param index: The index/key of the element to be retrieved
         :type index: int
         :return: Returns the requested element if successful, otherwise False
@@ -98,7 +100,7 @@ class Manager(object):
 
     def get_element_index(self, element):
         """Retrieves the element index from the element instance.
-        
+
         :param element: An object from which to retrieve the index
         :type element: Object
         :return: Returns the requested index if successful, otherwise False
@@ -112,7 +114,7 @@ class Manager(object):
 
     def get_element_index_by_name(self, name):
         """Retrieves the index of an element by the name of the element.
-        
+
         :param name: A string specififying the name of the element of the index to be retrieved
         :type name: str
         :return: An index of the element
@@ -125,7 +127,7 @@ class Manager(object):
 
     def get_current_element(self):
         """Retrieves the element currently iterated to.
-        
+
         :return: Returns internal iterator and the currently active element if successful, otherwise False
         :rtype: tuple with iterator, Object, or False if failed
         """
@@ -138,7 +140,7 @@ class Manager(object):
 
     def get_next_element(self):
         """Retrieves the next element to become iterated to.
-        
+
         :return: Returns the next element to become active if successful, otherwise False
         :rtype: Object, False
         """
@@ -151,19 +153,23 @@ class Manager(object):
 
     def iterate(self):
         """Increases the iterator of the elements.
-        
+
         :return: Returns the iterator increased to if successful. If iteration is finished, False
         :rtype: int, False
         """
 
-        
         next_i = self.iterator + 1
-        if next_i < self.element_count and self._allow_iterate:
-            self.iterator += 1
-        else:
+        if not next_i < self.element_count:
             self.finished = True
             self.active = False
+
+            if not self.parent is None:
+                self.parent.iterate()
+
             return False
+
+        else:
+            self.iterator += 1
         
         return next_i
 
@@ -225,29 +231,29 @@ class Manager(object):
         
         return len(self.elements)
 
-    @property
-    def element_finished(self, index):
-        """Returns the finished status of the element at the specified index of the elements
+    # @property
+    # def element_finished(self, index):
+    #     """Returns the finished status of the element at the specified index of the elements
         
-        :param index: The index of the element
-        :type index: int
-        :return: Returns the status of the specified element
-        :rtype: bool
-        """
+    #     :param index: The index of the element
+    #     :type index: int
+    #     :return: Returns the status of the specified element
+    #     :rtype: bool
+    #     """
 
-        if index < self.iterator:
-            return True
-        else:
-            return False
+    #     if index < self.iterator:
+    #         return True
+    #     else:
+    #         return False
 
-    @property
-    def active_element(self):
-        """The currently active element of the manager.
+    # @property
+    # def active_element(self):
+    #     """The currently active element of the manager.
         
-        :type: Object or None
-        """
+    #     :type: Object or None
+    #     """
 
-        if not self.finished:
-            return self.get_current_element()
-        else:
-            return None
+    #     if not self.finished:
+    #         return self.get_current_element()
+    #     else:
+    #         return None

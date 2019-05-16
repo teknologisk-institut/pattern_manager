@@ -108,10 +108,7 @@ class PatternCircular(pattern_base.Pattern):
                 
             pattern[i] = t
             del t
-
-        self.finish_generation()
-
-        for f in pattern:
-            self.add_element(f)
+        
+        self.finish_generation(pattern)
 
         return True

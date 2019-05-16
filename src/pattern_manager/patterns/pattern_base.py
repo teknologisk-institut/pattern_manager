@@ -53,14 +53,21 @@ class Pattern(object):
 
     def __init__(self, i=0, rev=False, frame="", name="", offset_xy=(0, 0), offset_rot=0, order=[]):
         self._manager = Manager("{}_manager".format(name))
-        self.parent = None
+        # self.parent = None
         self.name = name
         self.pattern_frame_id = frame
         self._iteration_order = order
         self._pos_offset = tuple(offset_xy)
         self._rot_offset = offset_rot
         self.pattern_transform = gm.TransformStamped()
-        self._pattern = np.array(np.empty(0), dtype=gm.Transform)
+
+    @property
+    def parent(self):
+        return self._manager.parent
+    
+    @parent.setter
+    def parent(self, p):
+        self._manager.parent = p
 
     @property
     def finished(self):
@@ -148,45 +155,6 @@ class Pattern(object):
         if transform.header.frame_id == "":
             self._pattern_transform.header.frame_id = self.pattern_frame_id
 
-    def set_iteration_order(self, order):
-        """Set iteration order explicitly.
-
-        The order is specified as a list of indices. len(order) should be less than or equal to the pattern size.
-
-        :param order: iteration order (list of indices)
-        :type order: list
-        :return: success
-        :rtype: bool
-        """
-        self._iteration_order = order
-        return self.cleanup_iteration_order()
-
-    def cleanup_iteration_order(self):
-        """Truncates or expands the current iteration order.
-
-        This function makes sure the length of the internal iteration order is the same as the pattern size.
-        If iteration order is shorter, it is expanded with missing indices. If it is longer, it is simply truncated.
-
-        :return: success
-        :rtype: bool
-        """
-        # make sure we have an order the exact length of the pattern
-        if len(self._iteration_order) == 0:
-            self._iteration_order = range(self.get_pattern_size())
-        elif len(self._iteration_order) > self.get_pattern_size():
-            output.warning("Specified iteration order is larger than pattern size, cropping order")
-            self._iteration_order = self._iteration_order[:self.get_pattern_size()]
-        elif len(self._iteration_order) < self.get_pattern_size():
-            # find uniques
-            orig_order = range(self.get_pattern_size())
-            for o in self._iteration_order:
-                orig_order.remove(o)
-            self._iteration_order += orig_order
-        # reorder the pattern
-        iter_order_np = np.array(self._iteration_order)
-        self._pattern = self._pattern[iter_order_np]
-        return True
-
     def set_all_frame_parameters(self, frame_id, pattern_transform=gm.TransformStamped()):
         """Sets frame and transform from frame to pattern.
 
@@ -198,6 +166,7 @@ class Pattern(object):
 
         if not frame_id == "":
             self.pattern_frame_id = frame_id
+
         self.pattern_transform = pattern_transform
 
     def offset_pattern(self):
@@ -213,7 +182,7 @@ class Pattern(object):
         # offset
         # just translate
         if not self._pos_offset == (0, 0) and self._rot_offset == 0:
-            for pos in self._pattern:
+            for pos in self.elements:
                 pos.translation.x += self._pos_offset[0]
                 pos.translation.y += self._pos_offset[1]
             return
@@ -221,14 +190,14 @@ class Pattern(object):
         if not self._rot_offset == 0:
             transf_mat = tfs.compose_matrix(angles=[0, 0, self._rot_offset],
                                             translate=[self._pos_offset[0], self._pos_offset[1], 0])
-            for pos in self._pattern:
+            for pos in self.elements:
                 mat = transform_to_matrix(pos)
                 new_pos = matrix_to_transform(np.dot(mat, transf_mat))
                 pos.rotation = new_pos.rotation
                 pos.translation = new_pos.translation
             return
 
-    def finish_generation(self, ignore_offset=False):
+    def finish_generation(self, pattern, ignore_offset=False):
         """Mark generation finished, and do various cleanup.
 
         Offsets the pattern, if specified, and cleans up the iteration order, if specified.
@@ -238,10 +207,15 @@ class Pattern(object):
         :return: Whether or not the pattern is correctly generated.
         :rtype: bool
         """
-        
-        self._pattern = self._pattern.reshape(self._pattern.size)
+
+        pattern = pattern.reshape(pattern.size)
+                
         if not ignore_offset:
             self.offset_pattern()
-        self.cleanup_iteration_order()
-        # self.generated = True
+            
+        # self.cleanup_iteration_order()
+
+        for f in pattern:
+            self.add_element(f)
+
         return True
