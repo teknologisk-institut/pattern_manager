@@ -159,7 +159,7 @@ class API(object):
 
         arr.append(element)
 
-        if isinstance(element, Manager):
+        if type(element) is Manager:
             for e in element.elements.values():
                 self.get_successors_from_manager_tree(arr, e)
 
@@ -205,9 +205,6 @@ class API(object):
         :return: Returns the value of the currently active managers iterate function
         :rtype: int, bool
         """
-
-        # if self.active_leaf is None or self.active_leaf.active:
-        #     self.active_leaf = self.get_active_leaf()
         
         return self.get_active_leaf().iterate()
 
@@ -290,16 +287,13 @@ if __name__ == '__main__':
         if a.active:
             print "    {}".format(a.name)
 
-    print ""
+    print "\nIterating through active elements..."
 
-    for i in range(10):
-        active_e = api.get_active_leaf()
-        print "Current element (in {}): {}".format(active_e.name, active_e.get_current_element())
-
-        if hasattr(active_e.get_current_element, 'name'):
-            print active_e.get_current_element()[1].name
-            
-        api.iterate()
+    iterator = 0
+    while not iterator is False:
+        e = api.get_active_leaf()
+        print "Current element (in {}): {}".format(e.name, e.get_current_element())
+        iterator = api.iterate()
 
     print ""
 
