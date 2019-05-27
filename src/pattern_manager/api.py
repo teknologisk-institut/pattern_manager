@@ -260,10 +260,11 @@ if __name__ == '__main__':
     man.group_elements([5, 6], "group_3")
 
     # manually set active elements
-    e = [api.get_element_by_name("cheese_linear"), api.get_element_by_name("cheese_linear2")]
-    api.set_active_pattern(e[0])
-    api.set_active_pattern(e[1])
+    # e = [api.get_element_by_name("cheese_linear"), api.get_element_by_name("cheese_linear2")]
+    # api.set_active_pattern(e[0])
+    # api.set_active_pattern(e[1])
 
+    api.set_active_manager(api.get_element_by_name('group_1'))
 
     b_man = api.get_element_by_name("group_2")
     print "element found by name, 'group_2': {}".format(b_man.name)

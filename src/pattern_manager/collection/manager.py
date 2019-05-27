@@ -200,31 +200,12 @@ class Manager(object):
 
         return True
 
-    def get_element_type(self, index):
-        """Retrieves the type of the element at the specified index.
-        
-        :param index: The indix of the element of which the type is found
-        :type index: int
-        :return: Returns the class name of the specified element
-        :rtype: str
-        """
-        return self.get_element(index).__class__.__name__
-
     def reset(self):
         """Resets the iterator of the manager and sets finished to False
         """
 
         self.iterator = 0
         self.finished = False
-
-    def sorted_indices(self):
-        """Retrieves a sorted list of the keys of the elements.
-        
-        :return: A sorted list of keys
-        :rtype: list
-        """
-
-        return sorted(self.elements.keys())
 
     @property
     def element_count(self):
@@ -234,30 +215,3 @@ class Manager(object):
         """
         
         return len(self.elements)
-
-    # @property
-    # def element_finished(self, index):
-    #     """Returns the finished status of the element at the specified index of the elements
-        
-    #     :param index: The index of the element
-    #     :type index: int
-    #     :return: Returns the status of the specified element
-    #     :rtype: bool
-    #     """
-
-    #     if index < self.iterator:
-    #         return True
-    #     else:
-    #         return False
-
-    # @property
-    # def active_element(self):
-    #     """The currently active element of the manager.
-        
-    #     :type: Object or None
-    #     """
-
-    #     if not self.finished:
-    #         return self.get_current_element()
-    #     else:
-    #         return None
