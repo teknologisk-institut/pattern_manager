@@ -16,6 +16,27 @@
 
 # Author: Mikkel Rath Hansen
 
-class PatternBase(object):
-    def __init__(self):
-        print "fart"
+from enum import Enum
+from pluginlib import PluginLoader
+
+
+class PType(Enum):
+    lin = 1
+    rect = 2
+    circ = 3
+    scat = 4
+
+class Pattern(object):
+    id = 0
+
+    def __init__(self, typ, nm):
+        self.typ = typ
+        self.nm = nm
+        self.id = Pattern.id
+        self.tfs = [None] * 50
+        self.step_size = 0
+        self.len = 0
+        self.no_pts = 0
+        self.par = None
+        Pattern.id += 1
+        

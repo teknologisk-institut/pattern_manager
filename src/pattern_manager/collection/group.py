@@ -16,7 +16,7 @@
 
 # Author: Mads Vainoe Baatrup
 
-from pattern_manager.collection.manager_new import ManagerNew
+from pattern_manager.collection import Manager
 from enum import Enum
 
 
@@ -73,7 +73,7 @@ class Group(object):
 
 
 if __name__ == "__main__":
-    mgr = ManagerNew.getInstance()
+    mgr = Manager.getInstance()
     g_root = Group(GType.group, "root")
     mgr.set_active(g_root.id, True)
 
