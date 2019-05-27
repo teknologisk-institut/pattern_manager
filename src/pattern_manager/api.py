@@ -291,10 +291,11 @@ if __name__ == '__main__':
     print "\nIterating through active elements..."
 
     iterator = 0
-    while not iterator is False:
-        e = api.get_active_leaf()
+    e = api.get_active_leaf()
+    while e.active:
         print "Current element (in {}): {}".format(e.name, e.get_current_element())
         iterator = api.iterate()
+        e = api.get_active_leaf()
 
     print ""
 
