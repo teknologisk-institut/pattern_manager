@@ -98,7 +98,7 @@ class Pattern(object):
         return self._manager.elements
 
     def iterate(self):
-        self._manager.iterate()
+        return self._manager.iterate()
 
     def get_pattern_size(self):
         return self._manager.element_count
