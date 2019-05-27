@@ -45,7 +45,7 @@ class PatternManagerNode(object):
             man.group_elements([5, 6], "group_3")
             print [e.name for e in man.elements.values()]
             self._pmi.set_active_manager(self._pmi.get_element_by_name("group_2"))
-            print self._pmi.get_active_leaf_manager().name
+            print self._pmi.get_active_leaf().name
         else:
             self._pmi = pattern_manager.api.API()
         self._top_man = self._pmi.manager
@@ -76,7 +76,7 @@ class PatternManagerNode(object):
         rospy.logdebug("Received iterate request")
         r = TriggerResponse()
         ok = self._pmi.iterate()
-        active_element = self._pmi.get_active_leaf_manager()
+        active_element = self._pmi.get_active_leaf()
         if ok:
             r.success = True
             r.message = "New iterator is {}".format(ok)
@@ -128,10 +128,10 @@ class PatternManagerNode(object):
     # PUBLISHERS
 
     def pub_current_tf(self):
-        man = self._pmi.get_active_leaf_manager()
-        i, p = man.get_current_element()
+        p = self._pmi.get_active_leaf()
+        i, transf = p.get_current_element()
         # TODO: This fails if the returned current element is not a Pattern
-        transf = p.get_current_tf()
+        #transf = p.get_current_element()
         if transf is False:
             return
         frame = p.pattern_frame_id
@@ -152,7 +152,7 @@ class PatternManagerNode(object):
             size = p.get_pattern_size()
             for i in range(size):
                 # color
-                if p.is_finished():
+                if p.finished:
                     color = 'r'
                 elif i < p.iterator:
                     color = 'r'
@@ -161,7 +161,7 @@ class PatternManagerNode(object):
                 else:
                     color = 'g'
                 # data
-                transf = p.get_tf_from_iter(i)
+                transf = p.get_element(i)
                 #ns = "pattern_" + str(pi)
                 ns = p.name
                 m = self.create_marker(frame, now, transf, ns, i, color, alpha)
