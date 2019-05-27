@@ -77,7 +77,7 @@ class PatternManagerNode(object):
         r = TriggerResponse()
         ok = self._pmi.iterate()
         active_element = self._pmi.get_active_leaf()
-        if ok:
+        if ok is not False:
             r.success = True
             r.message = "New iterator is {}".format(ok)
         else:
@@ -98,9 +98,10 @@ class PatternManagerNode(object):
         rospy.logdebug("Setting active group: '{}'".format(req.group_name))
         e = self._pmi.get_element_by_name(req.group_name)
         if e is not None:
-            return self._pmi.set_active_manager(e, active=True)
+            self._pmi.set_active_manager(e, active=True)
+            return True
         else:
-            rospy.logwarn("Group with name '{}' does not exist".format(req.group_name))
+            rospy.logerr("Group with name '{}' does not exist".format(req.group_name))
             return False
     
     def cb_get_iterator(self, req):
@@ -129,6 +130,10 @@ class PatternManagerNode(object):
 
     def pub_current_tf(self):
         p = self._pmi.get_active_leaf()
+        # patterns are flagged inactive if they are finished, this checks if all patterns in a group are finished
+        if not isinstance(p, pattern_manager.patterns.Pattern):
+            rospy.logwarn_throttle(2.0, "Group '{}' has no active (non-finished) patterns, so the transform 'pattern_current' is not available".format(p.name))
+            return
         i, transf = p.get_current_element()
         # TODO: This fails if the returned current element is not a Pattern
         #transf = p.get_current_element()
