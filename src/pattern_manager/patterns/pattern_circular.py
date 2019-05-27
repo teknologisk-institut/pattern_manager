@@ -75,7 +75,6 @@ class PatternCircular(pattern_base.Pattern):
                 if self._tan_rot:
                     utils.output.debug("Rotation will follow tangent of circle")
 
-                self._parameterized = True
                 self._generate_pattern()
             else:
                 utils.output.error("Number of points is 0, can't define this circular pattern")
@@ -91,7 +90,7 @@ class PatternCircular(pattern_base.Pattern):
         if not self._ang_sec == 2 * pi:
             self._num_points += 1
 
-        self._pattern = np.array(np.empty(self._num_points), dtype=gm.Transform)
+        pattern = np.array(np.empty(self._num_points), dtype=gm.Transform)
             
         for i in range(self._num_points):
             t = gm.Transform()
@@ -107,10 +106,9 @@ class PatternCircular(pattern_base.Pattern):
             else:
                 t.rotation.w = 1.0
                 
-            self._pattern[i] = t
+            pattern[i] = t
             del t
-
-        self._pattern_org_copy = np.copy(self._pattern)
-        self.finish_generation()
+        
+        self.finish_generation(pattern)
 
         return True

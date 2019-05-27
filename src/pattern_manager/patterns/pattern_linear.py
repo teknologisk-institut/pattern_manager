@@ -39,10 +39,10 @@ class PatternLinear(pattern_base.Pattern):
             self.step_size = self.input[1]
             self.length = self.input[2]
             self.axis = axis
-            self._parameterized = True
             self._generate_pattern()
 
     def _generate_pattern(self):
-            self._pattern = frames_along_axis(self.points, self.step_size, axis='x')
-            self.finish_generation()
-            self._pattern_org_copy = np.copy(self._pattern)
+        pattern = frames_along_axis(self.points, self.step_size, axis='x')
+        self.finish_generation(pattern)
+
+        return True

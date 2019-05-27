@@ -30,13 +30,12 @@ class Manager(object):
     
     def __init__(self, name, elements=[]):
         self.name = name
-        self.cur_index = 0
+        self._cur_index = 0
         self.iterator = 0
         self.finished = False
         self.elements = bidict()
         self.active = False
         self.parent = None
-        self.allow_iterate = True
         
         for e in elements:
             self.add_element(e)
@@ -47,9 +46,12 @@ class Manager(object):
         :param element: An element
         :type element: Object
         """
-        element.parent = self
-        self.elements[self.cur_index] = element
-        self.cur_index += 1
+        
+        if hasattr(element, 'parent'):
+            element.parent = self
+        
+        self.elements[self._cur_index] = element
+        self._cur_index += 1
 
     def remove_element(self, index):
         """Removes an element from the dictionary of elements within the manager.
@@ -144,9 +146,10 @@ class Manager(object):
 
         next_i = self.iterator + 1
         if next_i < self.element_count:
-            return next_i
+            (i, e) = next_i, self.elements[next_i]
+            return (i, e)
         else:
-            return False
+            return None
 
     def iterate(self):
         """Increases the iterator of the elements.
@@ -154,14 +157,22 @@ class Manager(object):
         :return: Returns the iterator increased to if successful. If iteration is finished, False
         :rtype: int, False
         """
-
         
         next_i = self.iterator + 1
-        if next_i < self.element_count and self.allow_iterate:
+        if next_i < self.element_count:
             self.iterator += 1
         else:
             self.finished = True
             self.active = False
+
+            parent = self.parent
+            if not parent is None:
+                parent_next = parent.get_next_element()
+                if not parent_next is None:
+                    parent.active = parent_next[1].active
+
+                parent.iterate()
+
             return False
         
         return next_i
@@ -224,29 +235,29 @@ class Manager(object):
         
         return len(self.elements)
 
-    @property
-    def element_finished(self, index):
-        """Returns the finished status of the element at the specified index of the elements
+    # @property
+    # def element_finished(self, index):
+    #     """Returns the finished status of the element at the specified index of the elements
         
-        :param index: The index of the element
-        :type index: int
-        :return: Returns the status of the specified element
-        :rtype: bool
-        """
+    #     :param index: The index of the element
+    #     :type index: int
+    #     :return: Returns the status of the specified element
+    #     :rtype: bool
+    #     """
 
-        if index < self.iterator:
-            return True
-        else:
-            return False
+    #     if index < self.iterator:
+    #         return True
+    #     else:
+    #         return False
 
-    @property
-    def active_element(self):
-        """The currently active element of the manager.
+    # @property
+    # def active_element(self):
+    #     """The currently active element of the manager.
         
-        :type: Object or None
-        """
+    #     :type: Object or None
+    #     """
 
-        if not self.finished:
-            return self.get_current_element()
-        else:
-            return None
+    #     if not self.finished:
+    #         return self.get_current_element()
+    #     else:
+    #         return None
