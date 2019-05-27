@@ -16,202 +16,58 @@
 
 # Author: Mads Vainoe Baatrup
 
-from bidict import bidict
-
 
 class Manager(object):
-    """This class contains and manages elements of various types.
-    
-    :param name: The unique name of this manager
-    :type name: str
-    :param elements: Elements to add to manager, defaults to []
-    :type elements: list, optional
-    """
-    
-    def __init__(self, name, elements=[]):
-        self.name = name
-        self._cur_index = 0
-        self.iterator = 0
-        self.finished = False
-        self.elements = bidict()
-        self.active = False
-        self.parent = None
-        
-        for e in elements:
-            self.add_element(e)
 
-    def add_element(self, element):
-        """Adds an element to the dictionary of elements within the manager.
-        
-        :param element: An element
-        :type element: Object
-        """
-        
-        if hasattr(element, 'parent'):
-            element.parent = self
-        
-        self.elements[self._cur_index] = element
-        self._cur_index += 1
+    _instance = None
 
-    def remove_element(self, index):
-        """Removes an element from the dictionary of elements within the manager.
-        
-        :param index: The index/key of the element to be removed
-        :type index: int
-        :return: Returns True if successfully removed, otherwise False
-        :rtype: bool
-        """
+    @staticmethod
+    def getInstance():
+        if Manager._instance is None:
+            Manager()
+        return Manager._instance
 
-        try:
-            del self.elements[index]
-            return True
-        except KeyError:
-            return False
-
-    def pop_element(self, index):
-        """Pops an element from the dictionary of elements within the manager.
-        
-        :param index: The index/key of the element to be popped
-        :type index: int
-        :return: Returns the popped element if successful, otherwise False
-        :rtype: Object, False
-        """
-
-        try:
-            self.elements.pop(index)
-        except KeyError:
-            return False
-   
-    def get_element(self, index):
-        """Retrieves an element from the dictionary of elements within the manager.
-        
-        :param index: The index/key of the element to be retrieved
-        :type index: int
-        :return: Returns the requested element if successful, otherwise False
-        :rtype: Object, False
-        """
-
-        try:
-            e = self.elements[index]
-            return e
-        except KeyError:
-            return False
-
-    def get_element_index(self, element):
-        """Retrieves the element index from the element instance.
-        
-        :param element: An object from which to retrieve the index
-        :type element: Object
-        :return: Returns the requested index if successful, otherwise False
-        :rtype: Object, False
-        """
-
-        try:
-            return self.elements.inverse[element]
-        except KeyError:
-            return False
-
-    def get_element_index_by_name(self, name):
-        """Retrieves the index of an element by the name of the element.
-        
-        :param name: A string specififying the name of the element of the index to be retrieved
-        :type name: str
-        :return: An index of the element
-        :rtype: int
-        """
-
-        for k in self.elements:
-            if self.elements[k].name == name:
-                return k
-
-    def get_current_element(self):
-        """Retrieves the element currently iterated to.
-        
-        :return: Returns internal iterator and the currently active element if successful, otherwise False
-        :rtype: tuple with iterator, Object, or False if failed
-        """
-
-        try:
-            (i, e) = self.iterator, self.elements[self.iterator]
-            return (i, e)
-        except KeyError:
-            return False
-
-    def get_next_element(self):
-        """Retrieves the next element to become iterated to.
-        
-        :return: Returns the next element to become active if successful, otherwise False
-        :rtype: Object, False
-        """
-
-        next_i = self.iterator + 1
-        if next_i < self.element_count:
-            (i, e) = next_i, self.elements[next_i]
-            return (i, e)
+    def __init__(self):
+        if Manager._instance is not None:
+            raise Exception("Instance already exists - this class is a singleton")
         else:
-            return None
+            Manager._instance = self
 
-    def iterate(self):
-        """Increases the iterator of the elements.
+        self.i = [0] * 20
+        self.nxt_i = [1] * 20
+        self.finished = [False] * 20
+        self.active = [False] * 20
+
+    def iterate(self, g_id):
+        self.i[g_id] += 1
+        self.nxt_i[g_id] += 1
+
+    def reset_mgr(self, g_id):
+        self.i[g_id] = 0
+        self.nxt_i[g_id] = 1
+        self.finished[g_id] = False
+
+    def set_active(self, g_id, actv):
+        self.active[g_id] = actv
+
+    def set_finished(self, g_id, fin):
+        self.finished[g_id] = fin
+
+    def get_active_leaf(self, grp):        
+        for g in grp.grps:
+            if self.active[g.id]:
+                return self.get_active_leaf(g)
         
-        :return: Returns the iterator increased to if successful. If iteration is finished, False
-        :rtype: int, False
-        """
-        
-        next_i = self.iterator + 1
-        if next_i < self.element_count:
-            self.iterator += 1
-        else:
-            self.finished = True
-            self.active = False
+        return grp
 
-            parent = self.parent
-            if not parent is None:
-                parent_next = parent.get_next_element()
-                if not parent_next is None:
-                    parent.active = parent_next[1].active
+    def set_active_supers(self, grp, actv):
+        while grp.par:
+            self.active[grp.id] = actv
 
-                parent.iterate()
+        return
 
-            return False
-        
-        return next_i
-
-    def group_elements(self, indices, name):
-        """Groups elements within a new manager places in the dictionary of elements.
-        
-        :param indices: Indices of the elements to be grouped
-        :type indices: int
-        :param name: The name of the newly created manager
-        :type name: str
-        :return: Returns True if the creation was successful, otherwise False
-        :rtype: bool
-        """
-
-        manager = Manager(name)
-
-        for i in indices:
-            if self.get_element(i) is False:
-                return False
-            
-            manager.add_element(self.elements.pop(i))
-        
-        self.add_element(manager)
-
-        return True
-
-    def reset(self):
-        """Resets the iterator of the manager and sets finished to False
-        """
-
-        self.iterator = 0
-        self.finished = False
-
-    @property
-    def element_count(self):
-        """The number of elements within the dictionary of elements of the manager.
-        
-        :type: int
-        """
-        
-        return len(self.elements)
+    def set_active_subs(self, grp, actv):
+        for g in grp.grps:
+            self.active[g.id] = actv
+            self.set_active_subs(g, actv)
+    
