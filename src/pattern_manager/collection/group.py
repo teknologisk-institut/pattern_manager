@@ -20,53 +20,31 @@ from pattern_manager.collection import Manager
 from enum import Enum
 
 
-class GType(Enum):
-    group = 1
-    pattern = 2
-
-
 class Group(object):
-    id = 0
-
-    def __init__(self, typ, nm):
-        self.typ = typ
-        self.nm = nm
-        self.id = Group.id
-        self.grps = []
-        self.pats = []
+    def __init__(self, nm):
+        self.name = nm
+        self.id = Manager.id
+        self.elements = []
         self.par = None
-        Group.id += 1
+        Manager.id += 1
 
-    def add_subgroup(self, grp):
-        if not self.typ is GType.group:
-            print "Error: cannot add subgroup to group of type, {}".format(
-                self.typ.name)
-            return False
+    def add_subelement(self, e):
+        self.elements.append(e)
+        e.par = self
 
-        self.grps.append(grp)
-        grp.par = self
+    def find_subelement_by_nm(self, nm, e):
+        # print e.name
 
-    def add_pattern(self, pat):
-        if not self.typ is GType.pattern:
-            print "Error: cannot add pattern to group of type, {}".format(
-                self.typ.name)
+        if not e:
+            return None
 
-        self.pats.append(pat)
+        if e.name == nm:
+            return e
 
-    def find_subgroup_by_nm(self, nm, rslt, grp=None):
-        if not grp:
-            grp = self
+        if isinstance(e, Group):
+            for sub in e.elements:
+                return self.find_subelement_by_nm(nm, sub)
 
-        if grp:
-            if grp.nm == nm:
-                rslt = grp
-                return
-
-            for sub in grp.grps:
-                self.find_subgroup_by_nm(sub, nm, rslt)
-
-    def pattern_cnt(self):
-        len(self.pats)
-
-    def group_cnt(self):
-        len(self.grps)
+    @property
+    def element_cnt(self):
+        len(self.elements)
