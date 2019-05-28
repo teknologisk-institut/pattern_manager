@@ -83,7 +83,7 @@ def frames_along_axis(count, step_size, basis_frame=gm.Transform(), axis='x'):
     return frames
 
 
-def transform_to_matrix(transform):
+def tf_to_matrix(transform):
     """Convert a geometry_msgs.Transform to a 3x4 numpy transformation matrix.
     
     :param transform: Transform to convert
@@ -101,7 +101,7 @@ def transform_to_matrix(transform):
     return np.dot(trans_mat, quat_mat)
 
 
-def matrix_to_transform(matrix):
+def matrix_to_tf(matrix):
     """Convert a 3x4 numpy transformation matrix to a geometry_msgs.Transform.
     
     :param matrix: 3x4 Transformation matrix to convert

@@ -70,27 +70,3 @@ class Group(object):
 
     def group_cnt(self):
         len(self.grps)
-
-
-if __name__ == "__main__":
-    mgr = Manager.getInstance()
-    g_root = Group(GType.group, "root")
-    mgr.set_active(g_root.id, True)
-
-    g1 = Group(GType.pattern, "g1")
-    g2 = Group(GType.group, "g2")
-
-    g_root.add_subgroup(g1)
-    g_root.add_subgroup(g2)
-
-    mgr.set_active_subs(g_root, True)
-    
-    # for g in g_root.grps:
-    #     print g.nm
-    #     print mgr.active[g.id]
-
-    leaf = mgr.get_active_leaf(g_root)
-    print leaf.nm
-    mgr.set_active(g1.id, False)
-    leaf = mgr.get_active_leaf(g_root)
-    print leaf.nm

@@ -37,6 +37,7 @@ class Manager(object):
         self.nxt_i = [1] * 20
         self.finished = [False] * 20
         self.active = [False] * 20
+        # TODO: iteration order for each group -- self.iter_ordr[]
 
     def iterate(self, g_id):
         self.i[g_id] += 1
