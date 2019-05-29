@@ -16,10 +16,10 @@
 
 # Author: Mads Vainoe Baatrup
 
+
 class Manager(object):
 
     _instance = None
-    id = 0
 
     @staticmethod
     def getInstance():
@@ -29,57 +29,46 @@ class Manager(object):
 
     def __init__(self):
         if Manager._instance is not None:
-            raise Exception(
-                "Instance already exists - this class is a singleton")
+            raise Exception("Instance already exists - this class is a singleton")
         else:
             Manager._instance = self
 
         self.i = [0] * 20
+        self.nxt_i = [1] * 20
         self.finished = [False] * 20
         self.active = [False] * 20
         # TODO: iteration order for each group -- self.iter_ordr[]
 
-    def iterate(self, e):
-        self.i[e.id] += 1
+    def iterate(self, g_id):
+        self.i[g_id] += 1
+        self.nxt_i[g_id] += 1
 
-        if not self.i[e.id] < e.element_cnt:
-            self.set_finished(e.id, True)
-            self.set_active(e.id, False)
+    def reset_mgr(self, g_id):
+        self.i[g_id] = 0
+        self.nxt_i[g_id] = 1
+        self.finished[g_id] = False
 
-            return False
-
-        return True
-
-    def reset_e_mgr(self, e_id):
-        self.i[e_id] = 0
-        self.finished[e_id] = False
-
-    def set_active(self, e_id, actv):
-        self.active[e_id] = actv
+    def set_active(self, g_id, actv):
+        self.active[g_id] = actv
 
     def set_finished(self, g_id, fin):
         self.finished[g_id] = fin
 
-    def get_active_leaf(self, e):
-        if not self.active[e.id]:
-            return None
-            
-        if not hasattr(e, 'elements') or e.element_cnt == 0:
-            return e
-            
-        for e in e.elements:
-            if self.active[e.id]:
-                return self.get_active_leaf(e)
+    def get_active_leaf(self, grp):        
+        for g in grp.grps:
+            if self.active[g.id]:
+                return self.get_active_leaf(g)
+        
+        return grp
 
-        return e
-
-    def set_active_supers(self, e, actv):
-        while e.par:
-            self.active[e.id] = actv
+    def set_active_supers(self, grp, actv):
+        while grp.par:
+            self.active[grp.id] = actv
 
         return
 
-    def set_active_subs(self, e, actv):
-        for g in e.elements:
+    def set_active_subs(self, grp, actv):
+        for g in grp.grps:
             self.active[g.id] = actv
             self.set_active_subs(g, actv)
+    

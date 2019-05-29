@@ -3,5 +3,5 @@
 import patterns 
 
 from utils import *
-import collection
+from collection import *
 import examples

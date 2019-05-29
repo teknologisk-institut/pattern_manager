@@ -16,32 +16,30 @@
 
 # Author: Mads Vainoe Baatrup
 
-from pattern_manager.collection import Group, Manager
+from pattern_manager.collection import GType, Group, Manager
 
 if __name__ == '__main__':
     mgr = Manager.getInstance()
-    g_root = Group("root")
+    g_root = Group(GType.group, "root")
     mgr.set_active(g_root.id, True)
 
-    g1 = Group("g1")
-    g2 = Group("g2")
+    g1 = Group(GType.pattern, "g1")
+    g2 = Group(GType.group, "g2")
 
-    g_root.add_subelement(g1)
-    g_root.add_subelement(g2)
+    g_root.add_subgroup(g1)
+    g_root.add_subgroup(g2)
 
     mgr.set_active_subs(g_root, True)
 
-    # Printing groups under root:
-    for g in g_root.elements:
-        print "    {}".format(g.name)
+    # for g in g_root.grps:
+    #     print g.nm
+    #     print mgr.active[g.id]
 
-    # print "\nfetching active group:"
-    # leaf = mgr.get_active_leaf(g_root)
-    # print "    active group: {}".format(leaf.name)
-    # mgr.set_active(g1.id, False)
-    # print "    (setting {} to inactive)".format(g1.name)
-    # leaf = mgr.get_active_leaf(g_root)
-    # print "    active group: {}\n".format(leaf.name)
+    leaf = mgr.get_active_leaf(g_root)
+    print leaf.nm
+    mgr.set_active(g1.id, False)
+    leaf = mgr.get_active_leaf(g_root)
+    print leaf.nm
 
     from pattern_manager.patterns import PatternFactory
     from pluginlib import PluginLoader
@@ -56,11 +54,4 @@ if __name__ == '__main__':
         ex.linear_d['base_params'],
         ex.linear_d['pattern_params'])
 
-    g1.add_subelement(p1)
-    mgr.set_active(p1.id, True)
-
-    cheese1 = g_root.find_subelement_by_nm("cheese_linear", g_root)
-
-    print cheese1.name
-
-    print mgr.get_active_leaf(g_root).name
+    print p1.nm
