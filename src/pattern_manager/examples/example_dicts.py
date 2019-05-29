@@ -14,20 +14,6 @@ linear_d = {
         }
     }
 
-linear_d2 = {
-    'pattern_type': 'linear',
-    'pattern_params': {
-        'step_size': 0.1,
-        'num_points': 3
-    },
-    'base_params': {
-        'name': 'cheese_linear2',
-        'ref_frame_id': 'base_link',
-        'offset_xy': [0.6, 0.4],
-        'offset_rot': 0.2,
-    }
-}
-
 rect_d = {
     'pattern_type': 'rectangular',
     'pattern_params': {

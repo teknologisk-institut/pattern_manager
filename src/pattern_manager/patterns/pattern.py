@@ -18,6 +18,7 @@
 
 from enum import Enum
 from pattern_manager.utils import tf_to_matrix, matrix_to_tf, output, logging
+from pattern_manager.collection import Manager
 from tf import transformations as tfs
 from abc import ABCMeta, abstractmethod
 from pluginlib import PluginLoader
@@ -25,29 +26,24 @@ from pluginlib import PluginLoader
 import numpy as np
 import pluginlib
 
+
 @pluginlib.Parent('pattern', group='patterns')
 class Pattern:
     __metaclass__ = ABCMeta
 
-    id = 0
-
     def __init__(self, name, ref_frame_id="", offset_xy=(0, 0), offset_rot=0):
         self.nm = name
-        self.id = Pattern.id
-        self.tfs = [None] * 50
+        self.id = Manager.id
+        self.tfs = []
         self.par = None
         self._pos_offset = offset_xy
         self._rot_offset = offset_rot
         self.ref_frame_id = ref_frame_id
-        Pattern.id += 1
+        Manager.id += 1
 
     @abstractmethod
     def _generate(self):
         pass
-
-    # @abstractmethod
-    # def type(self):
-    #     pass
 
     def offset_pattern(self, pattern):
         if not self._pos_offset == (0, 0):
