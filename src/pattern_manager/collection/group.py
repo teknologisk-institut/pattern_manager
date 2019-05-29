@@ -16,7 +16,6 @@
 
 # Author: Mads Vainoe Baatrup
 
-from pattern_manager.collection import Manager
 from enum import Enum
 
 
@@ -29,11 +28,11 @@ class Group(object):
     def __init__(self, typ, nm):
         self.typ = typ
         self.nm = nm
-        self.id = Manager.id
+        # self.id = Manager.id
         self.grps = []
         self.pats = []
         self.par = None
-        Manager.id += 1
+        # Manager.id += 1
 
     def add_subgroup(self, grp):
         self.grps.append(grp)

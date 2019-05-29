@@ -19,7 +19,7 @@
 # from pattern_manager.collection import GType
 # from pattern_manager.patterns import Pattern
 # from pattern_manager.collection import Group
-from pattern_manager.collection import Group
+from pattern_manager.collection import GType
 from abc import ABCMeta
 
 
