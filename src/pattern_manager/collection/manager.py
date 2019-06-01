@@ -16,43 +16,43 @@
 
 # Author: Mads Vainoe Baatrup
 
-# from pattern_manager.collection import GType
-# from pattern_manager.patterns import Pattern
-# from pattern_manager.collection import Group
-from pattern_manager.collection import GType
 from abc import ABCMeta
 
 
 class Manager(object):
     __metaclass__ = ABCMeta
 
-    id = 0
-    i = [0] * 20
-    finished = [False] * 20
-    active = [False] * 20
+    i = {}
+    finished = {}
+    active = {}
     # TODO: iteration order for each group -- self.iter_ordr[]
 
     @staticmethod
+    def register_id(id):
+        Manager.i[id] = 0
+        Manager.finished[id] = False
+        Manager.active[id] = False
+
+    @staticmethod
     def iterate(e):
-        Manager.i[e.id] += 1
+        nxt_i = Manager.i[id(e)] + 1
 
         count = 0
-        if hasattr(e, "tfs"):
+        if e.typ == "Pattern":
             count = len(e.tfs)
-        elif hasattr(e, "grps"):
-            if e.typ == 1:
-                count = len(e.grps)
-            elif e.typ == 2:
-                count = len(e.pats)
+        elif e.typ == "Group":
+            count = len(e.chldrn)
 
-        if not Manager.i[e.id] < count:
-            Manager.set_finished(e.id, True)
-            Manager.set_active(e.id, False)
+        if not nxt_i < count:
+            Manager.set_finished(id(e), True)
+            Manager.set_active(id(e), False)
 
             if e.par:
                 Manager.iterate(e.par)
 
             return False
+
+        Manager.i[id(e)] = nxt_i
 
         return True
 
@@ -71,38 +71,38 @@ class Manager(object):
 
     @staticmethod
     def get_active_group(grp):
-        for g in grp.grps:
-            if Manager.active[g.id]:
+        for g in grp.chldrn:
+            if g.typ == "Group" and Manager.active[id(g)]:
                 return Manager.get_active_group(g)
 
         return grp
 
     @staticmethod
     def get_active_pattern(actv_grp):
-        if actv_grp.pattern_cnt == 0:
-            return False
+        if not actv_grp.g_typ == "GOP" or actv_grp.child_cnt == 0:
+            return None
 
-        return actv_grp.pats[Manager.i[actv_grp.id]]
+        i = Manager.i[id(actv_grp)]
+
+        return actv_grp.chldrn[i]
 
     @staticmethod
     def set_active_supers(e, actv):
         while e.par:
-            Manager.active[e.par.id] = actv
+            Manager.active[id(e.par)] = actv
             e = e.par
 
-        return
+        return True
 
     @staticmethod
     def set_active_subs(grp, actv):
-        if grp.typ == 1:
-            for g in grp.grps:
-                Manager.active[g.id] = actv
+        for g in grp.chldrn:
+            Manager.active[id(g)] = actv
+
+            if grp.g_typ == "GOG":
                 Manager.set_active_subs(g, actv)
-        elif grp.typ == 2:
-            for p in grp.pats:
-                Manager.active[p.id] = actv
 
     @staticmethod
     def set_active_pattern(pat):
-        Manager.set_active(pat.id, True)
+        Manager.set_active(id(pat), True)
         Manager.set_active_supers(pat, True)
