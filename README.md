@@ -1,9 +1,9 @@
 ### Example group and pattern tree-structure
 
-    g0 
-    ├── g1
-    │   ├── p1
-    │   │   ├── tf1
+    g0                          # Root (group)
+    ├── g1                      # Group
+    │   ├── p1                  # Pattern
+    │   │   ├── tf1             # Transform
     │   │   ├── tf2
     │   │   ├── tf3
     │   │   └── ...
