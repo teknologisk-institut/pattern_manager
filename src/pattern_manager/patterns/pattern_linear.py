@@ -19,11 +19,11 @@
 from __future__ import division
 from pattern_manager.utils import handle_input_1d, frames_along_axis
 
-import pattern_base
+import pattern
 import numpy as np
 
 
-class PatternLinear(pattern_base.Pattern):
+class PatternLinear(pattern.Pattern):
     _alias_ = 'linear'
 
     def __init__(self, base_params, num_points=0, step_size=0, length=0, axis='x'):
@@ -39,10 +39,10 @@ class PatternLinear(pattern_base.Pattern):
             self.step_size = self.input[1]
             self.length = self.input[2]
             self.axis = axis
-            self._parameterized = True
-            self._generate_pattern()
+            self._generate()
 
-    def _generate_pattern(self):
-            self._pattern = frames_along_axis(self.points, self.step_size, axis='x')
-            self.finish_generation()
-            self._pattern_org_copy = np.copy(self._pattern)
+    def _generate(self):
+        pattern = frames_along_axis(self.points, self.step_size, axis='x')
+        self.finish_generation(pattern)
+
+        return True

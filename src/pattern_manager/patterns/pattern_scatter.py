@@ -18,13 +18,13 @@
 
 from pattern_manager.utils import output
 
-import pattern_base
+import pattern
 import geometry_msgs.msg as gm
 import numpy as np
 import tf.transformations as tfs
 
 
-class PatternScatter(pattern_base.Pattern):
+class PatternScatter(pattern.Pattern):
     _alias_ = 'scatter'
 
     def __init__(self, base_params, point_list):
@@ -41,13 +41,12 @@ class PatternScatter(pattern_base.Pattern):
             output.error("Point input is not a list of points")
 
         if len(self.input_points) > 0:
-            self._parameterized = True
-            self._generate_pattern()
+            self._generate()
         else:
             output.error("Scatter point list is empty")
 
-    def _generate_pattern(self):
-        self._pattern = np.array(np.empty(len(self.input_points)), dtype=gm.Transform)
+    def _generate(self):
+        pattern = np.array(np.empty(len(self.input_points)), dtype=gm.Transform)
 
         i = 0
         for p in self.input_points:
@@ -71,10 +70,9 @@ class PatternScatter(pattern_base.Pattern):
             else:
                 output.error("Incorrect point length (%s), aborting pattern generation" % len(p))
                 return False
-            self._pattern[i] = t
+            pattern[i] = t
             i += 1
 
-        self.finish_generation()
-        self._pattern_org_copy = np.copy(self._pattern)
+        self.finish_generation(pattern)
 
         return True

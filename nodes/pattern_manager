@@ -18,8 +18,8 @@
 
 # python
 import logging
-# pattern manager
-import pattern_manager
+from pattern_manager.collection import GType, Group, Manager
+from pattern_manager.patterns import PatternFactory
 # ROS
 import rospy
 from tf2_ros import TransformBroadcaster
@@ -27,119 +27,158 @@ import visualization_msgs.msg as viz_msg
 from std_srvs.srv import Trigger, TriggerResponse, TriggerRequest
 import geometry_msgs.msg as gm
 import pattern_manager.srv as pm_srv
+from pluginlib import PluginLoader
 
 
 class PatternManagerNode(object):
 
-    def __init__(self, demo_mode=False):
-        if demo_mode:
-            #TODO: Get rid of this once the configuration and UI is implemented
-            rospy.logwarn("Loading example patterns to demonstrate node and concepts")
-            import pattern_manager.examples as ex
-            ds = [ex.linear_d, ex.linear_d2, ex.rect_d, ex.scatter_d, ex.circle_d]
-            self._pmi = pattern_manager.api.API(ds)
-            man = self._pmi.manager
-            print [e.name for e in man.elements.values()]
-            man.group_elements([0, 1], "group_1")
-            man.group_elements([2, 3, 4], "group_2")
-            man.group_elements([5, 6], "group_3")
-            print [e.name for e in man.elements.values()]
-            self._pmi.set_active_manager(self._pmi.get_element_by_name("group_2"))
-            print self._pmi.get_active_leaf_manager().name
-        else:
-            self._pmi = pattern_manager.api.API()
-        self._top_man = self._pmi.manager
+    def __init__(self):
+        rospy.logwarn("Loading example patterns to demonstrate node and concepts")
+
+        # Register pattern plugin classes with pattern factory
+        _ld = PluginLoader(group='patterns')
+        for k in _ld.plugins['pattern'].keys():
+            PatternFactory.reg_pattern_typ(k, _ld.get_plugin('pattern', k))
+
+        # Make a root group to contain all subsequent groups
+        self.g_root = Group(GType.GOG, "root")
+        Manager.set_active(id(self.g_root), True)
+
+        # Create and add subgroups to root group
+        g1 = Group(GType.GOP, "g1", self.g_root)
+        g2 = Group(GType.GOG, "g2", self.g_root)
+
+        import pattern_manager.examples as ex
+
+        # Create and add patterns to group 1 and group 2
+        ds = [ex.linear_d, ex.rect_d, ex.scatter_d, ex.circle_d]
+        self.patterns = []
+        for i in range(len(ds)):
+            p = PatternFactory.mk_pattern(
+                ds[i]['pattern_type'],
+                ds[i]['base_params'],
+                ds[i]['pattern_params'])
+
+            self.patterns.append(p)
+
+            grp = g1 if i < 2 else g2
+            grp.add_child(p)
+        
+        Manager.set_active_group(g1)
+
+        print "Active elements:"
+        Manager.print_active_subs(self.g_root)
 
         # services
         self._iter_srv = rospy.Service('~iterate', Trigger, self.cb_iterate)
-        self._finished_srv = rospy.Service('~is_finished', pm_srv.GroupName, self.cb_finished)
-        self._set_active_srv = rospy.Service('~set_active', pm_srv.GroupName, self.cb_set_active)
-        self._get_iterator_srv = rospy.Service('~get_iterator', pm_srv.GroupIterator, self.cb_get_iterator)
-        self._reset_srv = rospy.Service('~reset', pm_srv.GroupName, self.cb_reset)
+        self._finished_srv = rospy.Service('~is_finished', pm_srv.ElementName, self.cb_finished)
+        self._set_active_srv = rospy.Service('~set_active', pm_srv.ElementName, self.cb_set_active)
+        self._get_iterator_srv = rospy.Service('~get_iterator', pm_srv.ElementIterator, self.cb_get_iterator)
+        self._reset_srv = rospy.Service('~reset', pm_srv.ElementName, self.cb_reset)
         #self._get_groups_srv = rospy.Service('~get_all_groups', pm_srv.GroupIndex, self.cb_finished)
 
         # publishers
         self._marker_pub = rospy.Publisher('~pattern_markers', viz_msg.MarkerArray, queue_size=10)
         self._tb = TransformBroadcaster()
 
-    # API interface
-
-    def get_all_patterns(self):
-        elements = []
-        self._pmi.get_successors_from_manager_tree(elements)
-        pattern_list = [p for p in elements if isinstance(p, pattern_manager.patterns.Pattern)]
-        return pattern_list
-
     # SERVICE CALLBACKS
 
     def cb_iterate(self, req):
         rospy.logdebug("Received iterate request")
-        r = TriggerResponse()
-        ok = self._pmi.iterate_active()
-        active_element = self._pmi.get_active_leaf_manager()
+        resp = TriggerResponse()
+        
+        actv_pat = Manager.get_active_pattern(self.g_root)
+
+        ok = Manager.iterate(actv_pat)
+        resp.success = True if ok else False
+
         if ok:
-            r.success = True
-            r.message = "New iterator is {}".format(ok)
+            resp.message = "New iterator is {}".format(Manager.i[id(actv_pat)])
         else:
-            r.success = False
-            r.message = "Element {} is finished".format(active_element.name)
-        return r
+            resp.message = "Element \'{}\' is finished".format(actv_pat.nm)
+
+        return resp
 
     def cb_finished(self, req):
-        rospy.logdebug("Requesting finished status of group: '{}'".format(req.group_name))
-        e = self._pmi.get_element_by_name(req.group_name)
-        if e is not None:
+        rospy.logdebug("Requesting finished status of element: '{}'".format(req.element_name))
+
+        e = Group.get_sub_by_name(req.element_name, self.g_root)
+        if e:
             return e.finished
         else:
-            rospy.logwarn("Group with name '{}' does not exist".format(req.group_name))
+            rospy.logwarn("Element with name '{}' does not exist".format(req.element_name))
+
             return False
 
     def cb_set_active(self, req):
-        rospy.logdebug("Setting active group: '{}'".format(req.group_name))
-        e = self._pmi.get_element_by_name(req.group_name)
-        if e is not None:
-            return self._pmi.set_active_manager(e, active=True)
+        rospy.logdebug("Setting active group: '{}'".format(req.element_name))
+
+        e = Group.get_sub_by_name(req.element_name, self.g_root)
+        if e:
+            Manager.set_active_subs(self.g_root, False)
+            Manager.set_active_group(e)
+
+            return True
         else:
-            rospy.logwarn("Group with name '{}' does not exist".format(req.group_name))
+            rospy.logerr("Group with name '{}' does not exist".format(req.element_name))
+
             return False
     
     def cb_get_iterator(self, req):
-        rospy.logdebug("Getting iterator of group: '{}'".format(req.group_name))
-        resp = pm_srv.GroupIteratorResponse()
-        e = self._pmi.get_element_by_name(req.group_name)
-        if e is not None:
-            resp.iterator = e.iterator
-            resp.success = True
+        rospy.logdebug("Getting iterator of element: '{}'".format(req.element_name))
+
+        resp = pm_srv.ElementIteratorResponse()
+
+        e = Group.get_sub_by_name(req.element_name, self.g_root)
+        resp.success = True if e else False
+
+        if e:
+            resp.iterator = Manager.i[id(e)]
         else:
-            rospy.logwarn("Group with name '{}' does not exist".format(req.group_name))
-            resp.success = False
+            rospy.logwarn("Element with name '{}' does not exist".format(req.element_name))
+
         return resp
 
     def cb_reset(self, req):
-        rospy.logdebug("Resetting group: '{}'".format(req.group_name))
-        e = self._pmi.get_element_by_name(req.group_name)
-        if e is not None:
-            self._pmi.reset_element_tree(e)
+        rospy.logdebug("Resetting element: '{}'".format(req.element_name))
+
+        e = Group.get_sub_by_name(req.element_name, self.g_root)
+        if e:
+            Manager.reset_element(e)
+            Manager.reset_subs(e)
+
             return True
         else:
-            rospy.logwarn("Group with name '{}' does not exist".format(req.group_name))
+            rospy.logwarn("Element with name '{}' does not exist".format(req.element_name))
+
             return False
         
     # PUBLISHERS
 
     def pub_current_tf(self):
-        man = self._pmi.get_active_leaf_manager()
-        i, p = man.get_current_element()
-        # TODO: This fails if the returned current element is not a Pattern
-        transf = p.get_current_tf()
-        if transf is False:
+        p = Manager.get_active_pattern(self.g_root)
+        # patterns are flagged inactive if they are finished, this checks if all patterns in a group are finished
+        if not p or not p.typ == "Pattern":
+            rospy.logwarn_throttle(2.0, "No active active pattern available")
+            
             return
-        frame = p.pattern_frame_id
+
+        tf = p.tfs[Manager.i[id(p)]]
+
+        # TODO: This fails if the returned current element is not a Pattern
+        #transf = p.get_current_element()
+
+        if not tf:
+            return
+
+        frame = p.ref_frame_id
+
         t = gm.TransformStamped()
         t.header.frame_id = frame
         t.header.stamp = rospy.Time.now()
         t.child_frame_id = "pattern_current"
-        t.transform = transf
+        t.transform = tf
+
         self._tb.sendTransform(t)
 
     def pub_markers(self):
@@ -147,25 +186,26 @@ class PatternManagerNode(object):
         now = rospy.Time.now()
         alpha = 1.0 #TODO: Highlight with alpa=1 the current pattern/group
         # for each pattern
-        for p in self.get_all_patterns():
-            frame = p.pattern_frame_id
-            size = p.get_pattern_size()
+        for p in self.patterns:
+            frame = p.ref_frame_id
+            size = len(p.tfs)
             for i in range(size):
                 # color
-                if p.is_finished():
+                if Manager.finished[id(p)]:
                     color = 'r'
-                elif i < p.iterator:
+                elif i < Manager.i[id(p)]:
                     color = 'r'
-                elif i == p.iterator:
+                elif i == Manager.i[id(p)]:
                     color = 'y'
                 else:
                     color = 'g'
                 # data
-                transf = p.get_tf_from_iter(i)
+                tf = p.tfs[Manager.i[id(p)]]
                 #ns = "pattern_" + str(pi)
-                ns = p.name
-                m = self.create_marker(frame, now, transf, ns, i, color, alpha)
+                ns = p.nm
+                m = self.create_marker(frame, now, tf, ns, i, color, alpha)
                 ma.markers.append(m)
+
         self._marker_pub.publish(ma)
 
     def create_marker(self, frame_id, stamp, transform, ns, uid, color='g', alpha=1.0):
@@ -208,9 +248,9 @@ class PatternManagerNode(object):
 
 if __name__ == "__main__":
     rospy.init_node("pattern_manager", log_level=rospy.DEBUG)
-    pmn = PatternManagerNode(demo_mode=True)
+    pmn = PatternManagerNode()
     rospy.loginfo("Pattern manager node started")
-    pmn.cb_iterate(TriggerRequest())
+    #pmn.cb_iterate(TriggerRequest())
 
     r = rospy.Rate(5)
     while not rospy.is_shutdown():

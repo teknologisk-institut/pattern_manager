@@ -19,14 +19,14 @@
 from __future__ import division
 from .. import utils
 
-import pattern_base
+import pattern
 import numpy as np
 import geometry_msgs.msg as gm
 
 from math import cos, sin, pi
 
 
-class PatternCircular(pattern_base.Pattern):
+class PatternCircular(pattern.Pattern):
     """A circular pattern, with positions along the perimeter.
     
     Pattern is defined by a number of positions along the perimeter of a circle with specified radius. 
@@ -75,14 +75,13 @@ class PatternCircular(pattern_base.Pattern):
                 if self._tan_rot:
                     utils.output.debug("Rotation will follow tangent of circle")
 
-                self._parameterized = True
-                self._generate_pattern()
+                self._generate()
             else:
                 utils.output.error("Number of points is 0, can't define this circular pattern")
         else:
             utils.output.error("A radius of 0 is specified, can't define this circular pattern")
 
-    def _generate_pattern(self):
+    def _generate(self):
         angular_resolution = self._ang_sec / self._num_points
 
         if self._cw:
@@ -91,7 +90,7 @@ class PatternCircular(pattern_base.Pattern):
         if not self._ang_sec == 2 * pi:
             self._num_points += 1
 
-        self._pattern = np.array(np.empty(self._num_points), dtype=gm.Transform)
+        pattern = np.array(np.empty(self._num_points), dtype=gm.Transform)
             
         for i in range(self._num_points):
             t = gm.Transform()
@@ -101,16 +100,15 @@ class PatternCircular(pattern_base.Pattern):
 
             if self._tan_rot:
                 yaw = pi / 2 + i * angular_resolution
-                M = pattern_base.tfs.euler_matrix(0, 0, yaw)
-                q = utils.matrix_to_transform(M).rotation
+                M = pattern.tfs.euler_matrix(0, 0, yaw)
+                q = utils.matrix_to_tf(M).rotation
                 t.rotation = q
             else:
                 t.rotation.w = 1.0
                 
-            self._pattern[i] = t
+            pattern[i] = t
             del t
-
-        self._pattern_org_copy = np.copy(self._pattern)
-        self.finish_generation()
+        
+        self.finish_generation(pattern)
 
         return True
