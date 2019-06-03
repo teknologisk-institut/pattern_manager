@@ -1,4 +1,4 @@
-### Example group and pattern tree-structe
+### Example group and pattern tree-structure
 
     g0 
     ├── g1
