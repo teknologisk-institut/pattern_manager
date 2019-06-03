@@ -4,6 +4,14 @@ pattern_manager.collection package
 Submodules
 ----------
 
+pattern_manager.collection.group module
+---------------------------------------
+
+.. automodule:: pattern_manager.collection.group
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pattern_manager.collection.manager module
 -----------------------------------------
 

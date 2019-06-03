@@ -4,10 +4,10 @@ pattern_manager.patterns package
 Submodules
 ----------
 
-pattern_manager.patterns.pattern_base module
---------------------------------------------
+pattern_manager.patterns.pattern module
+---------------------------------------
 
-.. automodule:: pattern_manager.patterns.pattern_base
+.. automodule:: pattern_manager.patterns.pattern
     :members:
     :undoc-members:
     :show-inheritance:

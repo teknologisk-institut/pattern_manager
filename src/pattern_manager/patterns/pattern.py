@@ -29,7 +29,7 @@ import pluginlib
 
 @pluginlib.Parent('pattern', group='patterns')
 class Pattern:
-    """This class is the base-class for all pattern plugins.
+    """This class is the base-class (super) for all pattern plugins.
     """
 
     __metaclass__ = ABCMeta
@@ -59,7 +59,7 @@ class Pattern:
 
     @abstractmethod
     def _generate(self):
-        """Generates a pattern with the parameters specified in the class constructor.
+        """Generates a pattern with the values obtained in the class constructor.
         """
 
         pass
@@ -93,7 +93,7 @@ class Pattern:
 
     def finish_generation(self, pattern, ignore_offset=False):
         """This function flattens the initially generated tf list and adds them \
-            to the class tf list. An optional tf offset ignore can also be set.
+            to the object tf list. An optional tf offset ignore can also be set.
         
         :param pattern: The pattern to be added.
         :type pattern: Pattern

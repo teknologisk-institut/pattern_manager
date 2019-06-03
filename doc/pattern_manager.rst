@@ -13,14 +13,6 @@ Subpackages
 Submodules
 ----------
 
-pattern_manager.api module
---------------------------
-
-.. automodule:: pattern_manager.api
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pattern_manager.utils module
 ----------------------------
 

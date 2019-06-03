@@ -166,7 +166,6 @@ class PatternManagerNode(object):
         tf = p.tfs[Manager.i[id(p)]]
 
         # TODO: This fails if the returned current element is not a Pattern
-        #transf = p.get_current_element()
 
         if not tf:
             return
@@ -185,6 +184,7 @@ class PatternManagerNode(object):
         ma = viz_msg.MarkerArray()
         now = rospy.Time.now()
         alpha = 1.0 #TODO: Highlight with alpa=1 the current pattern/group
+        
         # for each pattern
         for p in self.patterns:
             frame = p.ref_frame_id
@@ -199,9 +199,9 @@ class PatternManagerNode(object):
                     color = 'y'
                 else:
                     color = 'g'
+                
                 # data
                 tf = p.tfs[Manager.i[id(p)]]
-                #ns = "pattern_" + str(pi)
                 ns = p.nm
                 m = self.create_marker(frame, now, tf, ns, i, color, alpha)
                 ma.markers.append(m)
@@ -216,6 +216,7 @@ class PatternManagerNode(object):
         mark.ns = ns
         mark.id = uid
         mark.action = viz_msg.Marker.ADD
+        
         # pose
         mark.pose.position.x = transform.translation.x
         mark.pose.position.y = transform.translation.y
@@ -224,11 +225,14 @@ class PatternManagerNode(object):
         mark.pose.orientation.y = transform.rotation.y
         mark.pose.orientation.z = transform.rotation.z
         mark.pose.orientation.w = transform.rotation.w
+        
         # appearance - TODO: This should be changeable
         mark.type = viz_msg.Marker.CUBE
+
         mark.scale.x = 0.02
         mark.scale.y = 0.02
         mark.scale.z = 0.02
+        
         if color == 'y':
             mark.color.r = 1.0
             mark.color.g = 1.0
@@ -241,8 +245,10 @@ class PatternManagerNode(object):
             mark.color.r = 0.0
             mark.color.g = 1.0
             mark.color.b = 0.0
+
         mark.color.a = alpha
         mark.lifetime = rospy.Duration()
+
         return mark
 
 
@@ -250,7 +256,6 @@ if __name__ == "__main__":
     rospy.init_node("pattern_manager", log_level=rospy.DEBUG)
     pmn = PatternManagerNode()
     rospy.loginfo("Pattern manager node started")
-    #pmn.cb_iterate(TriggerRequest())
 
     r = rospy.Rate(5)
     while not rospy.is_shutdown():
