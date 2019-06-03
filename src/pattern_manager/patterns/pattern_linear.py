@@ -24,9 +24,26 @@ import numpy as np
 
 
 class PatternLinear(pattern.Pattern):
+    """This class defines a linear pattern.
+    """
+
     _alias_ = 'linear'
 
     def __init__(self, base_params, num_points=0, step_size=0, length=0, axis='x'):
+        """The class constructor.
+        
+        :param base_params: Parameters for the base-clase (super).
+        :type base_params: dict
+        :param num_points: The number of points which the pattern consists of, defaults to 0
+        :type num_points: int, optional
+        :param step_size: The length between points in the pattern, defaults to 0
+        :type step_size: int, optional
+        :param length: The total length of the linear pattern, defaults to 0
+        :type length: int, optional
+        :param axis: The axis on which the pattern lies, defaults to 'x'
+        :type axis: str, optional
+        """
+
         super(PatternLinear, self).__init__(**base_params)
 
         try:
@@ -42,6 +59,12 @@ class PatternLinear(pattern.Pattern):
             self._generate()
 
     def _generate(self):
+        """This function generates the pattern from the values obtained in the constructor.
+        
+        :return: True if generation was successful.
+        :rtype: bool
+        """
+
         pattern = frames_along_axis(self.points, self.step_size, axis='x')
         self.finish_generation(pattern)
 

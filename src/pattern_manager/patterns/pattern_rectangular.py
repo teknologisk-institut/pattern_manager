@@ -24,9 +24,24 @@ import geometry_msgs.msg as gm
 
 
 class PatternRectangular(pattern.Pattern):
+    """This class defines a rectangular pattern.
+    """
+
     _alias_ = 'rectangular'
 
     def __init__(self, base_params, num_points=(0, 0), step_sizes=(0.0, 0.0), lengths=(0.0, 0.0)):
+        """The class constructor.
+        
+        :param base_params: Parameters for the base-class (super).
+        :type base_params: dict
+        :param num_points: The number of points of which the pattern consists, defaults to (0, 0)
+        :type num_points: tuple, optional
+        :param step_sizes: The lengths between points on two axiis, defaults to (0.0, 0.0)
+        :type step_sizes: tuple, optional
+        :param lengths: The lengths of the rectangles two axiis, defaults to (0.0, 0.0)
+        :type lengths: tuple, optional
+        """
+
         super(PatternRectangular, self).__init__(**base_params)
 
         try:
@@ -42,6 +57,12 @@ class PatternRectangular(pattern.Pattern):
             self._generate()
 
     def _generate(self):
+        """This functions generates the pattern from the values obtained in the constructor.
+        
+        :return: True if generation was successful.
+        :rtype: bool
+        """
+
         pattern = np.array(np.empty((self.points[0], self.points[1])), dtype=gm.Transform)
         x_pattern = frames_along_axis(self.points[0], self.step_size[0], axis='x')
 

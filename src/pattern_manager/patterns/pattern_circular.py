@@ -27,33 +27,28 @@ from math import cos, sin, pi
 
 
 class PatternCircular(pattern.Pattern):
-    """A circular pattern, with positions along the perimeter.
-    
-    Pattern is defined by a number of positions along the perimeter of a circle with specified radius. 
-    All positions have the same orientation as the parent frame, and listed in counter-clockwise order.
-
-    Optional parameters allow:
-    - only use a section of a circle (an arc) (rather than the whole circle)
-    - clockwise iteration (rather than counter-clockwise)
-    - individual rotation following the tangent of the circle (rather than maintaining the same orientation)
-    - any combination of the above
+    """This class defines a circular pattern.
     """
+
     _alias_ = 'circular'
 
-    def __init__(self, base_params, r=0.0, num_points=0, tan_rot=False, cw=False, angular_section=0.0):
-        """Initialize pattern.
+    def __init__(self, base_params, r=0.0, num_points=0, tan_rot=False, cw=False, angular_section=2*pi):
+        """The class constructor.
         
-        :param r: radius of the circular pattern  
-        :type r: float
-        :param num_points: Number of points along the circle
-        :type num_points: int
-        :param tan_rot: Should the x-axis follow the tangent of the circle, defaults to False
+        :param base_params: Parameters for the base-class (super).
+        :type base_params: dict
+        :param r: radius of the circular pattern, defaults to 0.0
+        :type r: float, optional
+        :param num_points: Number of points of which the pattern consists, defaults to 0
+        :type num_points: int, optional
+        :param tan_rot: Specifies whether the x-axis should follow the tangent rotation, defaults to False
         :type tan_rot: bool, optional
-        :param cw: List the positions going clockwise around the circle center, defaults to False
+        :param cw: [description], defaults to False
         :type cw: bool, optional
         :param angular_section: Angular section to define the pattern for in rad, defaults to 2*pi
         :type angular_section: float, optional
         """
+
         super(PatternCircular, self).__init__(**base_params)
 
         if abs(r) > 0:
@@ -82,6 +77,12 @@ class PatternCircular(pattern.Pattern):
             utils.output.error("A radius of 0 is specified, can't define this circular pattern")
 
     def _generate(self):
+        """This functions generates the pattern from the values obtained in the constructor.
+        
+        :return: True if generation was successful.
+        :rtype: bool
+        """
+
         angular_resolution = self._ang_sec / self._num_points
 
         if self._cw:

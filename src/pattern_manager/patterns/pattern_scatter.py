@@ -25,9 +25,20 @@ import tf.transformations as tfs
 
 
 class PatternScatter(pattern.Pattern):
+    """This class defines a scatter pattern.
+    """
+
     _alias_ = 'scatter'
 
     def __init__(self, base_params, point_list):
+        """The class constructor.
+        
+        :param base_params: Parameters for the base-class (super).
+        :type base_params: dict
+        :param point_list: A list of points of which the pattern consists.
+        :type point_list: list
+        """
+
         super(PatternScatter, self).__init__(**base_params)
         
         self.input_points = []
@@ -46,6 +57,12 @@ class PatternScatter(pattern.Pattern):
             output.error("Scatter point list is empty")
 
     def _generate(self):
+        """This functions generates the pattern from the values obtained in the constructor.
+        
+        :return: True if generation was successful.
+        :rtype: bool
+        """
+
         pattern = np.array(np.empty(len(self.input_points)), dtype=gm.Transform)
 
         i = 0
