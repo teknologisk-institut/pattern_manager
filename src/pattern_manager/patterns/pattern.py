@@ -33,7 +33,7 @@ class Pattern:
 
     def __init__(self, name, ref_frame_id="", offset_xy=(0, 0), offset_rot=0):
         self.nm = name
-        self.typ = self.__class__.__name__
+        self.typ = self.__class__.__bases__[0].name
         self.tfs = []
         self.par = None
         self._pos_offset = offset_xy

@@ -7,7 +7,8 @@ setup_args = generate_distutils_setup(
     packages=[
         'pattern_manager',
         'pattern_manager.patterns',
-        'pattern_manager.collection'
+        'pattern_manager.collection',
+        'pattern_manager.examples'
     ],
 )
 

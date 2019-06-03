@@ -18,7 +18,7 @@
 
 from pattern_manager.collection import Manager
 from enum import Enum
-
+import Queue
 
 class GType(Enum):
     GOG = 1
@@ -26,27 +26,52 @@ class GType(Enum):
 
 
 class Group(object):
-    def __init__(self, g_typ, nm):
+    def __init__(self, g_typ, nm, par=None):
         self.g_typ = g_typ.name
         self.typ = self.__class__.__name__
         self.nm = nm
         self.chldrn = []
-        self.par = None
+        self.par = par
+
+        if self.par:
+            par.add_child(self)
 
         Manager.register_id(id(self))
 
     def add_child(self, chld):
+        if (self.g_typ == "GOP" and chld.typ == "Group") or \
+                (self.g_typ == "GOG" and chld.typ == "Pattern"):
+            return False
+
         self.chldrn.append(chld)
         chld.par = self
 
-    def find_successor_by_nm(self, nm, rslt, chld):
-        if chld:
-            if chld.nm == nm:
-                rslt = chld
-                return
+        return True
+    
+    @staticmethod
+    def get_sub_by_name(nm, root):
+        q = Queue.Queue()
+        q.put(root)
 
+        while not q.empty():
+            node = q.queue[0]
+            if node.nm == nm:
+                return node
+
+            q.get()
+
+            for sub in node.chldrn:
+                q.put(sub)
+
+        return None
+
+    @staticmethod
+    def print_tree(chld):
+        print id(chld), chld.nm
+
+        if chld.typ == "Group":
             for sub in chld.chldrn:
-                self.find_successor_by_nm(sub, nm, rslt)
+                Group.print_tree(sub)
 
     def child_cnt(self):
         len(self.chldrn)

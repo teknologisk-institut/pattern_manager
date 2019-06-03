@@ -57,7 +57,7 @@ class Manager(object):
         return True
 
     @staticmethod
-    def reset_mgr(id):
+    def reset_element(id):
         Manager.i[id] = 0
         Manager.finished[id] = False
 
@@ -78,13 +78,26 @@ class Manager(object):
         return grp
 
     @staticmethod
-    def get_active_pattern(actv_grp):
+    def set_active_group(grp):
+        Manager.set_active(id(grp), True)
+        Manager.set_active_subs(grp, True)
+        Manager.set_active_supers(grp, True)
+
+    @staticmethod
+    def get_active_pattern(root):
+        actv_grp = Manager.get_active_group(root)
+        
         if not actv_grp.g_typ == "GOP" or actv_grp.child_cnt == 0:
             return None
 
         i = Manager.i[id(actv_grp)]
 
         return actv_grp.chldrn[i]
+
+    @staticmethod
+    def set_active_pattern(pat):
+        Manager.set_active(id(pat), True)
+        Manager.set_active_supers(pat, True)
 
     @staticmethod
     def set_active_supers(e, actv):
@@ -95,14 +108,25 @@ class Manager(object):
         return True
 
     @staticmethod
-    def set_active_subs(grp, actv):
-        for g in grp.chldrn:
-            Manager.active[id(g)] = actv
+    def set_active_subs(e, actv):
+        for sub in e.chldrn:
+            Manager.active[id(sub)] = actv
 
-            if grp.g_typ == "GOG":
-                Manager.set_active_subs(g, actv)
+            if e.g_typ == "GOG":
+                Manager.set_active_subs(sub, actv)
 
     @staticmethod
-    def set_active_pattern(pat):
-        Manager.set_active(id(pat), True)
-        Manager.set_active_supers(pat, True)
+    def reset_subs(e):
+        for sub in e.chldrn:
+            Manager.reset_element(id(sub))
+
+            if e.g_typ == "GOG":
+                Manager.reset_subs(sub)
+
+    @staticmethod
+    def print_active_subs(e):
+        if e.typ == "Group":
+            for sub in e.chldrn:
+                if Manager.active[id(sub)]:
+                    print id(sub), sub.nm
+                    Manager.print_active_subs(sub)
