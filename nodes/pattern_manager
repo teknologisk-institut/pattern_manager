@@ -65,14 +65,16 @@ class PatternManagerNode(object):
             grp.add_child(p)
         
         Manager.set_active_group(g1)
+
+        print "Active elements:"
         Manager.print_active_subs(self.g_root)
 
         # services
         self._iter_srv = rospy.Service('~iterate', Trigger, self.cb_iterate)
-        self._finished_srv = rospy.Service('~is_finished', pm_srv.GroupName, self.cb_finished)
-        self._set_active_srv = rospy.Service('~set_active', pm_srv.GroupName, self.cb_set_active)
-        self._get_iterator_srv = rospy.Service('~get_iterator', pm_srv.GroupIterator, self.cb_get_iterator)
-        self._reset_srv = rospy.Service('~reset', pm_srv.GroupName, self.cb_reset)
+        self._finished_srv = rospy.Service('~is_finished', pm_srv.ElementName, self.cb_finished)
+        self._set_active_srv = rospy.Service('~set_active', pm_srv.ElementName, self.cb_set_active)
+        self._get_iterator_srv = rospy.Service('~get_iterator', pm_srv.ElementIterator, self.cb_get_iterator)
+        self._reset_srv = rospy.Service('~reset', pm_srv.ElementName, self.cb_reset)
         #self._get_groups_srv = rospy.Service('~get_all_groups', pm_srv.GroupIndex, self.cb_finished)
 
         # publishers
@@ -98,56 +100,56 @@ class PatternManagerNode(object):
         return resp
 
     def cb_finished(self, req):
-        rospy.logdebug("Requesting finished status of group: '{}'".format(req.group_name))
+        rospy.logdebug("Requesting finished status of element: '{}'".format(req.element_name))
 
-        e = Group.get_sub_by_name(req.group_name, self.g_root)
+        e = Group.get_sub_by_name(req.element_name, self.g_root)
         if e:
             return e.finished
         else:
-            rospy.logwarn("Group with name '{}' does not exist".format(req.group_name))
+            rospy.logwarn("Element with name '{}' does not exist".format(req.element_name))
 
             return False
 
     def cb_set_active(self, req):
-        rospy.logdebug("Setting active group: '{}'".format(req.group_name))
+        rospy.logdebug("Setting active group: '{}'".format(req.element_name))
 
-        e = Group.get_sub_by_name(req.group_name, self.g_root)
+        e = Group.get_sub_by_name(req.element_name, self.g_root)
         if e:
             Manager.set_active_subs(self.g_root, False)
             Manager.set_active_group(e)
 
             return True
         else:
-            rospy.logerr("Group with name '{}' does not exist".format(req.group_name))
+            rospy.logerr("Group with name '{}' does not exist".format(req.element_name))
 
             return False
     
     def cb_get_iterator(self, req):
-        rospy.logdebug("Getting iterator of group: '{}'".format(req.group_name))
+        rospy.logdebug("Getting iterator of element: '{}'".format(req.element_name))
 
-        resp = pm_srv.GroupIteratorResponse()
+        resp = pm_srv.ElementIteratorResponse()
 
-        e = Group.get_sub_by_name(req.group_name, self.g_root)
+        e = Group.get_sub_by_name(req.element_name, self.g_root)
         resp.success = True if e else False
 
         if e:
             resp.iterator = Manager.i[id(e)]
         else:
-            rospy.logwarn("Group with name '{}' does not exist".format(req.group_name))
+            rospy.logwarn("Element with name '{}' does not exist".format(req.element_name))
 
         return resp
 
     def cb_reset(self, req):
-        rospy.logdebug("Resetting group: '{}'".format(req.group_name))
+        rospy.logdebug("Resetting element: '{}'".format(req.element_name))
 
-        e = Group.get_sub_by_name(req.group_name, self.g_root)
+        e = Group.get_sub_by_name(req.element_name, self.g_root)
         if e:
             Manager.reset_element(e)
             Manager.reset_subs(e)
 
             return True
         else:
-            rospy.logwarn("Group with name '{}' does not exist".format(req.group_name))
+            rospy.logwarn("Element with name '{}' does not exist".format(req.element_name))
 
             return False
         
@@ -156,8 +158,8 @@ class PatternManagerNode(object):
     def pub_current_tf(self):
         p = Manager.get_active_pattern(self.g_root)
         # patterns are flagged inactive if they are finished, this checks if all patterns in a group are finished
-        if not p.typ == "Pattern":
-            rospy.logwarn_throttle(2.0, "Group '{}' has no active (non-finished) patterns, so the transform 'pattern_current' is not available".format(p.nm))
+        if not p or not p.typ == "Pattern":
+            rospy.logwarn_throttle(2.0, "No active active pattern available")
             
             return
 
