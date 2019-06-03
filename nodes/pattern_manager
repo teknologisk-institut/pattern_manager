@@ -27,6 +27,7 @@ import visualization_msgs.msg as viz_msg
 from std_srvs.srv import Trigger, TriggerResponse, TriggerRequest
 import geometry_msgs.msg as gm
 import pattern_manager.srv as pm_srv
+
 from pluginlib import PluginLoader
 
 
