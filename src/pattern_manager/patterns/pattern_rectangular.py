@@ -39,7 +39,7 @@ class PatternRectangular(pattern.Pattern):
             self.points = (self.inputX[0], self.inputY[0])
             self.step_size = (self.inputX[1], self.inputY[1])
             self.length = (self.inputX[2], self.inputY[2])
-            self._generate_pattern()
+            self._generate()
 
     def _generate(self):
         pattern = np.array(np.empty((self.points[0], self.points[1])), dtype=gm.Transform)

@@ -18,7 +18,8 @@
 
 # python
 import logging
-from pattern_manager import PatternFactory, GType, Group, Manager
+from pattern_manager.collection import GType, Group, Manager
+from pattern_manager.patterns import PatternFactory
 # ROS
 import rospy
 from tf2_ros import TransformBroadcaster
@@ -50,7 +51,7 @@ class PatternManagerNode(object):
         import pattern_manager.examples as ex
 
         # Create and add patterns to group 1 and group 2
-        ds = [ex.linear_d, ex.linear_d2, ex.rect_d, ex.scatter_d, ex.circle_d]
+        ds = [ex.linear_d, ex.rect_d, ex.scatter_d, ex.circle_d]
         self.patterns = []
         for i in range(len(ds)):
             p = PatternFactory.mk_pattern(
@@ -160,7 +161,7 @@ class PatternManagerNode(object):
             
             return
 
-        tf = p.tfs[Manager.i(id(p))]
+        tf = p.tfs[Manager.i[id(p)]]
 
         # TODO: This fails if the returned current element is not a Pattern
         #transf = p.get_current_element()
@@ -168,7 +169,7 @@ class PatternManagerNode(object):
         if not tf:
             return
 
-        frame = p.pattern_frame_id
+        frame = p.ref_frame_id
 
         t = gm.TransformStamped()
         t.header.frame_id = frame
