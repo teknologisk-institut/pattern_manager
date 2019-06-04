@@ -47,15 +47,15 @@ class PatternLinear(pattern.Pattern):
         super(PatternLinear, self).__init__(**base_params)
 
         try:
-            self.input = handle_input_1d(num_points, step_size, length)
+            self._input = handle_input_1d(num_points, step_size, length)
         except TypeError as error:
             print(error)
 
-        if self.input is not False:
-            self.points = self.input[0]
-            self.step_size = self.input[1]
-            self.length = self.input[2]
-            self.axis = axis
+        if self._input is not False:
+            self._points = self._input[0]
+            self._step_size = self._input[1]
+            self._length = self._input[2]
+            self._axis = axis
             self._generate()
 
     def _generate(self):
@@ -65,7 +65,7 @@ class PatternLinear(pattern.Pattern):
         :rtype: bool
         """
 
-        pattern = frames_along_axis(self.points, self.step_size, axis='x')
+        pattern = frames_along_axis(self._points, self._step_size, axis='x')
         self.finish_generation(pattern)
 
         return True

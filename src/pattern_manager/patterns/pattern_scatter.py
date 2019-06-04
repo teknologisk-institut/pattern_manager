@@ -41,17 +41,17 @@ class PatternScatter(pattern.Pattern):
 
         super(PatternScatter, self).__init__(**base_params)
         
-        self.input_points = []
+        self._input_points = []
         if type(point_list) == list:
             for p in point_list:
                 if type(p) == list:
-                    self.input_points.append(p)
+                    self._input_points.append(p)
                 else:
                     output.error("Single input point is not a list")
         else:
             output.error("Point input is not a list of points")
 
-        if len(self.input_points) > 0:
+        if len(self._input_points) > 0:
             self._generate()
         else:
             output.error("Scatter point list is empty")
@@ -63,10 +63,10 @@ class PatternScatter(pattern.Pattern):
         :rtype: bool
         """
 
-        pattern = np.array(np.empty(len(self.input_points)), dtype=gm.Transform)
+        pattern = np.array(np.empty(len(self._input_points)), dtype=gm.Transform)
 
         i = 0
-        for p in self.input_points:
+        for p in self._input_points:
             t = gm.Transform()
             if len(p) == 3:
                 # it's just a coordinate

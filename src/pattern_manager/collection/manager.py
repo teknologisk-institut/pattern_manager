@@ -27,10 +27,10 @@ class Manager(object):
 
     __metaclass__ = ABCMeta
 
-    i = {}
-    finished = {}
-    active = {}
-    # TODO: iteration order for each group -- self.iter_ordr[]
+    _i = {}
+    _finished = {}
+    _active = {}
+    # TODO: iteration order for each group -- self.iter_ordr = []
 
     @staticmethod
     def register_id(id):
@@ -40,9 +40,9 @@ class Manager(object):
         :type id: str
         """
 
-        Manager.i[id] = 0
-        Manager.finished[id] = False
-        Manager.active[id] = False
+        Manager._i[id] = 0
+        Manager._finished[id] = False
+        Manager._active[id] = False
 
     @staticmethod
     def iterate(e):
@@ -54,7 +54,7 @@ class Manager(object):
         :rtype: bool
         """
 
-        nxt_i = Manager.i[id(e)] + 1
+        nxt_i = Manager._i[id(e)] + 1
 
         count = 0
         if e.typ == "Pattern":
@@ -71,7 +71,7 @@ class Manager(object):
 
             return False
 
-        Manager.i[id(e)] = nxt_i
+        Manager._i[id(e)] = nxt_i
 
         return True
 
@@ -84,8 +84,8 @@ class Manager(object):
         :type id: str
         """
 
-        Manager.i[id] = 0
-        Manager.finished[id] = False
+        Manager._i[id] = 0
+        Manager._finished[id] = False
 
     @staticmethod
     def set_active(id, actv):
@@ -98,7 +98,7 @@ class Manager(object):
         :type actv: bool
         """
 
-        Manager.active[id] = actv
+        Manager._active[id] = actv
 
     @staticmethod
     def set_finished(id, fin):
@@ -111,23 +111,23 @@ class Manager(object):
         :type fin: bool
         """
 
-        Manager.finished[id] = fin
+        Manager._finished[id] = fin
 
     @staticmethod
-    def get_active_group(grp):
+    def get_active_group(root):
         """This function returns the currently active leaf group.
         
-        :param grp: The root Group to begin the search from.
-        :type grp: Group
+        :param root: The root Group to begin the search from.
+        :type root: Group
         :return: Returns the currently active group.
         :rtype: Group
         """
 
-        for g in grp.chldrn:
-            if g.typ == "Group" and Manager.active[id(g)]:
+        for g in root.chldrn:
+            if g.typ == "Group" and Manager._active[id(g)]:
                 return Manager.get_active_group(g)
 
-        return grp
+        return root
 
     @staticmethod
     def set_active_group(grp):
@@ -157,7 +157,7 @@ class Manager(object):
         if not actv_grp.g_typ == "GOP" or actv_grp.child_cnt == 0:
             return None
 
-        i = Manager.i[id(actv_grp)]
+        i = Manager._i[id(actv_grp)]
 
         return actv_grp.chldrn[i]
 
@@ -186,7 +186,7 @@ class Manager(object):
         """
 
         while e.par:
-            Manager.active[id(e.par)] = actv
+            Manager._active[id(e.par)] = actv
             e = e.par
 
         return True
@@ -202,7 +202,7 @@ class Manager(object):
         """
 
         for sub in e.chldrn:
-            Manager.active[id(sub)] = actv
+            Manager._active[id(sub)] = actv
 
             if e.g_typ == "GOG":
                 Manager.set_active_subs(sub, actv)
@@ -231,6 +231,6 @@ class Manager(object):
 
         if grp.typ == "Group":
             for sub in grp.chldrn:
-                if Manager.active[id(sub)]:
+                if Manager._active[id(sub)]:
                     print id(sub), sub.nm
                     Manager.print_active_subs(sub)

@@ -45,15 +45,15 @@ class PatternRectangular(pattern.Pattern):
         super(PatternRectangular, self).__init__(**base_params)
 
         try:
-            self.inputX = handle_input_1d(num_points[0], step_sizes[0], lengths[0])
-            self.inputY = handle_input_1d(num_points[1], step_sizes[1], lengths[1])
+            self._inputX = handle_input_1d(num_points[0], step_sizes[0], lengths[0])
+            self._inputY = handle_input_1d(num_points[1], step_sizes[1], lengths[1])
         except TypeError as error:
             print(error)
 
-        if self.inputX is not False and self.inputY is not False:
-            self.points = (self.inputX[0], self.inputY[0])
-            self.step_size = (self.inputX[1], self.inputY[1])
-            self.length = (self.inputX[2], self.inputY[2])
+        if self._inputX is not False and self._inputY is not False:
+            self._points = (self._inputX[0], self._inputY[0])
+            self._step_size = (self._inputX[1], self._inputY[1])
+            self._length = (self._inputX[2], self._inputY[2])
             self._generate()
 
     def _generate(self):
@@ -63,11 +63,11 @@ class PatternRectangular(pattern.Pattern):
         :rtype: bool
         """
 
-        pattern = np.array(np.empty((self.points[0], self.points[1])), dtype=gm.Transform)
-        x_pattern = frames_along_axis(self.points[0], self.step_size[0], axis='x')
+        pattern = np.array(np.empty((self._points[0], self._points[1])), dtype=gm.Transform)
+        x_pattern = frames_along_axis(self._points[0], self._step_size[0], axis='x')
 
-        for x in range(self.points[0]):
-            y_pattern = frames_along_axis(self.points[1], self.step_size[1], basis_frame=x_pattern[x], axis='y')
+        for x in range(self._points[0]):
+            y_pattern = frames_along_axis(self._points[1], self._step_size[1], basis_frame=x_pattern[x], axis='y')
             pattern[x, :] = y_pattern
             del y_pattern
 

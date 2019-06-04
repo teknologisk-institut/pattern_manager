@@ -57,11 +57,11 @@ if __name__ == '__main__':
     print "\nIterating through active pattern transforms..."
     actv_pat = Manager.get_active_pattern(g_root)
     while actv_pat:
-        print actv_pat.nm, Manager.i[id(actv_pat)]
+        print actv_pat.nm, Manager._i[id(actv_pat)]
 
         Manager.iterate(actv_pat)
 
-        if Manager.finished[id(actv_pat)]:
+        if Manager._finished[id(actv_pat)]:
             actv_pat = Manager.get_active_pattern(g_root)
 
     print Group.get_sub_by_name("cheese_linear", g_root)
