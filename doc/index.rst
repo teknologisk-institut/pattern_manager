@@ -29,6 +29,6 @@ Class diagram
 =============
 
 .. figure:: ../rsc/pm.svg
-	:width: 1162px
+	:width: 1110px
 	:height: 1167px
 
