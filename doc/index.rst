@@ -8,6 +8,9 @@ Welcome to Pattern Manager's documentation!
 
 This ROS node enables arrangement, management, and runtime iteration through various types of patterns (for e.g. palletization processes).
 
+.. toctree::
+   :maxdepth: 2
+
 Currently supported pattern types include:
 
 - linear
@@ -15,8 +18,25 @@ Currently supported pattern types include:
 - circualr
 - scatter
 
-.. toctree::
-   :maxdepth: 2
+Example arrangement of groups and patterns:
+
+.. code-block:: bash
+
+	g0                          # Root (group)
+	├── g1                      # Group
+	│   ├── p1                  # Pattern
+	│   │   ├── tf1             # Transform
+	│   │   ├── tf2
+	│   │   ├── tf3
+	│   │   └── ...
+	│   └── ...
+	├── g2
+	│   ├── g3
+	│   │   └── p1
+	│   │       ├── tf1
+	│   │       └── ...
+	│   └── ...
+	└── ...
 
 Indices and tables
 ==================
@@ -29,6 +49,5 @@ Class diagram
 =============
 
 .. figure:: ../rsc/pm.svg
-	:width: 1110px
-	:height: 1167px
+
 

@@ -82,21 +82,25 @@ class PatternManagerNode(object):
         self._marker_pub = rospy.Publisher('~pattern_markers', viz_msg.MarkerArray, queue_size=10)
         self._tb = TransformBroadcaster()
 
+        self.actv_pat = Manager.get_active_pattern(self.g_root)
+
     # SERVICE CALLBACKS
 
     def cb_iterate(self, req):
         rospy.logdebug("Received iterate request")
         resp = TriggerResponse()
         
-        actv_pat = Manager.get_active_pattern(self.g_root)
-
-        ok = Manager.iterate(actv_pat)
-        resp.success = True if ok else False
-
-        if ok:
-            resp.message = "New iterator is {}".format(Manager.i[id(actv_pat)])
+        ok = Manager.iterate(self.actv_pat)
+        if not ok:
+            self.actv_pat = Manager.get_active_pattern(self.g_root)
+        
+        if self.actv_pat:
+            resp.message = "Active pattern: {}".format(self.actv_pat.nm)
+            resp.message += " -> i: {}".format(Manager.i[id(self.actv_pat)])        
+            resp.success = True
         else:
-            resp.message = "Element \'{}\' is finished".format(actv_pat.nm)
+            resp.message = "Iteration is done!"
+            resp.success = False
 
         return resp
 

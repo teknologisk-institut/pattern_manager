@@ -16,13 +16,13 @@ class TestManager(unittest.TestCase):
         o = object
         Manager.register_id(id(object))
 
-        self.assertIn(id(o), Manager._i.keys())
-        self.assertIn(id(o), Manager._finished.keys())
-        self.assertIn(id(o), Manager._active.keys())
+        self.assertIn(id(o), Manager.i.keys())
+        self.assertIn(id(o), Manager.finished.keys())
+        self.assertIn(id(o), Manager.active.keys())
 
-        self.assertTrue(Manager._i[id(o)] == 0)
-        self.assertTrue(Manager._finished[id(o)] == False)
-        self.assertTrue(Manager._active[id(o)] == False)
+        self.assertTrue(Manager.i[id(o)] == 0)
+        self.assertTrue(Manager.finished[id(o)] == False)
+        self.assertTrue(Manager.active[id(o)] == False)
 
     def test_iterate_func(self):
         g0 = Group(GType.GOG, "g0")
@@ -35,16 +35,16 @@ class TestManager(unittest.TestCase):
         g1.add_child(p1)
         g1.add_child(p2)
 
-        self.assertTrue(g0.chldrn[Manager._i[id(g0)]] == g1)
-        self.assertTrue(g1.chldrn[Manager._i[id(g1)]] == p1)
+        self.assertTrue(g0.chldrn[Manager.i[id(g0)]] == g1)
+        self.assertTrue(g1.chldrn[Manager.i[id(g1)]] == p1)
         
         Manager.iterate(g1)
 
-        self.assertTrue(g1.chldrn[Manager._i[id(g1)]] == p2)
+        self.assertTrue(g1.chldrn[Manager.i[id(g1)]] == p2)
        
         Manager.iterate(g1)
 
-        self.assertTrue(g0.chldrn[Manager._i[id(g0)]] == g2)
+        self.assertTrue(g0.chldrn[Manager.i[id(g0)]] == g2)
 
 
 if __name__ == '__main__':
