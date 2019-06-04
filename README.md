@@ -1,3 +1,8 @@
+### Class diagram
+
+![alt text][logo]
+[logo]: resources/pm.svg
+
 ### Example group and pattern tree-structure
 
     g0                          # Root (group)
