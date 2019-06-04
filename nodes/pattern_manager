@@ -188,12 +188,13 @@ class PatternManagerNode(object):
     def pub_markers(self):
         ma = viz_msg.MarkerArray()
         now = rospy.Time.now()
-        alpha = 1.0 #TODO: Highlight with alpa=1 the current pattern/group
         
         # for each pattern
         for p in self.patterns:
             frame = p.ref_frame_id
             size = len(p.tfs)
+            alpha = 1.0 if Manager.active[id(p)] else 0.5
+
             for i in range(size):
                 # color
                 if Manager.finished[id(p)]:
