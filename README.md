@@ -1,7 +1,7 @@
 ### Class diagram
 
 ![alt text][logo]
-[logo]: resources/pm.svg
+[logo]: https://github.com/teknologisk-institut/pattern_manager/blob/master/resources/pm.svg
 
 ### Example group and pattern tree-structure
 
