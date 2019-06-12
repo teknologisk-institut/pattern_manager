@@ -9,8 +9,8 @@ linear_d = {
         'base_params': {
             'name': 'cheese_linear',
             'ref_frame_id': 'base_link',
-            'offset_xy': [0.5, 0.3],
-            'offset_rot': 0.2
+            'offset_xy': [0.3, 0.0],
+            'offset_rot': 0.5
         }
     }
 
@@ -57,5 +57,31 @@ circle_d = {
     'base_params': {
         'name': 'cheese_circle',
         'ref_frame_id': 'base_link'
+    }
+}
+
+box_1 = {
+    'pattern_type': 'rectangular',
+    'pattern_params': {
+        'num_points': (4, 3),
+        'step_sizes': (0.1, 0.125)
+    },
+    'base_params': {
+        'name': 'box_1',
+        'ref_frame_id': 'base_link',
+        'offset_xy': (-1.0, 0.0)
+    }
+}
+
+box_2 = {
+    'pattern_type': 'rectangular',
+    'pattern_params': {
+        'num_points': (4, 3),
+        'step_sizes': (0.1, 0.125)
+    },
+    'base_params': {
+        'name': 'box_2',
+        'ref_frame_id': 'base_link',
+        'offset_xy': (-1.0, 0.5)
     }
 }
