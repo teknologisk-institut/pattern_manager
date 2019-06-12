@@ -47,12 +47,13 @@ class PatternManagerNode(object):
 
         # Create and add subgroups to root group
         g1 = Group(GType.GOP, "g1", self.g_root)
-        g2 = Group(GType.GOG, "g2", self.g_root)
+        g2 = Group(GType.GOP, "g2", self.g_root)
+        g3 = Group(GType.GOG, "g3", self.g_root)
 
         import pattern_manager.examples as ex
 
         # Create and add patterns to group 1 and group 2
-        ds = [ex.linear_d, ex.rect_d, ex.scatter_d, ex.circle_d]
+        ds = [ex.linear_d, ex.rect_d, ex.box_1, ex.box_2]
         self.patterns = []
         for i in range(len(ds)):
             p = PatternFactory.mk_pattern(
@@ -65,6 +66,9 @@ class PatternManagerNode(object):
             grp = g1 if i < 2 else g2
             grp.add_child(p)
         
+        for g in [g1, g2]:
+            g3.add_child(g)
+
         Manager.set_active_group(g1)
 
         print "Active elements:"
@@ -122,6 +126,7 @@ class PatternManagerNode(object):
         if e:
             Manager.set_active_subs(self.g_root, False)
             Manager.set_active_group(e)
+            self.actv_pat = Manager.get_active_pattern(self.g_root)
 
             return True
         else:
@@ -164,7 +169,7 @@ class PatternManagerNode(object):
         p = Manager.get_active_pattern(self.g_root)
         # patterns are flagged inactive if they are finished, this checks if all patterns in a group are finished
         if not p or not p.typ == "Pattern":
-            rospy.logwarn_throttle(2.0, "No active active pattern available")
+            rospy.logwarn_throttle(2.0, "No active pattern available")
             
             return
 
@@ -193,7 +198,8 @@ class PatternManagerNode(object):
         for p in self.patterns:
             frame = p.ref_frame_id
             size = len(p.tfs)
-            alpha = 1.0 if Manager.active[id(p)] else 0.5
+            #print size
+            alpha = 1.0 if Manager.active[id(p)] else 0.4
 
             for i in range(size):
                 # color
@@ -207,7 +213,8 @@ class PatternManagerNode(object):
                     color = 'g'
                 
                 # data
-                tf = p.tfs[Manager.i[id(p)]]
+                tf = p.tfs[i]
+                #print tf
                 ns = p.nm
                 m = self.create_marker(frame, now, tf, ns, i, color, alpha)
                 ma.markers.append(m)
@@ -235,9 +242,9 @@ class PatternManagerNode(object):
         # appearance - TODO: This should be changeable
         mark.type = viz_msg.Marker.CUBE
 
-        mark.scale.x = 0.02
-        mark.scale.y = 0.02
-        mark.scale.z = 0.02
+        mark.scale.x = 0.025
+        mark.scale.y = 0.025
+        mark.scale.z = 0.025
         
         if color == 'y':
             mark.color.r = 1.0
