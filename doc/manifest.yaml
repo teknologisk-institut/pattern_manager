@@ -19,6 +19,6 @@ msgs: []
 package_type: package
 repo_url: ''
 srvs:
-- ElementIterator
 - ElementName
+- ElementIterator
 url: ''
