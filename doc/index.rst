@@ -48,6 +48,6 @@ Indices and tables
 Class diagram
 =============
 
-.. figure:: ../rsc/pm.svg
+.. figure:: images/pm.svg
 
 
