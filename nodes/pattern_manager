@@ -49,11 +49,12 @@ class PatternManagerNode(object):
         g1 = Group(GType.GOP, "g1", self.g_root)
         g2 = Group(GType.GOP, "g2", self.g_root)
         g3 = Group(GType.GOG, "g3", self.g_root)
+        g4 = Group(GType.GOP, "g4", self.g_root)
 
         import pattern_manager.examples as ex
 
         # Create and add patterns to group 1 and group 2
-        ds = [ex.linear_d, ex.rect_d, ex.box_1, ex.box_2]
+        ds = [ex.linear_d, ex.rect_d, ex.box_1, ex.box_2, ex.circle_d, ex.scatter_d]
         self.patterns = []
         for i in range(len(ds)):
             p = PatternFactory.mk_pattern(
@@ -63,7 +64,12 @@ class PatternManagerNode(object):
 
             self.patterns.append(p)
 
-            grp = g1 if i < 2 else g2
+            if i < 2:
+                grp = g1 
+            elif i < 4:
+                grp = g2
+            else:
+                grp = g4
             grp.add_child(p)
         
         for g in [g1, g2]:
