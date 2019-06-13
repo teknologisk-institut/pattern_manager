@@ -13,10 +13,10 @@ We have implemented the ROS package purely in Python, with the key components ne
 To try out the demo mode of the ROS node, do the following:
 - Download this repository to your Catkin workspace, install the dependencies (see below) and build.
 - Start the node `rosrun pattern_manager pattern_manager`
-- Start rviz, and add a TF view, and a MarkerArray, subscribing to `/pattern_manager/pattern_markers`
+- Start rviz, set fixed frame to `base_link`, add a TF view, and a MarkerArray, subscribing to `/pattern_manager/pattern_markers`
 - From the command line:
   - Iterate through the active group through the service `/pattern_manager/iterate`
-  - Select an active group (available groups are "g1", "g2", "g3" or "g4") through `/pattern_manager/set_active`
+  - Select an active group (available groups are "g1", "g2", "g3" or "g4", see structure below) through `/pattern_manager/set_active` 
   - Reset a group through `/pattern_manager/reset`
 
 #### Planned features
@@ -73,7 +73,7 @@ The following is the structure in the example implemented in the node:
             └── ...   
 
 
-### Class diagram
+### Python module class diagram
 
 ![alt text](https://github.com/teknologisk-institut/pattern_manager/blob/master/doc/images/pm.svg "Logo Title Text 1")
 
