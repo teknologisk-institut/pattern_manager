@@ -45,11 +45,15 @@ class PatternManagerNode(object):
         self.g_root = Group(GType.GOG, "root")
         Manager.set_active(id(self.g_root), True)
 
+        self.groups = []
+
         # Create and add subgroups to root group
         g1 = Group(GType.GOP, "g1", self.g_root)
         g2 = Group(GType.GOP, "g2", self.g_root)
         g3 = Group(GType.GOG, "g3", self.g_root)
         g4 = Group(GType.GOP, "g4", self.g_root)
+
+        self.groups.extend([g1, g2, g3, g4])
 
         import pattern_manager.examples as ex
 
@@ -81,6 +85,8 @@ class PatternManagerNode(object):
         Manager.print_active_subs(self.g_root)
 
         # services
+        self._get_pattern_types = rospy.Service('~get_pattern_types', pm_srv.PatternTypes, self.cb_get_pattern_types)
+        self._create_group = rospy.Service('~create_group', pm_srv.CreateGroup, self.cb_create_group)
         self._iter_srv = rospy.Service('~iterate', Trigger, self.cb_iterate)
         self._finished_srv = rospy.Service('~is_finished', pm_srv.ElementName, self.cb_finished)
         self._set_active_srv = rospy.Service('~set_active', pm_srv.ElementName, self.cb_set_active)
@@ -96,10 +102,42 @@ class PatternManagerNode(object):
 
     # SERVICE CALLBACKS
 
+    def cb_get_pattern_types(self, req):
+        rospy.logdebug("Received pattern types request")
+
+        resp = pm_srv.PatternTypesResponse()
+        resp.pattern_types = list(PatternFactory.pattern_typs.keys())
+
+        return resp
+
+    def cb_create_group(self, req):
+        rospy.logdebug("Received create group request")
+
+        resp = pm_srv.CreateGroupResponse()
+
+        if not req.group_name:
+            rospy.logwarn("Group must have a name!")
+            resp.success = False
+
+            return resp
+
+        try:
+            g_typ = GType[req.g_type_str]
+            grp = Group(g_typ, req.group_name, self.g_root)
+            self.groups.append(grp)
+
+            resp.success = True
+            rospy.logout("Group {} successfully created!".format(req.group_name))
+        except:
+            rospy.logwarn("Could not create group {} of type {}!".format(req.group_name, req.g_type_str))
+            resp.success = False
+
+        return resp
+
     def cb_iterate(self, req):
         rospy.logdebug("Received iterate request")
         resp = TriggerResponse()
-        
+
         ok = Manager.iterate(self.actv_pat)
         if not ok:
             self.actv_pat = Manager.get_active_pattern(self.g_root)

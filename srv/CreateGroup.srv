@@ -1,0 +1,6 @@
+# CREATE A NEW GROUP
+string g_type_str
+string group_name
+---
+uint8 id
+bool success

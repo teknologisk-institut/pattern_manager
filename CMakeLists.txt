@@ -59,6 +59,8 @@ add_service_files(
    FILES
    ElementName.srv
    ElementIterator.srv
+   PatternTypes.srv
+   CreateGroup.srv
  )
 
 ## Generate actions in the 'action' folder

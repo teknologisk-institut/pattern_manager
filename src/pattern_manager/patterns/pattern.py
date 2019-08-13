@@ -119,7 +119,7 @@ class PatternFactory:
 
     __metaclass__ = ABCMeta
 
-    _pattern_typs = {}
+    pattern_typs = {}
 
     @staticmethod
     def reg_pattern_typ(pattern_typ, pattern):
@@ -131,7 +131,7 @@ class PatternFactory:
         :type pattern: Pattern
         """
 
-        PatternFactory._pattern_typs[pattern_typ] = pattern
+        PatternFactory.pattern_typs[pattern_typ] = pattern
 
     @staticmethod
     def mk_pattern(pattern_typ, base_params, pattern_params):
@@ -148,7 +148,7 @@ class PatternFactory:
         :rtype: Pattern
         """
 
-        pattern = PatternFactory._pattern_typs.get(pattern_typ)
+        pattern = PatternFactory.pattern_typs.get(pattern_typ)
 
         if not pattern:
             raise ValueError(pattern_typ)
