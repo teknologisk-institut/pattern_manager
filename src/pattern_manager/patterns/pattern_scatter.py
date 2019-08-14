@@ -30,7 +30,7 @@ class PatternScatter(pattern.Pattern):
 
     _alias_ = 'scatter'
 
-    def __init__(self, base_params, point_list):
+    def __init__(self, base_params, point_list=[]):
         """The class constructor.
         
         :param base_params: Parameters for the base-class (super).

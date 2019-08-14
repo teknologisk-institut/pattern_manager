@@ -85,14 +85,15 @@ class PatternManagerNode(object):
         Manager.print_active_subs(self.g_root)
 
         # services
-        self._get_pattern_types = rospy.Service('~get_pattern_types', pm_srv.PatternTypes, self.cb_get_pattern_types)
-        self._create_group = rospy.Service('~create_group', pm_srv.CreateGroup, self.cb_create_group)
+        self._get_pattern_types_srv = rospy.Service('~get_pattern_types', pm_srv.PatternTypes, self.cb_get_pattern_types)
+        self._create_pattern_srv = rospy.Service('~create_pattern', pm_srv.CreatePattern, self.cb_create_pattern)
+        self._create_group_srv = rospy.Service('~create_group', pm_srv.CreateGroup, self.cb_create_group)
         self._iter_srv = rospy.Service('~iterate', Trigger, self.cb_iterate)
         self._finished_srv = rospy.Service('~is_finished', pm_srv.ElementName, self.cb_finished)
         self._set_active_srv = rospy.Service('~set_active', pm_srv.ElementName, self.cb_set_active)
         self._get_iterator_srv = rospy.Service('~get_iterator', pm_srv.ElementIterator, self.cb_get_iterator)
         self._reset_srv = rospy.Service('~reset', pm_srv.ElementName, self.cb_reset)
-        #self._get_groups_srv = rospy.Service('~get_all_groups', pm_srv.GroupIndex, self.cb_finished)
+        self._get_groups_srv = rospy.Service('~get_groups', pm_srv.GetGroups, self.cb_get_groups)
 
         # publishers
         self._marker_pub = rospy.Publisher('~pattern_markers', viz_msg.MarkerArray, queue_size=10)
@@ -107,6 +108,46 @@ class PatternManagerNode(object):
 
         resp = pm_srv.PatternTypesResponse()
         resp.pattern_types = list(PatternFactory.pattern_typs.keys())
+
+        return resp
+
+    def cb_get_groups(self, req):
+        rospy.logdebug("Received request to retrieve all groups")
+
+        resp = pm_srv.GetGroupsResponse()
+
+        ids = []
+        names = []
+        for g in self.groups:
+            ids.append(id(g))
+            names.append(g.nm)
+
+        resp.group_ids = ids
+        resp.group_names = names
+
+        return resp
+
+    def cb_create_pattern(self, req):
+        rospy.logdebug("Received create pattern request")
+
+        resp = pm_srv.CreatePatternResponse()
+
+        if not req.pat_name:
+            rospy.logwarn("Pattern must have a name!")
+            resp.success = False
+
+            return resp
+
+        try:
+            pat = PatternFactory.mk_pattern(req.pat_type, {"name": req.pat_name}, {})
+            self.patterns.append(pat)
+            self.groups[req.gop_id].add_child(pat)
+
+            resp.success = True
+            rospy.logout("Pattern {} successfully created!".format(req.group_name))
+        except:
+            rospy.logwarn("Could not create pattern of type {}".format(req.pat_type))
+            resp.success = False
 
         return resp
 

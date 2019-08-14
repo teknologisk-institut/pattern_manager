@@ -1,0 +1,7 @@
+# CREATE A NEW PATTERN
+string pat_typ
+string pat_name
+uint8 gop_id
+---
+uint8 id
+bool success

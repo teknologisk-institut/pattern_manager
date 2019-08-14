@@ -61,6 +61,8 @@ add_service_files(
    ElementIterator.srv
    PatternTypes.srv
    CreateGroup.srv
+   CreatePattern.srv
+   GetGroups.srv
  )
 
 ## Generate actions in the 'action' folder
