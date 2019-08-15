@@ -99,6 +99,23 @@ class Group(object):
 
         return None
 
+    def get_sub_groups(self):
+        q = Queue.Queue()
+        q.put(self)
+
+        subs = []
+        while not q.empty():
+            node = q.queue[0]
+
+            q.get()
+
+            for sub in node.chldrn:
+                if sub.typ == 'Group':
+                    subs.append((id(sub), id(node)))
+                    q.put(sub)
+
+        return subs
+
     @staticmethod
     def print_tree(chld):
         """This function prints the id and name of the group and all of \

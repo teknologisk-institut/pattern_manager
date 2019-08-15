@@ -46,22 +46,22 @@ if __name__ == '__main__':
     # Add pattern to group g1
     g1.add_child(p1)
 
-    print "All elements:"
-    Group.print_tree(g_root)
-
-    Manager.set_active_pattern(p1)
-
-    print "\nActive elements:"
-    Manager.print_active_subs(g_root)
-
-    print "\nIterating through active pattern transforms..."
-    actv_pat = Manager.get_active_pattern(g_root)
-    while actv_pat:
-        print actv_pat.nm, Manager.i[id(actv_pat)]
-
-        Manager.iterate(actv_pat)
-
-        if Manager.finished[id(actv_pat)]:
-            actv_pat = Manager.get_active_pattern(g_root)
-
-    print Group.get_sub_by_name("cheese_linear", g_root)
+    # print "All elements:"
+    # Group.print_tree(g_root)
+    #
+    # Manager.set_active_pattern(p1)
+    #
+    # print "\nActive elements:"
+    # Manager.print_active_subs(g_root)
+    #
+    # print "\nIterating through active pattern transforms..."
+    # actv_pat = Manager.get_active_pattern(g_root)
+    # while actv_pat:
+    #     print actv_pat.nm, Manager.i[id(actv_pat)]
+    #
+    #     Manager.iterate(actv_pat)
+    #
+    #     if Manager.finished[id(actv_pat)]:
+    #         actv_pat = Manager.get_active_pattern(g_root)
+    #
+    # print Group.get_sub_by_name("cheese_linear", g_root)

@@ -1,0 +1,2 @@
+uint64 group_id
+uint64 parent_id

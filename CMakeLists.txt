@@ -48,11 +48,10 @@ catkin_python_setup()
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+   FILES
+   GroupDeps.msg
+ )
 
 # Generate services in the 'srv' folder
 add_service_files(
@@ -63,6 +62,7 @@ add_service_files(
    CreateGroup.srv
    CreatePattern.srv
    GetGroups.srv
+   GroupTree.srv
  )
 
 ## Generate actions in the 'action' folder
