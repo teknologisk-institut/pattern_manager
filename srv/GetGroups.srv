@@ -1,4 +1,0 @@
-#SPECIFIES ALL GROUPS BY ID AND NAME
----
-uint64[] group_ids
-string[] group_names

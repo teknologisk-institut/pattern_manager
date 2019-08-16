@@ -27,6 +27,7 @@ import visualization_msgs.msg as viz_msg
 from std_srvs.srv import Trigger, TriggerResponse, TriggerRequest
 import geometry_msgs.msg as gm
 import pattern_manager.srv as pm_srv
+import pattern_manager.msg as pm_msg
 
 from pluginlib import PluginLoader
 
@@ -41,11 +42,12 @@ class PatternManagerNode(object):
         for k in _ld.plugins['pattern'].keys():
             PatternFactory.reg_pattern_typ(k, _ld.get_plugin('pattern', k))
 
+        self.groups = []
+
         # Make a root group to contain all subsequent groups
         self.g_root = Group(GType.GOG, "root")
         Manager.set_active(id(self.g_root), True)
-
-        self.groups = []
+        self.groups.append(self.g_root)
 
         # Create and add subgroups to root group
         g1 = Group(GType.GOP, "g1", self.g_root)
@@ -93,7 +95,7 @@ class PatternManagerNode(object):
         self._set_active_srv = rospy.Service('~set_active', pm_srv.ElementName, self.cb_set_active)
         self._get_iterator_srv = rospy.Service('~get_iterator', pm_srv.ElementIterator, self.cb_get_iterator)
         self._reset_srv = rospy.Service('~reset', pm_srv.ElementName, self.cb_reset)
-        self._get_groups_srv = rospy.Service('~get_groups', pm_srv.GetGroups, self.cb_get_groups)
+        self._get_groups_srv = rospy.Service('~get_groups', pm_srv.GroupTree, self.cb_get_groups)
 
         # publishers
         self._marker_pub = rospy.Publisher('~pattern_markers', viz_msg.MarkerArray, queue_size=10)
@@ -114,16 +116,20 @@ class PatternManagerNode(object):
     def cb_get_groups(self, req):
         rospy.logdebug("Received request to retrieve all groups")
 
-        resp = pm_srv.GetGroupsResponse()
+        resp = pm_srv.GroupTreeResponse()
 
-        ids = []
-        names = []
+        g_tree = []
         for g in self.groups:
-            ids.append(id(g))
-            names.append(g.nm)
+                gd = pm_msg.GroupDeps()
+                gd.name_and_parent = [g.nm, g.nm]
 
-        resp.group_ids = ids
-        resp.group_names = names
+                if g.par:
+                    gd.name_and_parent[1] = g.par.nm
+
+                g_tree.append(gd)
+
+        resp.group_deps = g_tree
+        resp.success = True
 
         return resp
 

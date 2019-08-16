@@ -1,2 +1,1 @@
-uint64 group_id
-uint64 parent_id
+string[] name_and_parent

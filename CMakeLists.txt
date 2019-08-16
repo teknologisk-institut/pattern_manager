@@ -61,7 +61,6 @@ add_service_files(
    PatternTypes.srv
    CreateGroup.srv
    CreatePattern.srv
-   GetGroups.srv
    GroupTree.srv
  )
 
