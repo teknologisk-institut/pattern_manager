@@ -90,6 +90,7 @@ class PatternManagerNode(object):
         self._get_pattern_types_srv = rospy.Service('~get_pattern_types', pm_srv.PatternTypes, self.cb_get_pattern_types)
         self._create_pattern_srv = rospy.Service('~create_pattern', pm_srv.CreatePattern, self.cb_create_pattern)
         self._create_group_srv = rospy.Service('~create_group', pm_srv.CreateGroup, self.cb_create_group)
+        self._get_patterns_srv = rospy.Service('~get_patterns', pm_srv.GroupTree, self.cb_get_patterns)
         self._iter_srv = rospy.Service('~iterate', Trigger, self.cb_iterate)
         self._finished_srv = rospy.Service('~is_finished', pm_srv.ElementName, self.cb_finished)
         self._set_active_srv = rospy.Service('~set_active', pm_srv.ElementName, self.cb_set_active)
@@ -113,22 +114,44 @@ class PatternManagerNode(object):
 
         return resp
 
+    def cb_get_patterns(self, req):
+        rospy.logdebug("Recieved request to retrieve all patterns")
+
+        resp = pm_srv.GroupTreeResponse()
+
+        p_list = []
+        for p in self.patterns:
+            pd = pm_msg.GroupDeps()
+            pd.name_and_parent = [p.nm, p.nm]
+            pd.type = 'Pattern'
+
+            if p.par:
+                pd.name_and_parent[1] = p.par.nm
+
+            p_list.append(pd)
+
+        resp.group_deps = p_list
+        resp.success = True
+
+        return resp
+
     def cb_get_groups(self, req):
         rospy.logdebug("Received request to retrieve all groups")
 
         resp = pm_srv.GroupTreeResponse()
 
-        g_tree = []
+        g_list = []
         for g in self.groups:
                 gd = pm_msg.GroupDeps()
                 gd.name_and_parent = [g.nm, g.nm]
+                gd.type = 'Group'
 
                 if g.par:
                     gd.name_and_parent[1] = g.par.nm
 
-                g_tree.append(gd)
+                g_list.append(gd)
 
-        resp.group_deps = g_tree
+        resp.group_deps = g_list
         resp.success = True
 
         return resp
