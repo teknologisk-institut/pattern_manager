@@ -42,12 +42,12 @@ class PatternManagerNode(object):
         for k in _ld.plugins['pattern'].keys():
             PatternFactory.reg_pattern_typ(k, _ld.get_plugin('pattern', k))
 
-        self.groups = []
+        self.groups = {}
 
         # Make a root group to contain all subsequent groups
         self.g_root = Group(GType.GOG, "root")
         Manager.set_active(id(self.g_root), True)
-        self.groups.append(self.g_root)
+        self.groups[id(self.g_root)] = self.g_root
 
         # Create and add subgroups to root group
         g1 = Group(GType.GOP, "g1", self.g_root)
@@ -55,20 +55,21 @@ class PatternManagerNode(object):
         g3 = Group(GType.GOG, "g3", self.g_root)
         g4 = Group(GType.GOP, "g4", self.g_root)
 
-        self.groups.extend([g1, g2, g3, g4])
+        for g in [g1, g2, g3, g4]:
+            self.groups[id(g)] = g
 
         import pattern_manager.examples as ex
 
         # Create and add patterns to group 1 and group 2
         ds = [ex.linear_d, ex.rect_d, ex.box_1, ex.box_2, ex.circle_d, ex.scatter_d]
-        self.patterns = []
+        self.patterns = {}
         for i in range(len(ds)):
             p = PatternFactory.mk_pattern(
                 ds[i]['pattern_type'],
                 ds[i]['base_params'],
                 ds[i]['pattern_params'])
 
-            self.patterns.append(p)
+            self.patterns[id(p)] = p
 
             if i < 2:
                 grp = g1 
@@ -120,10 +121,11 @@ class PatternManagerNode(object):
         resp = pm_srv.GroupTreeResponse()
 
         p_list = []
-        for p in self.patterns:
+        for p in self.patterns.values():
             pd = pm_msg.GroupDeps()
             pd.name_and_parent = [p.nm, p.nm]
             pd.type = 'Pattern'
+            pd.id = id(p)
 
             if p.par:
                 pd.name_and_parent[1] = p.par.nm
@@ -141,10 +143,11 @@ class PatternManagerNode(object):
         resp = pm_srv.GroupTreeResponse()
 
         g_list = []
-        for g in self.groups:
+        for g in self.groups.values():
                 gd = pm_msg.GroupDeps()
                 gd.name_and_parent = [g.nm, g.nm]
                 gd.type = 'Group'
+                gd.id = id(g)
 
                 if g.par:
                     gd.name_and_parent[1] = g.par.nm
@@ -167,10 +170,13 @@ class PatternManagerNode(object):
 
             return resp
 
+        rospy.logdebug(self.groups[req.par_grp_id])
+
         try:
             pat = PatternFactory.mk_pattern(req.pat_type, {"name": req.pat_name}, {})
-            self.patterns.append(pat)
-            self.groups[req.gop_id].add_child(pat)
+            rospy.logdebug(pat)
+            self.patterns[id(pat)] = pat
+            self.groups[req.par_grp_id].add_child(pat)
 
             resp.success = True
             rospy.logout("Pattern {} successfully created!".format(req.group_name))
@@ -194,7 +200,7 @@ class PatternManagerNode(object):
         try:
             g_typ = GType[req.g_type_str]
             grp = Group(g_typ, req.group_name, self.g_root)
-            self.groups.append(grp)
+            self.groups[id(grp)] = grp
 
             resp.success = True
             rospy.logout("Group {} successfully created!".format(req.group_name))
@@ -309,7 +315,7 @@ class PatternManagerNode(object):
         now = rospy.Time.now()
         
         # for each pattern
-        for p in self.patterns:
+        for p in self.patterns.values():
             frame = p.ref_frame_id
             size = len(p.tfs)
             #print size
