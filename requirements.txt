@@ -1,5 +1,0 @@
-numpy
-tf
-geometry_msgs
-pluginlib
-bidict

@@ -1,0 +1,3 @@
+<launch>
+	<node name="pattern_manager" pkg="pattern_manager" type="pattern_manager" />
+</launch>

@@ -170,16 +170,22 @@ class PatternManagerNode(object):
 
             return resp
 
-        rospy.logdebug(self.groups[req.par_grp_id])
+        for p in self.groups[req.par_grp_id].chldrn:
+            if not p.nm == req.pat_name:
+                continue
+
+            rospy.logwarn("New pattern in group {} must have a unique name".format(self.groups[req.par_grp_id].nm))
+            resp.success = False
+
+            return resp
 
         try:
             pat = PatternFactory.mk_pattern(req.pat_type, {"name": req.pat_name}, {})
-            rospy.logdebug(pat)
             self.patterns[id(pat)] = pat
             self.groups[req.par_grp_id].add_child(pat)
 
             resp.success = True
-            rospy.logout("Pattern {} successfully created!".format(req.group_name))
+            rospy.logout("Pattern {} successfully created!".format(req.pat_name))
         except:
             rospy.logwarn("Could not create pattern of type {}".format(req.pat_type))
             resp.success = False
@@ -193,6 +199,15 @@ class PatternManagerNode(object):
 
         if not req.group_name:
             rospy.logwarn("Group must have a name!")
+            resp.success = False
+
+            return resp
+
+        for g in self.groups[req.par_grp_id].chldrn:
+            if not g.nm == req.group_name:
+                continue
+
+            rospy.logwarn("New group in group {} must have a unique name".format(self.groups[req.par_grp_id].nm))
             resp.success = False
 
             return resp
