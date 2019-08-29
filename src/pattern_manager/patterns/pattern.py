@@ -31,8 +31,9 @@ import pluginlib
 class Pattern:
     """This class is the base-class (super) for all pattern plugins.
     """
-
     __metaclass__ = ABCMeta
+
+    _instances = {}
 
     def __init__(self, name, ref_frame_id="", offset_xy=(0, 0), offset_rot=0):
         """The class constructor.
@@ -47,15 +48,28 @@ class Pattern:
         :type offset_rot: int, optional
         """
 
-        self.nm = name
+        self.name = name
         self.typ = self.__class__.__bases__[0].name
         self.tfs = []
-        self.par = None
+        self.parent = None
         self._pos_offset = offset_xy
         self._rot_offset = offset_rot
         self.ref_frame_id = ref_frame_id
+
+        Pattern._instances[self.name] = self
         
         Manager.register_id(id(self))
+
+    @staticmethod
+    def get_pattern_by_name(nm):
+        try:
+            pat = Pattern._instances[nm]
+
+            return pat
+        except KeyError:
+            print "Error: There exists no pattern with the name: {}".format(nm)
+
+            return
 
     @abstractmethod
     def _generate(self):
@@ -111,6 +125,9 @@ class Pattern:
             self.tfs.append(tf)
 
         return True
+
+    def child_count(self):
+        len(self.tfs)
 
 
 class PatternFactory:

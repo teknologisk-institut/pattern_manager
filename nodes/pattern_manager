@@ -18,7 +18,7 @@
 
 # python
 import logging
-from pattern_manager.collection import GType, Group, Manager
+from pattern_manager.collection import Container, ContainerGroup, ContainerPattern, Manager
 from pattern_manager.patterns import PatternFactory
 # ROS
 import rospy
