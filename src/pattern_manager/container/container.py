@@ -16,7 +16,7 @@
 
 # Author: Mads Vainoe Baatrup
 
-from abc import ABCMeta
+from abc import ABCMeta, abstractproperty
 
 
 class Container(object):
@@ -24,16 +24,16 @@ class Container(object):
 
     _instances = {}
 
-    def __init__(self, nm, par=None):
-        self.type = self.__class__.__name__
+    def __init__(self, nm):
         self.name = nm
+        self.parent = None
         self.children = []
-        self.parent = par
-
-        if self.parent:
-            self.parent.add_child(self)
 
         Container._instances[self.name] = self
+
+    @abstractproperty
+    def type(self):
+        raise NotImplementedError()
 
     def add_child(self, chld):
         self.children.append(chld)

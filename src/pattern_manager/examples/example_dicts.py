@@ -7,7 +7,7 @@ linear_d = {
             'num_points': 3
         },
         'base_params': {
-            'name': 'cheese_linear',
+            'nm': 'cheese_linear',
             'ref_frame_id': 'base_link',
             'offset_xy': [0.3, 0.0],
             'offset_rot': 0.5
@@ -21,7 +21,7 @@ rect_d = {
         'step_sizes': (0.1, 0.1)
     },
     'base_params': {
-        'name': 'cheese_rect',
+        'nm': 'cheese_rect',
         'ref_frame_id': 'base_link'
     }
 }
@@ -43,7 +43,7 @@ scatter_d = {
             ]
     },
     'base_params': {
-        'name': 'cheese_scatter',
+        'nm': 'cheese_scatter',
         'ref_frame_id': 'base_link'
     }
 }
@@ -55,7 +55,7 @@ circle_d = {
         'num_points': 7
     },
     'base_params': {
-        'name': 'cheese_circle',
+        'nm': 'cheese_circle',
         'ref_frame_id': 'base_link'
     }
 }
@@ -67,7 +67,7 @@ box_1 = {
         'step_sizes': (0.1, 0.125)
     },
     'base_params': {
-        'name': 'box_1',
+        'nm': 'box_1',
         'ref_frame_id': 'base_link',
         'offset_xy': (-1.0, 0.0)
     }
@@ -80,7 +80,7 @@ box_2 = {
         'step_sizes': (0.1, 0.125)
     },
     'base_params': {
-        'name': 'box_2',
+        'nm': 'box_2',
         'ref_frame_id': 'base_link',
         'offset_xy': (-1.0, 0.5)
     }

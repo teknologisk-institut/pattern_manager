@@ -28,7 +28,7 @@ class PatternScatter(pattern.Pattern):
     """This class defines a scatter pattern.
     """
 
-    _alias_ = 'scatter'
+#    _alias_ = 'scatter'
 
     def __init__(self, base_params, point_list=[]):
         """The class constructor.

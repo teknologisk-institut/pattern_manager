@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 import patterns 
-import collection
+import container
+import group
+import manager
 import examples
+
 from utils import *

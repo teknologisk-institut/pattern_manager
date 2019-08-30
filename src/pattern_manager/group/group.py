@@ -16,35 +16,34 @@
 
 # Author: Mads Vainoe Baatrup
 
-import Queue
-
-from container import Container
-from manager import Manager
+from ..container import Container
 
 
-class ContainerGroup(Container):
+class Group(Container):
+
+    _instances = {}
 
     def __init__(self, nm, par=None):
-        super(ContainerGroup, self).__init__(nm, par)
+        super(Group, self).__init__(nm)
 
-        Manager.register_id(id(self))
+        self.group_type = None
 
-    # def get_sub_groups(self):
-    #     q = Queue.Queue()
-    #     q.put(self)
-    #
-    #     subs = []
-    #     while not q.empty():
-    #         node = q.queue[0]
-    #
-    #         q.get()
-    #
-    #         for sub in node.chldrn:
-    #
-    #             if not isinstance(sub, self):
-    #                 continue
-    #
-    #             subs.append((id(sub), id(node)))
-    #             q.put(sub)
-    #
-    #     return subs
+        if self.parent:
+            self.parent.add_child(self)
+
+        Group._instances[self.name] = self
+
+    @property
+    def type(self):
+        return "Group"
+
+    def add_child(self, chld):
+
+        if not self.group_type:
+            self.group_type = chld.type
+        elif self.group_type != chld.group_type:
+            print "Warning: only objects of type {} can be added".format(self.group_type)
+
+            return
+
+        super(Group, self).add_child(chld)

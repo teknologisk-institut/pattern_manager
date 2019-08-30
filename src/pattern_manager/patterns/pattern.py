@@ -14,51 +14,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Author: Mikkel Rath Hansen
+# Author: Mads Vainoe Baatrup
 
-from enum import Enum
-from pattern_manager.utils import tf_to_matrix, matrix_to_tf, output, logging
-from pattern_manager.collection import Manager
+from ..utils import tf_to_matrix, matrix_to_tf
 from tf import transformations as tfs
-from abc import ABCMeta, abstractmethod
-from pluginlib import PluginLoader
+from abc import ABCMeta
+from ..container import Container
+from ..manager import Manager
 
 import numpy as np
-import pluginlib
+# import pluginlib
 
 
-@pluginlib.Parent('pattern', group='patterns')
-class Pattern:
-    """This class is the base-class (super) for all pattern plugins.
-    """
+class Pattern(Container):
     __metaclass__ = ABCMeta
 
     _instances = {}
 
-    def __init__(self, name, ref_frame_id="", offset_xy=(0, 0), offset_rot=0):
-        """The class constructor.
-        
-        :param name: The name to assign the pattern.
-        :type name: str
-        :param ref_frame_id: The id of the reference frame of the patterns transforms, defaults to ""
-        :type ref_frame_id: str, optional
-        :param offset_xy: The positional offset of a pattern, defaults to (0, 0)
-        :type offset_xy: tuple, optional
-        :param offset_rot: The rotational offset of a pattern, defaults to 0
-        :type offset_rot: int, optional
-        """
+    def __init__(self, nm, ref_frame_id="", offset_xy=(0, 0), offset_rot=0):
+        super(Pattern, self).__init__(nm)
 
-        self.name = name
-        self.typ = self.__class__.__bases__[0].name
-        self.tfs = []
-        self.parent = None
         self._pos_offset = offset_xy
         self._rot_offset = offset_rot
         self.ref_frame_id = ref_frame_id
 
         Pattern._instances[self.name] = self
-        
+
         Manager.register_id(id(self))
+
+    @property
+    def type(self):
+        return "Pattern"
 
     @staticmethod
     def get_pattern_by_name(nm):
@@ -71,22 +57,7 @@ class Pattern:
 
             return
 
-    @abstractmethod
-    def _generate(self):
-        """Generates a pattern with the values obtained in the class constructor.
-        """
-
-        pass
-
     def offset_pattern(self, pattern):
-        """This function allows a pattern to be positionally and rotationally offset.
-        
-        :param pattern: The pattern to be offset.
-        :type pattern: Pattern
-        :return: Returns the offset pattern.
-        :rtype: Pattern
-        """
-
         if not self._pos_offset == (0, 0):
             for pos in pattern:
                 pos.translation.x += self._pos_offset[0]
@@ -106,34 +77,20 @@ class Pattern:
         return pattern
 
     def finish_generation(self, pattern, ignore_offset=False):
-        """This function flattens the initially generated tf list and adds them \
-            to the object tf list. An optional tf offset ignore can also be set.
-        
-        :param pattern: The pattern to be added.
-        :type pattern: Pattern
-        :param ignore_offset: Whether to ignore tf offset or not, defaults to False
-        :type ignore_offset: bool, optional
-        :return: Returns True if generation succeeds
-        :rtype: bool
-        """
         pattern = pattern.reshape(pattern.size)
 
         if not ignore_offset:
             pattern = self.offset_pattern(pattern)
 
         for tf in pattern:
-            self.tfs.append(tf)
+            self.children.append(tf)
 
         return True
-
-    def child_count(self):
-        len(self.tfs)
 
 
 class PatternFactory:
     """This class acts as a factory for generating patterns from a dictionary.
     """
-
     __metaclass__ = ABCMeta
 
     pattern_typs = {}

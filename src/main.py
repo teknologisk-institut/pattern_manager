@@ -16,24 +16,31 @@
 
 # Author: Mads Vainoe Baatrup
 
-from pattern_manager.collection import ContainerGroup, ContainerPattern, Container, Manager
-from pattern_manager.patterns import PatternFactory, Pattern
-from pluginlib import PluginLoader
+from pattern_manager.container import Container
+from pattern_manager.manager import Manager
+from pattern_manager.group import Group
+from pattern_manager.patterns import \
+    PatternFactory, \
+    Pattern, \
+    PatternLinear, \
+    PatternRectangular, \
+    PatternScatter, \
+    PatternCircular
 
 
 if __name__ == '__main__':
-    # Load pattern plugins
-    _ld = PluginLoader(group='patterns')
-    for k in _ld.plugins['pattern'].keys():
-        PatternFactory.reg_pattern_typ(k, _ld.get_plugin('pattern', k))
+    PatternFactory.reg_pattern_typ('linear', PatternLinear)
+    PatternFactory.reg_pattern_typ('rectangular', PatternRectangular)
+    PatternFactory.reg_pattern_typ('circular', PatternCircular)
+    PatternFactory.reg_pattern_typ('scatter', PatternScatter)
 
     # Make root group to contain all subsequent groups
-    c_root = ContainerGroup('root')
+    c_root = Group('root')
     Manager.set_active(c_root, True)
 
     # Create and add subgroups to root group
-    c1 = ContainerPattern('c1', c_root)
-    c2 = ContainerGroup('c2', c_root)
+    c1 = Group('c1', c_root)
+    c2 = Group('c2', c_root)
 
     import pattern_manager.examples as ex
 

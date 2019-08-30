@@ -17,7 +17,8 @@
 # Author: Mads Vainoe Baatrup
 
 from abc import ABCMeta
-from container import Container
+
+from ..container import Container
 
 
 class Manager(object):
