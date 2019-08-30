@@ -73,10 +73,6 @@ The following is the structure in the example implemented in the node:
             └── ...   
 
 
-### Python module class diagram
-
-![alt text](https://github.com/teknologisk-institut/pattern_manager/blob/master/doc/images/pm.svg "Logo Title Text 1")
-
 ### Acknowledgement
 
 Supported by [ROSIN - ROS-Industrial Quality-Assured Robot Software Components](http://rosin-project.eu/) 
