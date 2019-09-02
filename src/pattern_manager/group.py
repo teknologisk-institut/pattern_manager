@@ -16,51 +16,59 @@
 
 # Author: Mads Vainoe Baatrup
 
-from abc import ABCMeta, abstractproperty
+from src.pattern_manager.manager import Manager
 
 
-class Container(object):
-    __metaclass__ = ABCMeta
+class Group(object):
 
     _instances = {}
 
-    def __init__(self, nm):
+    def __init__(self, nm, par=None):
         self.name = nm
-        self.parent = None
+        self.type = 'Group'
+        self.parent = par
+        self.group_type = None
         self.children = []
 
-        Container._instances[self.name] = self
+        if self.parent:
+            self.parent.add_child(self)
 
-    @abstractproperty
-    def type(self):
-        raise NotImplementedError()
+        Group._instances[self.name] = self
+
+        Manager.register_id(id(self))
 
     def add_child(self, chld):
+
+        if not self.group_type:
+            self.group_type = chld.type
+        elif self.group_type != chld.type:
+            print "Warning: only objects of type {} can be added".format(self.group_type)
+
+            return False
+
         self.children.append(chld)
         chld.parent = self
 
         return True
 
     @staticmethod
-    def get_container_by_name(nm):
+    def get_group_by_name(nm):
         try:
-            cont = Container._instances[nm]
+            grp = Group._instances[nm]
 
-            return cont
+            return grp
         except KeyError:
             print "Error: There exists no container with the name: {}".format(nm)
 
             return
 
     @staticmethod
-    def print_tree(cont):
-        print id(cont), cont.name
+    def print_tree(cont, prefix=''):
+        print prefix + 'id: {}, name: {}'.format(id(cont), cont.name)
 
-        if not isinstance(cont, Container):
+        if not isinstance(cont, Group):
             return
 
+        prefix += '\t'
         for c in cont.children:
-            Container.print_tree(c)
-
-    def child_count(self):
-        len(self.children)
+            Group.print_tree(c, prefix)

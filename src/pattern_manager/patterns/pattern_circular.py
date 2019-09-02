@@ -30,7 +30,7 @@ class PatternCircular(pattern.Pattern):
     """This class defines a circular pattern.
     """
 
-#    _alias_ = 'circular'
+    _alias_ = 'circular'
 
     def __init__(self, base_params, r=0.0, num_points=0, tan_rot=False, cw=False, angular_section=2*pi):
         """The class constructor.

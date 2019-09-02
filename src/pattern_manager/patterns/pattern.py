@@ -19,21 +19,22 @@
 from ..utils import tf_to_matrix, matrix_to_tf
 from tf import transformations as tfs
 from abc import ABCMeta
-from ..container import Container
 from ..manager import Manager
 
 import numpy as np
-# import pluginlib
+import pluginlib
 
 
-class Pattern(Container):
-    __metaclass__ = ABCMeta
+@pluginlib.Parent('pattern', group='patterns')
+class Pattern:
 
     _instances = {}
 
     def __init__(self, nm, ref_frame_id="", offset_xy=(0, 0), offset_rot=0):
-        super(Pattern, self).__init__(nm)
 
+        self.name = nm
+        self.type = 'Pattern'
+        self.children = []
         self._pos_offset = offset_xy
         self._rot_offset = offset_rot
         self.ref_frame_id = ref_frame_id
@@ -41,10 +42,6 @@ class Pattern(Container):
         Pattern._instances[self.name] = self
 
         Manager.register_id(id(self))
-
-    @property
-    def type(self):
-        return "Pattern"
 
     @staticmethod
     def get_pattern_by_name(nm):

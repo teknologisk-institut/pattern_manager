@@ -26,7 +26,7 @@ import numpy as np
 class PatternLinear(pattern.Pattern):
     """This class defines a linear pattern.
     """
-#    _alias_ = 'linear'
+    _alias_ = 'linear'
 
     def __init__(self, base_params, num_points=0, step_size=0, length=0, axis='x'):
         """The class constructor.

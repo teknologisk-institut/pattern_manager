@@ -27,7 +27,7 @@ class PatternRectangular(pattern.Pattern):
     """This class defines a rectangular pattern.
     """
 
-#    _alias_ = 'rectangular'
+    _alias_ = 'rectangular'
 
     def __init__(self, base_params, num_points=(0, 0), step_sizes=(0.0, 0.0), lengths=(0.0, 0.0)):
         """The class constructor.

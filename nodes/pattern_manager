@@ -18,7 +18,8 @@
 
 # python
 import logging
-from pattern_manager.collection import Container, ContainerGroup, ContainerPattern, Manager
+from pattern_manager.manager import Manager
+from pattern_manager.group import Group
 from pattern_manager.patterns import PatternFactory
 # ROS
 import rospy
@@ -42,21 +43,14 @@ class PatternManagerNode(object):
         for k in _ld.plugins['pattern'].keys():
             PatternFactory.reg_pattern_typ(k, _ld.get_plugin('pattern', k))
 
-        self.groups = {}
+        # self.groups = {}
 
         # Make a root group to contain all subsequent groups
-        self.g_root = Group(GType.GOG, "root")
-        Manager.set_active(id(self.g_root), True)
-        self.groups[id(self.g_root)] = self.g_root
-
-        # Create and add subgroups to root group
-        g1 = Group(GType.GOP, "g1", self.g_root)
-        g2 = Group(GType.GOP, "g2", self.g_root)
-        g3 = Group(GType.GOG, "g3", self.g_root)
-        g4 = Group(GType.GOP, "g4", self.g_root)
-
-        for g in [g1, g2, g3, g4]:
-            self.groups[id(g)] = g
+        g_root = Group('root')
+        g1 = Group('g1', g_root)
+        g2 = Group('g2', g_root)
+        g3 = Group('g3', g_root)
+        g4 = Group('g4', g_root)
 
         import pattern_manager.examples as ex
 
@@ -77,6 +71,7 @@ class PatternManagerNode(object):
                 grp = g2
             else:
                 grp = g4
+
             grp.add_child(p)
         
         for g in [g1, g2]:

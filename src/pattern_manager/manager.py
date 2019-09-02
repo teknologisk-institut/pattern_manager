@@ -18,8 +18,6 @@
 
 from abc import ABCMeta
 
-from ..container import Container
-
 
 class Manager(object):
     __metaclass__ = ABCMeta
@@ -37,7 +35,7 @@ class Manager(object):
     @staticmethod
     def iterate(e):
         nxt_i = Manager.i[id(e)] + 1
-        count = e.child_count()
+        count = len(e.children)
 
         if nxt_i < count:
             Manager.i[id(e)] = nxt_i
@@ -64,7 +62,7 @@ class Manager(object):
     @staticmethod
     def get_active_leaf(root):
 
-        if isinstance(root, Container):
+        if root.type == 'Group':
             for c in root.children:
 
                 if not Manager.active[id(c)]:
@@ -95,7 +93,7 @@ class Manager(object):
         if incl_self:
             actv_subs.append(e)
 
-        while isinstance(e, Container):
+        while e.type == 'Group':
             for c in e.children:
 
                 if not Manager.active[id(c)]:
@@ -114,7 +112,7 @@ class Manager(object):
         for c in e.children:
             Manager.active[id(c)] = actv
 
-            if not isinstance(c, Container):
+            if c.type == 'Group':
                 continue
 
             Manager.set_active_subs(c, actv)
@@ -125,7 +123,7 @@ class Manager(object):
         for c in e.children:
             Manager.reset_element(id(c))
 
-            if not isinstance(c, Container):
+            if c.type == 'Group':
                 continue
 
             Manager.reset_subs(c)

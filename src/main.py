@@ -16,29 +16,19 @@
 
 # Author: Mads Vainoe Baatrup
 
-from pattern_manager.container import Container
 from pattern_manager.manager import Manager
 from pattern_manager.group import Group
-from pattern_manager.patterns import \
-    PatternFactory, \
-    Pattern, \
-    PatternLinear, \
-    PatternRectangular, \
-    PatternScatter, \
-    PatternCircular
+from pattern_manager.patterns import PatternFactory, Pattern
+from pluginlib import PluginLoader
 
 
 if __name__ == '__main__':
-    PatternFactory.reg_pattern_typ('linear', PatternLinear)
-    PatternFactory.reg_pattern_typ('rectangular', PatternRectangular)
-    PatternFactory.reg_pattern_typ('circular', PatternCircular)
-    PatternFactory.reg_pattern_typ('scatter', PatternScatter)
+    # Load pattern plugins
+    ld = PluginLoader(group='patterns')
+    for k in ld.plugins['pattern'].keys():
+        PatternFactory.reg_pattern_typ(k, ld.get_plugin('pattern', k))
 
-    # Make root group to contain all subsequent groups
     c_root = Group('root')
-    Manager.set_active(c_root, True)
-
-    # Create and add subgroups to root group
     c1 = Group('c1', c_root)
     c2 = Group('c2', c_root)
 
@@ -53,6 +43,10 @@ if __name__ == '__main__':
     # Add pattern to group g1
     c1.add_child(p1)
 
+    print '\n{} group type: {}'.format(c_root.name, c_root.group_type)
+    print '{} group type: {}'.format(c1.name, c1.group_type)
+    print '{} group type: {}'.format(c2.name, c2.group_type)
+
     Manager.set_active(p1, True)
 
     actv_elements = Manager.get_active_subs(c_root, incl_self=True)
@@ -60,23 +54,23 @@ if __name__ == '__main__':
     for e in actv_elements:
         actv_element_names.append(e.name)
 
-    print "Active elements: {}".format(actv_element_names)
+    print "\nActive elements: {}".format(actv_element_names)
 
     actv_leaf = Manager.get_active_leaf(c_root)
     print "\nActive leaf: {}".format(actv_leaf.name)
 
-    print "\nTree of container c_root:"
-    Container.print_tree(c_root)
+    print "\nTree of group c_root:"
+    Group.print_tree(c_root)
 
-    print "\nTree of container c1:"
-    Container.print_tree(c1)
+    print "\nTree of group c1:"
+    Group.print_tree(c1)
 
-    print '\nContainer by name: c1 | {}'.format(Container.get_container_by_name('c1'))
+    print '\nGroup by name: c1 | {}'.format(Group.get_group_by_name('c1'))
 
     print '\nPattern by name: linear | {}'.format(Pattern.get_pattern_by_name('cheese_linear'))
 
     print '\nIterating through active patterns: '
-    while actv_leaf and isinstance(actv_leaf, Pattern):
+    while actv_leaf and actv_leaf.type == 'Pattern':
         print actv_leaf.name, Manager.i[id(actv_leaf)]
 
         Manager.iterate(actv_leaf)
