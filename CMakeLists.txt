@@ -23,6 +23,8 @@ add_service_files(
    CreateGroup.srv
    CreatePattern.srv
    GroupTree.srv
+   NodeId.srv
+   SetActive.srv
  )
 
 generate_messages(

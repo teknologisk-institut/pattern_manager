@@ -31,7 +31,7 @@ class Group(object):
         self.children = []
 
         if self.parent:
-            self.parent.add_child(self)
+            self.parent.add_node(self)
 
         Group._instances[self.name] = self
 

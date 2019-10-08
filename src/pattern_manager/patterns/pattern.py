@@ -19,7 +19,7 @@
 from ..utils import tf_to_matrix, matrix_to_tf
 from tf import transformations as tfs
 from abc import ABCMeta
-from ..manager import Manager
+# from ..manager import Manager
 
 import numpy as np
 import pluginlib
@@ -34,14 +34,16 @@ class Pattern:
 
         self.name = nm
         self.type = 'Pattern'
-        self.children = []
+        self.parent = None
+        self.active = False
+        self.children = {}
         self._pos_offset = offset_xy
         self._rot_offset = offset_rot
         self.ref_frame_id = ref_frame_id
 
         Pattern._instances[self.name] = self
 
-        Manager.register_id(id(self))
+        # Manager.register_id(id(self))
 
     @staticmethod
     def get_pattern_by_name(nm):
@@ -80,7 +82,7 @@ class Pattern:
             pattern = self.offset_pattern(pattern)
 
         for tf in pattern:
-            self.children.append(tf)
+            self.children[id(tf)] = tf
 
         return True
 

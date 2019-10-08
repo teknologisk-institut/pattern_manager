@@ -24,7 +24,7 @@ class TestGroup(unittest.TestCase):
         g2 = Group(GType.GOP, "g2", par=g1)
 
         p1 = PatternLinear(ex.linear_d['base_params'], **ex.linear_d['pattern_params'])
-        g2.add_child(p1)
+        g2.add_node(p1)
 
         self.assertTrue(Group.get_sub_by_name("g2", g1) == g2)
         self.assertTrue(Group.get_sub_by_name("cheese_linear", g1) == p1)

@@ -16,68 +16,42 @@
 
 # Author: Mads Vainoe Baatrup
 
-from pattern_manager.manager import Manager
-from pattern_manager.group import Group
-from pattern_manager.patterns import PatternFactory, Pattern
+# from pattern_manager.manager import Manager
+# from pattern_manager.group import Group
+from pattern_manager.patterns import PatternFactory
 from pluginlib import PluginLoader
+from pattern_manager.tree import Tree
 
 
 if __name__ == '__main__':
-    # Load pattern plugins
+    t = Tree('root', None)
+    t1 = Tree('t1', t)
+    t2 = Tree('t2', t)
+    t3 = Tree('t3', t)
+
+    t4 = Tree('t4', t2)
+    t5 = Tree('t5', t2)
+
+    t.active = True
+    t2.active = True
+    t5.active = True
+
     ld = PluginLoader(group='patterns')
     for k in ld.plugins['pattern'].keys():
         PatternFactory.reg_pattern_typ(k, ld.get_plugin('pattern', k))
 
-    c_root = Group('root')
-    c1 = Group('c1', c_root)
-    c2 = Group('c2', c_root)
-
     import pattern_manager.examples as ex
 
-    # Create new pattern from dict
     p1 = PatternFactory.mk_pattern(
         ex.linear_d['pattern_type'],
         ex.linear_d['base_params'],
         ex.linear_d['pattern_params'])
 
-    # Add pattern to group g1
-    c1.add_child(p1)
+    t4.add_pattern(p1)
 
-    print '\n{} group type: {}'.format(c_root.name, c_root.group_type)
-    print '{} group type: {}'.format(c1.name, c1.group_type)
-    print '{} group type: {}'.format(c2.name, c2.group_type)
+    for n in Tree.get_active_nodes():
+        print n.name
 
-    Manager.set_active(p1, True)
+    print 'Found tree with id %d: %s' % (id(t5), Tree.get_node(id(t5)).name)
 
-    actv_elements = Manager.get_active_subs(c_root, incl_self=True)
-    actv_element_names = []
-    for e in actv_elements:
-        actv_element_names.append(e.name)
-
-    print "\nActive elements: {}".format(actv_element_names)
-
-    actv_leaf = Manager.get_active_leaf(c_root)
-    print "\nActive leaf: {}".format(actv_leaf.name)
-
-    print "\nTree of group c_root:"
-    Group.print_tree(c_root)
-
-    print "\nTree of group c1:"
-    Group.print_tree(c1)
-
-    print '\nGroup by name: c1 | {}'.format(Group.get_group_by_name('c1'))
-
-    print '\nPattern by name: linear | {}'.format(Pattern.get_pattern_by_name('cheese_linear'))
-
-    print '\nIterating through active patterns: '
-    while actv_leaf and actv_leaf.type == 'Pattern':
-        print actv_leaf.name, Manager.i[id(actv_leaf)]
-
-        Manager.iterate(actv_leaf)
-
-        if Manager.finished[id(actv_leaf)]:
-            actv_leaf = Manager.get_active_leaf(c_root)
-
-    print '\nDone...'
-
-    print ''
+    print Tree.get_pattern(id(p1))

@@ -1,5 +1,5 @@
 # GET ITERATOR FOR A SPECIFIC GROUP
-string element_name
+uint64 id
 ---
 uint8 iterator
 bool success

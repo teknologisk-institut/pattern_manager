@@ -1,5 +1,5 @@
 # CREATE A NEW GROUP
-string g_type_str
+uint64 parent_id
 string group_name
 ---
 uint8 id

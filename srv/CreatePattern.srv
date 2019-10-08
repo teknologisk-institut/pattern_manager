@@ -1,7 +1,7 @@
 # CREATE A NEW PATTERN
 string pat_type
 string pat_name
-uint64 par_grp_id
+uint64 parent_id
 ---
 uint8 id
 bool success

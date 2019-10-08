@@ -32,8 +32,8 @@ class TestManager(unittest.TestCase):
         p1 = PatternLinear(ex.linear_d['base_params'], **ex.linear_d['pattern_params'])
         p2 = PatternRectangular(ex.rect_d['base_params'], **ex.rect_d['pattern_params'])
 
-        g1.add_child(p1)
-        g1.add_child(p2)
+        g1.add_node(p1)
+        g1.add_node(p2)
 
         self.assertTrue(g0.chldrn[Manager.i[id(g0)]] == g1)
         self.assertTrue(g1.chldrn[Manager.i[id(g1)]] == p1)
