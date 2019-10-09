@@ -59,8 +59,6 @@ class Tree(object):
         if self.parent:
             self.parent.set_active(active)
 
-
-
     @staticmethod
     def remove_node(id_):
         if not Tree.get_node(id_).parent:
@@ -141,7 +139,7 @@ class Tree(object):
             res = Tree.get_pattern(id_, c)
 
             if res:
-                break
+                breakprint
 
         return res
 

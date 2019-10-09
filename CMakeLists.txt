@@ -12,7 +12,7 @@ catkin_python_setup()
 
 add_message_files(
    FILES
-   Deps.msg
+   Params.msg
  )
 
 add_service_files(
@@ -25,6 +25,7 @@ add_service_files(
    GroupTree.srv
    NodeId.srv
    SetActive.srv
+   PatternType.srv
  )
 
 generate_messages(

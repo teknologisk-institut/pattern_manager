@@ -1,0 +1,110 @@
+#!/usr/bin/env python
+
+# Copyright 2019 Danish Technological Institute (DTI)
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Author: Mads Vainoe Baatrup
+
+import rospy
+
+from pattern_manager import Transform
+from pattern_manager import srv as pm_srv
+from pattern_manager import msg as pm_msg
+from std_srvs.srv import Trigger, TriggerResponse
+
+
+class PatternManagerNode(object):
+
+    def __init__(self):
+        t0 = Transform('root', None)
+        t1 = Transform('t1', t0)
+        t2 = Transform('t2', t0)
+
+        t3 = Transform('t3', t2)
+        t4 = Transform('t4', t2)
+        t5 = Transform('t5', t2)
+
+        t6 = Transform('t6', t1)
+        t7 = Transform('t7', t1)
+
+        rospy.Service('~get_transforms', pm_srv.GroupTree, self.cb_get_transforms)
+        rospy.Service('~create_transform', pm_srv.CreatePattern, self.cb_create_transform)
+        rospy.Service('~set_active', pm_srv.SetActive, self.cb_set_active)
+        rospy.Service('~remove_transform', pm_srv.SetActive, self.cb_remove_transform)
+        rospy.Service('~iterate', Trigger, self.cb_iterate)
+
+    @staticmethod
+    def cb_get_transforms(req):
+        rospy.logdebug("Received request to retrieve all transforms")
+        resp = pm_srv.GroupTreeResponse()
+
+        t_list = []
+        for t in Transform.get_nodes():
+            t_params = pm_msg.Params()
+            t_params.name = t.name
+            t_params.parent_name = t.name
+            t_params.id = id(t)
+            t_params.active = t.active
+
+            if t.parent:
+                t_params.parent_name = t.parent.name
+
+            t_list.append(t_params)
+
+        resp.group_deps = t_list
+        resp.success = True
+
+        return resp
+
+    @staticmethod
+    def cb_create_transform(req):
+        rospy.logdebug("Received request to create transform")
+        resp = pm_srv.CreateGroupResponse()
+
+        if not req.group_name:
+            rospy.logwarn("Transform must have a name!")
+            resp.success = False
+
+            return resp
+
+        try:
+            Transform(req.group_name, Transform.get_node(req.parent_id))
+            rospy.logout("Transform {} successfully created!".format(req.group_name))
+            resp.success = True
+        except IndexError, e:
+            rospy.logwarn("Could not create transform %s: %s" % (req.group_name, e))
+            resp.success = False
+
+        return resp
+
+    def cb_set_active(self, req):
+        pass
+
+    @staticmethod
+    def cb_remove_transform(req):
+        rospy.logdebug('Received request to remove transform %s', req.id)
+        resp = pm_srv.NodeIdResponse()
+
+        try:
+            Transform.remove_node(req.id)
+            rospy.logout("Transform {} successfully removed!".format(req.id))
+            resp.success = True
+        except IndexError, e:
+            rospy.logwarn("Could not remove transform %s: %s" % (req.id, e))
+            resp.success = False
+
+        return resp
+
+    def cb_iterate(self, req):
+        pass

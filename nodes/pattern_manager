@@ -45,13 +45,15 @@ class PatternManagerNode(object):
 
         # Make a root group to contain all subsequent groups
         t1 = Tree('root', None)
-        t2 = Tree('t2', t1)
-        t3 = Tree('t3', t1)
+        t2 = Tree('1', t1)
+        t3 = Tree('2', t1)
 
-        t4 = Tree('t4', t2)
-        t5 = Tree('t5', t2)
+        t4 = Tree('3', t2)
+        t5 = Tree('4', t2)
 
         import pattern_manager.examples as ex
+
+        some_p_id = None
 
         # Create and add patterns to group 1 and group 2
         ds = [ex.linear_d, ex.rect_d, ex.box_1, ex.box_2, ex.circle_d, ex.scatter_d]
@@ -63,15 +65,16 @@ class PatternManagerNode(object):
 
             if i < 2:
                 grp = t4
+                some_p_id = id(p)
             elif i < 4:
                 grp = t5
             else:
                 grp = t3
 
             grp.add_pattern(p)
-        
-        # for g in [t1, t2]:
-        #     t3.add_node(g)
+
+        Tree.get_pattern(some_p_id).active = True
+        Tree.set_active(Tree.get_pattern(some_p_id).parent, True)
 
         # services
         self._get_pattern_types_srv = rospy.Service('~get_pattern_types', pm_srv.PatternTypes, self.cb_get_pattern_types)
@@ -85,12 +88,27 @@ class PatternManagerNode(object):
         self._get_groups_srv = rospy.Service('~get_groups', pm_srv.GroupTree, self.cb_get_groups)
         self._remove_group_srv = rospy.Service('~remove_group', pm_srv.NodeId, self.cb_remove_group)
         self._remove_pattern_srv = rospy.Service('~remove_pattern', pm_srv.NodeId, self.cb_remove_pattern)
+        self._get_pattern_type_srv = rospy.Service('~get_pattern_type', pm_srv.PatternType, self.cb_get_pattern_type)
 
         # publishers
         self._marker_pub = rospy.Publisher('~pattern_markers', viz_msg.MarkerArray, queue_size=10)
         self._tb = TransformBroadcaster()
 
     # SERVICE CALLBACKS
+
+    def cb_get_pattern_type(self, req):
+        rospy.logdebug('Received request to retrieve pattern type %s', req.id)
+        resp = pm_srv.PatternTypeResponse()
+
+        try:
+            resp.type = Tree.get_pattern(req.id)._alias_
+            resp.success = True
+        except IndexError, e:
+            rospy.logwarn("Could not remove group %s: %s" % (req.id, e))
+
+            resp.success = False
+
+        return resp
 
     def cb_remove_group(self, req):
         rospy.logdebug('Received request to remove group %s', req.id)
@@ -135,11 +153,12 @@ class PatternManagerNode(object):
 
         p_list = []
         for p in Tree.get_patterns():
-            pd = pm_msg.Deps()
+            pd = pm_msg.Params()
             pd.name = p.name
             pd.parent_name = p.name
             pd.type = p.type
             pd.id = id(p)
+            pd.active = p.active
 
             if p.parent:
                 pd.parent_name = p.parent.name
@@ -157,11 +176,12 @@ class PatternManagerNode(object):
 
         g_list = []
         for g in Tree.get_nodes():
-            gd = pm_msg.Deps()
+            gd = pm_msg.Params()
             gd.name = g.name
             gd.parent_name = g.name
             gd.type = g.type
             gd.id = id(g)
+            gd.active = g.active
 
             if g.parent:
                 gd.parent_name = g.parent.name
