@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# import patterns
+from patterns import *
 # import examples
 #
 # from group import Group

@@ -59,42 +59,91 @@ class Tree(object):
         if self.parent:
             self.parent.set_active(active)
 
+
+
+    @staticmethod
+    def remove_node(id_):
+        if not Tree.get_node(id_).parent:
+            print "Removing root is not allowed"
+
+            return
+
+        Tree._remove_node(id_)
+        del Tree.get_node(id_).parent.nodes[id_]
+
+    @staticmethod
+    def _remove_node(id_):
+        for k, v in Tree.get_node(id_).nodes.items():
+            Tree._remove_node(k)
+            del Tree.get_node(id_).nodes[k]
+
     @staticmethod
     def get_active_nodes():
         return list(iter(Tree.root))
 
     @staticmethod
-    def get_node(id_, node=None):
+    def get_nodes(root=None):
+        lst = []
 
-        if not node:
-            node = Tree.root
+        if not root:
+            root = Tree.root
 
-        if id(node) == id_:
-            return node
+        lst.append(root)
+
+        for n in root.nodes.values():
+            lst.extend(Tree.get_nodes(n))
+
+        return lst
+
+    @staticmethod
+    def get_patterns(root=None):
+        lst = []
+
+        if not root:
+            root = Tree.root
+
+        lst.extend(root.patterns.values())
+
+        for n in root.nodes.values():
+            lst.extend(Tree.get_patterns(n))
+
+        return lst
+
+    @staticmethod
+    def get_node(id_, root=None):
+
+        if not root:
+            root = Tree.root
+
+        if id(root) == id_:
+            return root
         else:
             res = None
-            for c in node.nodes.values():
+            for c in root.nodes.values():
                 res = Tree.get_node(id_, c)
                 if res:
                     break
 
             return res
 
-    # @staticmethod
-    # def get_pattern(id_, node=None):
-    #     if not node:
-    #         node = Tree.root
-    #
-    #     if id(node) == id_:
-    #         return node
-    #     else:
-    #         res = None
-    #         for c in node.nodes.values():
-    #             res = Tree.get_node(id_, c)
-    #             if res:
-    #                 break
-    #
-    #         return res
+    @staticmethod
+    def get_pattern(id_, root=None):
+
+        if not root:
+            root = Tree.root
+
+        for k, v in root.patterns.items():
+            if k == id_:
+                return v
+
+        res = None
+        for c in root.nodes.values():
+            res = Tree.get_pattern(id_, c)
+
+            if res:
+                break
+
+        return res
 
     @staticmethod
     def iterate():

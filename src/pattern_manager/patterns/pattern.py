@@ -28,8 +28,6 @@ import pluginlib
 @pluginlib.Parent('pattern', group='patterns')
 class Pattern:
 
-    _instances = {}
-
     def __init__(self, nm, ref_frame_id="", offset_xy=(0, 0), offset_rot=0):
 
         self.name = nm
@@ -40,21 +38,6 @@ class Pattern:
         self._pos_offset = offset_xy
         self._rot_offset = offset_rot
         self.ref_frame_id = ref_frame_id
-
-        Pattern._instances[self.name] = self
-
-        # Manager.register_id(id(self))
-
-    @staticmethod
-    def get_pattern_by_name(nm):
-        try:
-            pat = Pattern._instances[nm]
-
-            return pat
-        except KeyError:
-            print "Error: There exists no pattern with the name: {}".format(nm)
-
-            return
 
     def offset_pattern(self, pattern):
         if not self._pos_offset == (0, 0):

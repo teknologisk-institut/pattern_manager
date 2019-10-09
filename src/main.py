@@ -16,8 +16,8 @@
 
 # Author: Mads Vainoe Baatrup
 
-# from pattern_manager.manager import Manager
-# from pattern_manager.group import Group
+import sys
+
 from pattern_manager.patterns import PatternFactory
 from pluginlib import PluginLoader
 from pattern_manager.tree import Tree
@@ -31,6 +31,12 @@ if __name__ == '__main__':
 
     t4 = Tree('t4', t2)
     t5 = Tree('t5', t2)
+
+    t6 = Tree('t6', t4)
+    t7 = Tree('t7', t4)
+
+    t8 = Tree('t8', t7)
+    t9 = Tree('t9', t7)
 
     t.active = True
     t2.active = True
@@ -47,11 +53,38 @@ if __name__ == '__main__':
         ex.linear_d['base_params'],
         ex.linear_d['pattern_params'])
 
-    t4.add_pattern(p1)
+    p2 = PatternFactory.mk_pattern(
+        ex.rect_d['pattern_type'],
+        ex.rect_d['base_params'],
+        ex.rect_d['pattern_params'])
+
+    t7.add_pattern(p1)
+    t7.add_pattern(p2)
 
     for n in Tree.get_active_nodes():
         print n.name
 
+    print ''
+
     print 'Found tree with id %d: %s' % (id(t5), Tree.get_node(id(t5)).name)
 
-    print Tree.get_pattern(id(p1))
+    print ''
+
+    print Tree.get_pattern(id(p1)).name
+
+    print ''
+
+    for p in Tree.get_patterns():
+        print p.name
+
+    print ''
+
+    for n in Tree.get_nodes():
+        print n.name
+
+    Tree.remove_node(id(t2))
+
+    print ''
+
+    for n in Tree.get_nodes():
+        print n.name
