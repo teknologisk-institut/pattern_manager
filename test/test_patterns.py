@@ -8,7 +8,7 @@ import unittest
 
     def test_import_patterns(self):
         try:
-            import pattern_manager.patterns.pattern_base
+            import pattern_manager_old.patterns.pattern_base
             return True
         except ImportError as e:
             self.fail("Could not import the base patterns module (%s)" % e) """
