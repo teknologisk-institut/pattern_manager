@@ -43,6 +43,26 @@ class PatternManagerNode(object):
         rospy.Service('~set_active', pm_srv.SetActive, self.cb_set_active)
         rospy.Service('~remove_transform', pm_srv.NodeId, self.cb_remove_transform)
         rospy.Service('~iterate', Trigger, self.cb_iterate)
+        rospy.Service('~change_name', pm_srv.UpdateVar, self.cb_update_tf_variable)
+
+    @staticmethod
+    def cb_update_tf_variable(req):
+        rospy.logdebug('Received request to change value of attribute %s to: %s' % (req.var, req.val))
+        resp = pm_srv.UpdateVarResponse()
+
+        try:
+            var = getattr(Transform.get_node(req.id), req.var)
+            type_ = type(var)
+
+            setattr(Transform.get_node(req.id), req.var, type_(req.val))
+
+            rospy.logout("Transform variable %s succesfully changed to: %s" % (req.var, req.val))
+            resp.success = True
+        except IndexError, e:
+            rospy.logwarn("Could not change transform variable %s to: %s: %e" % (req.var, req.val, e))
+            resp.success = False
+
+        return resp
 
     @staticmethod
     def cb_get_transforms(req):

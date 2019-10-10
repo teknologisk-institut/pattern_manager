@@ -26,6 +26,7 @@ add_service_files(
    NodeId.srv
    SetActive.srv
    PatternType.srv
+   UpdateVar.srv
  )
 
 generate_messages(
