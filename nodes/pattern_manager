@@ -22,12 +22,12 @@ from pattern_manager import Transform
 from pattern_manager import srv as pm_srv
 from pattern_manager import msg as pm_msg
 from std_srvs.srv import Trigger, TriggerResponse
-
+from geometry_msgs.msg import Transform as XForm
 
 class PatternManagerNode(object):
 
     def __init__(self):
-        t0 = Transform('root', None)
+        t0 = Transform('root', None, ref_frame='world')
         t1 = Transform('t1', t0)
         t2 = Transform('t2', t0)
 
@@ -37,6 +37,12 @@ class PatternManagerNode(object):
 
         t6 = Transform('t6', t1)
         t7 = Transform('t7', t1)
+
+        t8 = Transform('t8', t6)
+        t9 = Transform('t9', t6)
+
+        t10 = Transform('t10', t7)
+        t11 = Transform('t11', t7)
 
         rospy.Service('~get_transforms', pm_srv.GroupTree, self.cb_get_transforms)
         rospy.Service('~create_transform', pm_srv.CreateGroup, self.cb_create_transform)
@@ -75,8 +81,11 @@ class PatternManagerNode(object):
             t_params.name = t.name
             t_params.parent_name = t.name
             t_params.id = id(t)
-            t_params.ref_frame = t.ref_frame_id
+            t_params.ref_frame = t.ref_frame
             t_params.active = t.active
+            t_params.tf = XForm()
+            t_params.tf.translation = t.translation
+            t_params.tf.rotation = t.rotation
 
             if t.parent:
                 t_params.parent_name = t.parent.name
@@ -109,8 +118,21 @@ class PatternManagerNode(object):
 
         return resp
 
-    def cb_set_active(self, req):
-        pass
+    @staticmethod
+    def cb_set_active(req):
+        rospy.logdebug('Received request to set active transform %s', req.id)
+        resp = pm_srv.SetActiveResponse()
+
+        try:
+            Transform.get_node(req.id).set_active(req.active)
+
+            rospy.logout("Transform {} successfully activated!".format(req.id))
+            resp.success = True
+        except IndexError, e:
+            rospy.logwarn("Could not activate transform %s: %s" % (req.id, e))
+            resp.success = False
+
+        return resp
 
     @staticmethod
     def cb_remove_transform(req):

@@ -17,24 +17,28 @@
 # Author: Mads Vainoe Baatrup
 
 import rospy
+import geometry_msgs.msg as gm_msg
 
 
-class Transform(object):
+class Transform(gm_msg.Transform):
 
     root = None
 
-    def __init__(self, nm, par, ref_frame_id="", offset_xy=(0, 0), offset_rot=0):
+    def __init__(self, nm, par, ref_frame=None):
+        super(Transform, self).__init__()
+
         self.name = nm
         self.parent = par
         self.active = False
         self.i = 0
         self.children = {}
-        self._pos_offset = offset_xy
-        self._rot_offset = offset_rot
-        self.ref_frame_id = ref_frame_id
+        self.ref_frame = ref_frame
 
         if not Transform.root:
             Transform.root = self
+
+        if not ref_frame:
+            self.ref_frame = self.parent.ref_frame
 
         if self.parent:
             self.parent.add_node(self)
@@ -46,8 +50,9 @@ class Transform(object):
     def set_active(self, actv):
         self.active = actv
 
-        if self.parent:
-            self.parent.set_active(actv)
+        for c in self.children.values():
+            if len(c.children) == 0:
+                c.set_active(actv)
 
     @staticmethod
     def get_active_nodes(root=None):
@@ -67,7 +72,7 @@ class Transform(object):
     @staticmethod
     def remove_node(id_):
         if not Transform.get_node(id_).parent:
-            rospy.logwarn("Removing root is not allowed")
+            rospy.logwarn("Removing the root transform is not allowed")
 
             return
 
