@@ -1,6 +1,6 @@
 # CREATE A NEW GROUP
-uint64 parent_id
 string group_name
+uint64 parent_id
 ---
 uint8 id
 bool success

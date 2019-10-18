@@ -20,7 +20,7 @@ import rospy
 import geometry_msgs.msg as gm_msg
 
 
-class Transform(gm_msg.Transform):
+class Transform(object):
 
     root = None
 
@@ -33,6 +33,8 @@ class Transform(gm_msg.Transform):
         self.i = 0
         self.children = {}
         self.ref_frame = ref_frame
+        self.translation = [0.0, 0.0, 0.0]
+        self.rotation = [0.0, 0.0, 0.0, 0.0]
 
         if not Transform.root:
             Transform.root = self
@@ -50,9 +52,8 @@ class Transform(gm_msg.Transform):
     def set_active(self, actv):
         self.active = actv
 
-        for c in self.children.values():
-            if len(c.children) == 0:
-                c.set_active(actv)
+        if self.parent:
+            self.parent.set_active(actv)
 
     @staticmethod
     def get_active_nodes(root=None):
