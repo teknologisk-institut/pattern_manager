@@ -17,7 +17,7 @@
 # Author: Mikkel Rath Hansen
 
 from __future__ import division
-from pattern_manager.utils import handle_input_1d, frames_along_axis
+from pattern_manager.util import handle_input_1d, frames_along_axis
 
 import pattern
 import numpy as np

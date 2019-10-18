@@ -16,7 +16,7 @@
 
 # Author: Mikkel Rath Hansen
 
-from pattern_manager.utils import output
+from pattern_manager.util import output
 
 import pattern
 import geometry_msgs.msg as gm

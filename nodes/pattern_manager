@@ -19,32 +19,32 @@
 import rospy
 import ast
 
-from pattern_manager import Transform
+from pattern_manager import XForm
 from pattern_manager import srv as pm_srv
 from pattern_manager import msg as pm_msg
 from std_srvs.srv import Trigger, TriggerResponse
-from geometry_msgs.msg import Transform as XForm
+from geometry_msgs.msg import Vector3, Quaternion
 
 
 class PatternManagerNode(object):
 
     def __init__(self):
-        t0 = Transform('root', None, ref_frame='world')
-        t1 = Transform('t1', t0)
-        t2 = Transform('t2', t0)
+        t0 = XForm('root', None, ref_frame='world')
+        t1 = XForm('tf1', t0)
+        t2 = XForm('tf2', t0)
 
-        t3 = Transform('t3', t2)
-        t4 = Transform('t4', t2)
-        t5 = Transform('t5', t2)
+        t3 = XForm('tf3', t2)
+        t4 = XForm('tf4', t2)
+        t5 = XForm('tf5', t2)
 
-        t6 = Transform('t6', t1)
-        t7 = Transform('t7', t1)
+        t6 = XForm('tf6', t1)
+        t7 = XForm('tf7', t1)
 
-        t8 = Transform('t8', t6)
-        t9 = Transform('t9', t6)
+        t8 = XForm('tf8', t6)
+        t9 = XForm('tf9', t6)
 
-        t10 = Transform('t10', t7)
-        t11 = Transform('t11', t7)
+        t10 = XForm('tf10', t7)
+        t11 = XForm('tf11', t7)
 
         rospy.Service('~get_transforms', pm_srv.GroupTree, self.cb_get_transforms)
         rospy.Service('~create_transform', pm_srv.CreateGroup, self.cb_create_transform)
@@ -59,23 +59,27 @@ class PatternManagerNode(object):
         resp = pm_srv.UpdateVarResponse()
 
         try:
-            n = Transform.get_node(req.id)
+            n = XForm.get_node(req.id)
             attr = getattr(n, req.var)
             val = req.val
 
-            if hasattr(n, req.var):
+            if not hasattr(n, req.var):
+                raise Exception("Attribute %s does not exist in %s" % (req.var, n))
 
-                if not type(attr) is str:
-                    val = ast.literal_eval(val)
+            if not type(attr) is str:
+                val = ast.literal_eval(val)
 
-                setattr(n, req.var, val)
-            else:
-                raise Exception("Attribute does not exist")
+                if type(attr) is Vector3:
+                    val = Vector3(x=val[0], y=val[1], z=val[2])
+                elif type(attr) is Quaternion:
+                    val = Quaternion(x=val[0], y=val[1], z=val[2], w=val[3])
 
-            rospy.logout("Transform variable %s succesfully changed to: %s" % (req.var, req.val))
+            setattr(n, req.var, val)
+
+            rospy.logout("Transform variable %s succesfully changed to: %s" % (req.var, val))
             resp.success = True
-        except IndexError, e:
-            rospy.logwarn("Could not change transform variable %s to: %s: %s" % (req.var, req.val, e))
+        except:
+            rospy.logwarn("Could not change transform variable %s to: %s" % (req.var, req.val))
             resp.success = False
 
         return resp
@@ -86,7 +90,7 @@ class PatternManagerNode(object):
         resp = pm_srv.GroupTreeResponse()
 
         t_list = []
-        for t in Transform.get_nodes():
+        for t in XForm.get_nodes():
             t_params = pm_msg.Params()
             t_params.name = t.name
             t_params.parent_name = t.name
@@ -118,7 +122,7 @@ class PatternManagerNode(object):
             return resp
 
         try:
-            Transform(req.group_name, Transform.get_node(req.parent_id))
+            XForm(req.group_name, XForm.get_node(req.parent_id))
             rospy.logout("Transform {} successfully created!".format(req.group_name))
             resp.success = True
         except IndexError, e:
@@ -133,7 +137,7 @@ class PatternManagerNode(object):
         resp = pm_srv.SetActiveResponse()
 
         try:
-            Transform.get_node(req.id).set_active(req.active)
+            XForm.get_node(req.id).set_active(req.active)
 
             rospy.logout("Transform {} successfully activated!".format(req.id))
             resp.success = True
@@ -149,7 +153,7 @@ class PatternManagerNode(object):
         resp = pm_srv.NodeIdResponse()
 
         try:
-            Transform.remove_node(req.id)
+            XForm.remove_node(req.id)
             rospy.logout("Transform {} successfully removed!".format(req.id))
             resp.success = True
         except IndexError, e:

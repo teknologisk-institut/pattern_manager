@@ -17,7 +17,7 @@
 # Author: Mikkel Rath Hansen
 
 from __future__ import division
-from .. import utils
+from .. import util
 
 import pattern
 import numpy as np
@@ -61,20 +61,20 @@ class PatternCircular(pattern.Pattern):
                     self._ang_sec = 2 * pi
                 else:
                     self._ang_sec = angular_section
-                    utils.output.debug("Creating an angular section of %srad" % self._ang_sec)
+                    util.output.debug("Creating an angular section of %srad" % self._ang_sec)
 
                 self._cw = cw
                 if self._cw:
-                    utils.output.debug("Clockwise rotation specified")
+                    util.output.debug("Clockwise rotation specified")
 
                 if self._tan_rot:
-                    utils.output.debug("Rotation will follow tangent of circle")
+                    util.output.debug("Rotation will follow tangent of circle")
 
                 self._generate()
             else:
-                utils.output.error("Number of points is 0, can't define this circular pattern")
+                util.output.error("Number of points is 0, can't define this circular pattern")
         else:
-            utils.output.error("A radius of 0 is specified, can't define this circular pattern")
+            util.output.error("A radius of 0 is specified, can't define this circular pattern")
 
     def _generate(self):
         """This functions generates the pattern from the values obtained in the constructor.
@@ -102,7 +102,7 @@ class PatternCircular(pattern.Pattern):
             if self._tan_rot:
                 yaw = pi / 2 + i * angular_resolution
                 M = pattern.tfs.euler_matrix(0, 0, yaw)
-                q = utils.matrix_to_tf(M).rotation
+                q = util.matrix_to_tf(M).rotation
                 t.rotation = q
             else:
                 t.rotation.w = 1.0

@@ -20,12 +20,12 @@ import rospy
 import geometry_msgs.msg as gm_msg
 
 
-class Transform(object):
+class XForm(gm_msg.Transform):
 
     root = None
 
     def __init__(self, nm, par, ref_frame=None):
-        super(Transform, self).__init__()
+        super(XForm, self).__init__()
 
         self.name = nm
         self.parent = par
@@ -33,17 +33,15 @@ class Transform(object):
         self.i = 0
         self.children = {}
         self.ref_frame = ref_frame
-        self.translation = [0.0, 0.0, 0.0]
-        self.rotation = [0.0, 0.0, 0.0, 0.0]
 
-        if not Transform.root:
-            Transform.root = self
-
-        if not ref_frame:
-            self.ref_frame = self.parent.ref_frame
+        if not XForm.root:
+            XForm.root = self
 
         if self.parent:
             self.parent.add_node(self)
+
+            if not ref_frame:
+                self.ref_frame = self.parent.ref_frame
 
     def add_node(self, chld):
         self.children[id(chld)] = chld
@@ -56,47 +54,58 @@ class Transform(object):
             self.parent.set_active(actv)
 
     @staticmethod
+    def get_current_node():
+        lst = XForm.get_active_nodes()
+
+        if len(lst) > 0:
+            lst.reverse()
+
+            return lst[0]
+        else:
+            return None
+
+    @staticmethod
     def get_active_nodes(root=None):
         lst = []
 
         if not root:
-            root = Transform.root
+            root = XForm.root
 
         if root.active:
             lst.append(root)
 
         for n in root.children.values():
-            lst.extend(Transform.get_active_nodes(n))
+            lst.extend(XForm.get_active_nodes(n))
 
         return lst
 
     @staticmethod
     def remove_node(id_):
-        if not Transform.get_node(id_).parent:
+        if not XForm.get_node(id_).parent:
             rospy.logwarn("Removing the root transform is not allowed")
 
             return
 
-        Transform._remove_node(id_)
-        del Transform.get_node(id_).parent.children[id_]
+        XForm._remove_node(id_)
+        del XForm.get_node(id_).parent.children[id_]
 
     @staticmethod
     def _remove_node(id_):
-        for k, v in Transform.get_node(id_).children.items():
-            Transform._remove_node(k)
-            del Transform.get_node(id_).children[k]
+        for k, v in XForm.get_node(id_).children.items():
+            XForm._remove_node(k)
+            del XForm.get_node(id_).children[k]
 
     @staticmethod
     def get_nodes(root=None):
         lst = []
 
         if not root:
-            root = Transform.root
+            root = XForm.root
 
         lst.append(root)
 
         for n in root.children.values():
-            lst.extend(Transform.get_nodes(n))
+            lst.extend(XForm.get_nodes(n))
 
         return lst
 
@@ -104,14 +113,14 @@ class Transform(object):
     def get_node(id_, root=None):
 
         if not root:
-            root = Transform.root
+            root = XForm.root
 
         if id(root) == id_:
             return root
         else:
             res = None
             for c in root.children.values():
-                res = Transform.get_node(id_, c)
+                res = XForm.get_node(id_, c)
                 if res:
                     break
 
@@ -119,24 +128,11 @@ class Transform(object):
 
     @staticmethod
     def iterate():
-        l_actv = Transform.get_active_nodes()
+        actv = XForm.get_current_node()
 
-        if len(l_actv) == 0:
+        if actv:
+            actv.active = False
+
+            return True
+        else:
             return False
-
-        leaf = l_actv[0] if len(l_actv) > 0 else None
-        parent = l_actv[1] if len(l_actv) > 1 else None
-
-        nxt_i = leaf.i + 1
-
-        if not nxt_i < len(leaf.get_children()):
-            leaf.active = False
-
-            if parent:
-                parent.iterate()
-
-            return False
-
-        leaf.i = nxt_i
-
-        return True

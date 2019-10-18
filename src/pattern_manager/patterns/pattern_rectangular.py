@@ -16,7 +16,7 @@
 
 # Author: Mikkel Rath Hansen
 
-from pattern_manager.utils import frames_along_axis, handle_input_1d
+from pattern_manager.util import frames_along_axis, handle_input_1d
 
 import pattern
 import numpy as np

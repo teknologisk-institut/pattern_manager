@@ -16,7 +16,7 @@
 
 # Author: Mads Vainoe Baatrup
 
-from ..utils import tf_to_matrix, matrix_to_tf
+from ..util import tf_to_matrix, matrix_to_tf
 from tf import transformations as tfs
 from abc import ABCMeta
 # from ..manager import Manager
