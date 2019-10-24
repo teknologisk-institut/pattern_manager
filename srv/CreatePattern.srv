@@ -1,7 +1,5 @@
-# CREATE A NEW PATTERN
-string pat_type
-string pat_name
+string type
 uint64 parent_id
+string[] params
 ---
-uint8 id
 bool success

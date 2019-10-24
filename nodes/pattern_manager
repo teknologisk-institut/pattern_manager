@@ -19,6 +19,7 @@
 import rospy
 import ast
 
+from pattern_manager import util
 from pattern_manager import XForm
 from pattern_manager import srv as pm_srv
 from pattern_manager import msg as pm_msg
@@ -29,22 +30,24 @@ from geometry_msgs.msg import Vector3, Quaternion
 class PatternManagerNode(object):
 
     def __init__(self):
-        t0 = XForm('root', None, ref_frame='world')
-        t1 = XForm('tf1', t0)
-        t2 = XForm('tf2', t0)
+        t0 = XForm(name='root', parent=None, ref_frame='world')
+        t1 = XForm(t0)
+        t2 = XForm(t0)
 
-        t3 = XForm('tf3', t2)
-        t4 = XForm('tf4', t2)
-        t5 = XForm('tf5', t2)
+        t3 = XForm(t2)
+        t4 = XForm(t2)
+        t5 = XForm(t2)
 
-        t6 = XForm('tf6', t1)
-        t7 = XForm('tf7', t1)
+        t6 = XForm(t1)
+        t7 = XForm(t1)
 
-        t8 = XForm('tf8', t6)
-        t9 = XForm('tf9', t6)
+        t8 = XForm(t6)
+        t9 = XForm(t6)
 
-        t10 = XForm('tf10', t7)
-        t11 = XForm('tf11', t7)
+        t10 = XForm(t7)
+        t11 = XForm(t7)
+
+        t0.set_active(True)
 
         rospy.Service('~get_transforms', pm_srv.GroupTree, self.cb_get_transforms)
         rospy.Service('~create_transform', pm_srv.CreateGroup, self.cb_create_transform)
@@ -52,6 +55,105 @@ class PatternManagerNode(object):
         rospy.Service('~remove_transform', pm_srv.NodeId, self.cb_remove_transform)
         rospy.Service('~iterate', Trigger, self.cb_iterate)
         rospy.Service('~update_tf_variable', pm_srv.UpdateVar, self.cb_update_tf_variable)
+        rospy.Service('~get_current_tf_id', pm_srv.IdRequest, self.cb_get_current_tf_id)
+        rospy.Service('~get_active_ids', pm_srv.ActiveIds, self.cb_get_active_ids)
+        rospy.Service('~create_linear_pattern', pm_srv.CreateLinearPattern, self.cb_create_linear_pattern)
+        rospy.Service('~create_rectangular_pattern', pm_srv.CreateRectangularPattern, self.cb_create_rectangular_pattern)
+        rospy.Service('~create_circular_pattern', pm_srv.CreateCircularPattern, self.cb_create_circular_pattern)
+        rospy.Service('~create_scatter_pattern', pm_srv.CreateScatterPattern, self.cb_create_scatter_pattern)
+
+    @staticmethod
+    def cb_create_linear_pattern(req):
+        rospy.logdebug("Received request to create a linear pattern")
+        resp = pm_srv.CreateLinearPatternResponse()
+
+        try:
+            args = []
+
+            for a in [req.num_points, req.step_size, req.length]:
+                if a:
+                    arg = ast.literal_eval(a)
+                    args.append(arg)
+
+            util.create_pattern('linear', XForm.get_node(req.parent_id), args)
+
+            rospy.logout("Linear pattern successfully created!")
+            resp.success = True
+        except IndexError, e:
+            rospy.logwarn("Could not create pattern: %s" % e)
+            resp.success = False
+
+        return resp
+
+    @staticmethod
+    def cb_create_rectangular_pattern(req):
+        rospy.logdebug("Received request to create a rectangular pattern")
+        resp = pm_srv.CreateRectangularPatternResponse()
+
+        try:
+            args = []
+
+            for a in [req.num_points, req.step_sizes, req.lengths]:
+                if a:
+                    arg = ast.literal_eval(a)
+                    args.append(arg)
+
+            util.create_pattern('rectangular', XForm.get_node(req.parent_id), args)
+
+            rospy.logout("Rectangular pattern successfully created!")
+            resp.success = True
+        except IndexError, e:
+            rospy.logwarn("Could not create pattern: %s" % e)
+            resp.success = False
+
+        return resp
+
+    @staticmethod
+    def cb_create_circular_pattern(req):
+        pass
+
+    @staticmethod
+    def cb_create_scatter_pattern(req):
+        pass
+
+    @staticmethod
+    def cb_get_active_ids(self):
+        rospy.logdebug("Received request to retrieve active transform ids")
+        resp = pm_srv.ActiveIdsResponse()
+
+        for n in XForm.get_active_nodes():
+            resp.ids.append(id(n))
+
+        return resp
+
+    @staticmethod
+    def cb_get_current_tf_id(req):
+        rospy.logdebug("Received request to retrieve current transform id")
+        resp = pm_srv.IdRequestResponse()
+
+        id_ = id(XForm.get_current_node())
+
+        if id_:
+            resp.id = id_
+            resp.success = True
+        else:
+            resp.success = False
+
+        return resp
+
+    @staticmethod
+    def cb_iterate(req):
+        rospy.logdebug('Received request to iterate')
+        resp = TriggerResponse()
+
+        if XForm.get_current_node():
+            XForm.iterate()
+
+            resp.success = True
+        else:
+            resp.success = False
+
+        return resp
 
     @staticmethod
     def cb_update_tf_variable(req):
@@ -122,7 +224,7 @@ class PatternManagerNode(object):
             return resp
 
         try:
-            XForm(req.group_name, XForm.get_node(req.parent_id))
+            XForm(XForm.get_node(req.parent_id), ref_frame=req.ref_frame)
             rospy.logout("Transform {} successfully created!".format(req.group_name))
             resp.success = True
         except IndexError, e:
@@ -161,9 +263,6 @@ class PatternManagerNode(object):
             resp.success = False
 
         return resp
-
-    def cb_iterate(self, req):
-        pass
 
 
 if __name__ == "__main__":

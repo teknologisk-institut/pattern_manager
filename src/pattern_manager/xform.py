@@ -23,16 +23,21 @@ import geometry_msgs.msg as gm_msg
 class XForm(gm_msg.Transform):
 
     root = None
+    count = 0
 
-    def __init__(self, nm, par, ref_frame=None):
+    def __init__(self, parent, name=None, ref_frame=None):
         super(XForm, self).__init__()
 
-        self.name = nm
-        self.parent = par
+        self.parent = parent
+        self.name = name
         self.active = False
         self.i = 0
         self.children = {}
         self.ref_frame = ref_frame
+
+        if not name:
+            self.name = 'tf_' + str(XForm.count)
+            XForm.count += 1
 
         if not XForm.root:
             XForm.root = self
@@ -50,7 +55,16 @@ class XForm(gm_msg.Transform):
     def set_active(self, actv):
         self.active = actv
 
-        if self.parent:
+        if not self.parent:
+            return
+
+        actv_siblings = []
+        for k, v in self.parent.children.items():
+
+            if k != id(self) and v.active:
+                actv_siblings.append(v)
+
+        if len(actv_siblings) == 0:
             self.parent.set_active(actv)
 
     @staticmethod

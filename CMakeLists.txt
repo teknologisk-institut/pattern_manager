@@ -29,6 +29,12 @@ add_service_files(
    SetActive.srv
    PatternType.srv
    UpdateVar.srv
+   IdRequest.srv
+   ActiveIds.srv
+   CreateLinearPattern.srv
+   CreateRectangularPattern.srv
+   CreateCircularPattern.srv
+   CreateScatterPattern.srv
  )
 
 generate_messages(

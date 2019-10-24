@@ -1,0 +1,6 @@
+string num_points
+string step_size
+string length
+uint64 parent_id
+---
+bool success
