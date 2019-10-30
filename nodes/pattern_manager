@@ -31,23 +31,6 @@ class PatternManagerNode(object):
 
     def __init__(self):
         t0 = XForm(name='root', parent=None, ref_frame='world')
-        t1 = XForm(t0)
-        t2 = XForm(t0)
-
-        t3 = XForm(t2)
-        t4 = XForm(t2)
-        t5 = XForm(t2)
-
-        t6 = XForm(t1)
-        t7 = XForm(t1)
-
-        t8 = XForm(t6)
-        t9 = XForm(t6)
-
-        t10 = XForm(t7)
-        t11 = XForm(t7)
-
-        t0.set_active(True)
 
         rospy.Service('~get_transforms', pm_srv.GroupTree, self.cb_get_transforms)
         rospy.Service('~create_transform', pm_srv.CreateGroup, self.cb_create_transform)
@@ -61,6 +44,36 @@ class PatternManagerNode(object):
         rospy.Service('~create_rectangular_pattern', pm_srv.CreateRectangularPattern, self.cb_create_rectangular_pattern)
         rospy.Service('~create_circular_pattern', pm_srv.CreateCircularPattern, self.cb_create_circular_pattern)
         rospy.Service('~create_scatter_pattern', pm_srv.CreateScatterPattern, self.cb_create_scatter_pattern)
+        rospy.Service('~set_iteration_order', pm_srv.SetIterationOrder, self.cb_set_iteration_order)
+        rospy.Service('~get_iteration_order', pm_srv.GetIterationOrder, self.cb_get_iteration_order)
+
+    @staticmethod
+    def cb_set_iteration_order(req):
+        rospy.logdebug("Received request to set iteration order")
+        resp = pm_srv.SetIterationOrderResponse()
+
+        try:
+            tf = XForm.get_node(req.id)
+            tf.iteration_order = req.order
+            resp.success = True
+        except rospy.ROSException, e:
+            resp.success = False
+            rospy.logerr(e)
+
+        return resp
+
+    @staticmethod
+    def cb_get_iteration_order(req):
+        rospy.logdebug("Received request to retrieve iteration order")
+        resp = pm_srv.GetIterationOrderResponse()
+
+        try:
+            tf = XForm.get_node(req.id)
+            resp.order = tf.iteration_order
+        except rospy.ROSException, e:
+            rospy.logerr(e)
+
+        return resp
 
     @staticmethod
     def cb_create_linear_pattern(req):
@@ -75,7 +88,8 @@ class PatternManagerNode(object):
                     arg = ast.literal_eval(a)
                     args.append(arg)
 
-            util.create_pattern('linear', XForm.get_node(req.parent_id), args)
+            t = XForm(XForm.get_node(req.parent_id), name=req.name)
+            util.create_pattern('linear', t, args)
 
             rospy.logout("Linear pattern successfully created!")
             resp.success = True
@@ -98,7 +112,8 @@ class PatternManagerNode(object):
                     arg = ast.literal_eval(a)
                     args.append(arg)
 
-            util.create_pattern('rectangular', XForm.get_node(req.parent_id), args)
+            t = XForm(XForm.get_node(req.parent_id), name=req.name)
+            util.create_pattern('rectangular', t, args)
 
             rospy.logout("Rectangular pattern successfully created!")
             resp.success = True

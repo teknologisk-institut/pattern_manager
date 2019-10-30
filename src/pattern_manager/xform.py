@@ -34,6 +34,7 @@ class XForm(gm_msg.Transform):
         self.i = 0
         self.children = {}
         self.ref_frame = ref_frame
+        self._iteration_order = []
 
         if not name:
             self.name = 'tf_' + str(XForm.count)
@@ -48,24 +49,38 @@ class XForm(gm_msg.Transform):
             if not ref_frame:
                 self.ref_frame = self.parent.ref_frame
 
+    @property
+    def iteration_order(self):
+        return self._iteration_order
+
+    @iteration_order.setter
+    def iteration_order(self, order):
+
+        if len(self.children) == 0:
+            rospy.logwarn("Iteration order cannot be set for 0 child transforms. Skipping")
+
+            return
+
+        if not len(order) == len(self.children):
+            rospy.logwarn("Order length does not match the amount of child transforms. Skipping")
+
+            return
+
+        self.iteration_order = order
+
     def add_node(self, chld):
         self.children[id(chld)] = chld
         chld.parent = self
 
     def set_active(self, actv):
-        self.active = actv
 
-        if not self.parent:
-            return
+        if len(self.children) > 0:
+            for c in self.children.values():
 
-        actv_siblings = []
-        for k, v in self.parent.children.items():
-
-            if k != id(self) and v.active:
-                actv_siblings.append(v)
-
-        if len(actv_siblings) == 0:
-            self.parent.set_active(actv)
+                if not c.active:
+                    c.set_active(actv)
+        else:
+            self.active = actv
 
     @staticmethod
     def get_current_node():
@@ -86,7 +101,8 @@ class XForm(gm_msg.Transform):
             root = XForm.root
 
         if root.active:
-            lst.append(root)
+            if len(root.children) == 0:
+                lst.append(root)
 
         for n in root.children.values():
             lst.extend(XForm.get_active_nodes(n))

@@ -22,19 +22,19 @@ from pattern_manager.xform import XForm
 
 
 if __name__ == '__main__':
-    t = XForm('root', None)
-    t1 = XForm('t1', t)
-    t2 = XForm('t2', t)
-    t3 = XForm('t3', t)
+    t = XForm(name='root', parent=None)
+    t1 = XForm(t)
+    t2 = XForm(t)
+    t3 = XForm(t)
 
-    t4 = XForm('t4', t2)
-    t5 = XForm('t5', t2)
+    t4 = XForm(t2)
+    t5 = XForm(t2)
 
-    t6 = XForm('t6', t4)
-    t7 = XForm('t7', t4)
+    t6 = XForm(t4)
+    t7 = XForm(t4)
 
-    t8 = XForm('t8', t7)
-    t9 = XForm('t9', t7)
+    t8 = XForm(t7)
+    t9 = XForm(t7)
 
     t.active = True
     t2.active = True
@@ -52,6 +52,12 @@ if __name__ == '__main__':
     while XForm.get_current_node():
         print XForm.get_current_node().name
         XForm.iterate()
+
+    for i in range(10):
+        x = XForm(t9)
+
+    for n in XForm.get_nodes():
+        print n.name
 
     # print ''
     #

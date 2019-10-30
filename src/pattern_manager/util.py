@@ -83,7 +83,7 @@ def handle_input_1d(number_of_points=0, step_size=0, line_length=0):
         return out_p, out_s, out_l
 
 
-def tfs_along_axis(count, step_size, parent, basis_frame=None, axis='x'):
+def tfs_along_axis(count, step_size, parent, basis_tf=None, axis='x'):
     """Generate a series of given number of frames along one axis, with given distance between frames.
     
     :param count: Number of frames to generate
@@ -97,14 +97,14 @@ def tfs_along_axis(count, step_size, parent, basis_frame=None, axis='x'):
     :return: List of the generated frames. 
     :rtype: numpy.array with dtype geometry_msgs.Transform
     """
-    frames = np.array(np.empty(count), dtype=XForm)
-    for p in range(count):
-        transf = XForm(parent) if not basis_frame else deepcopy(basis_frame)
-        exec ("transf.translation." + axis + " = p * step_size")
-        transf.rotation.w = 1.0
-        frames[p] = transf
 
-        del transf
+    frames = []
+    for i in range(count):
+        transf = XForm(parent) if not basis_tf else deepcopy(basis_tf)
+        exec ("transf.translation." + axis + " = i * step_size")
+
+        transf.rotation.w = 1.0
+        frames[i] = transf
 
     return frames
 
@@ -152,32 +152,31 @@ def matrix_to_tf(matrix):
 
 
 def create_pattern(type_, parent, args):
-    tfs_ = None
 
     if type_ == 'linear':
         try:
-            tfs_ = _create_linear_pattern(parent, *args)
+            _create_linear_pattern(parent, *args)
         except ValueError, e:
             rospy.logwarn('Bad parameters: %s' % e)
     elif type_ == 'rectangular':
         try:
-            tfs_ = _create_rectangular_pattern(parent, *args)
+            _create_rectangular_pattern(parent, *args)
         except ValueError, e:
             rospy.logwarn('Bad parameters: %s' % e)
     elif type_ == 'circular':
         try:
-            tfs_ = _create_circular_pattern(parent, *args)
+            _create_circular_pattern(parent, *args)
         except ValueError, e:
             rospy.logwarn('Bad parameters: %s' % e)
     elif type_ == 'scatter':
         try:
-            tfs_ = _create_scatter_pattern(parent, *args)
+            _create_scatter_pattern(parent, *args)
         except ValueError, e:
             rospy.logwarn('Bad parameters: %s' % e)
     else:
-        pass
+        rospy.logerr('Pattern type %s does not exist' % type_)
 
-    return tfs_
+        return
 
 
 def _create_linear_pattern(parent, num_points=0, step_size=0.0, line_len=0.0, axis='x'):
@@ -189,9 +188,9 @@ def _create_linear_pattern(parent, num_points=0, step_size=0.0, line_len=0.0, ax
 
         return None
 
-    pattern = tfs_along_axis(po, st, parent, axis=axis)
-
-    return pattern.reshape(pattern.size)
+    for i in range(po):
+        tf = XForm(parent)
+        tf.translation.x = i * st
 
 
 def _create_rectangular_pattern(parent, num_points=(0, 0), step_sizes=(0, 0), line_lens=(0.0, 0.0)):
@@ -204,21 +203,11 @@ def _create_rectangular_pattern(parent, num_points=(0, 0), step_sizes=(0, 0), li
 
         return None
 
-    rospy.logwarn(po_x)
-    rospy.logwarn(type(po_x))
-
-    rospy.logwarn(po_y)
-    rospy.logwarn(type(po_y))
-
-    pattern = np.array(np.empty([po_x, po_y]), dtype=XForm)
-    x_pattern = tfs_along_axis(po_x, st_x, parent, axis='x')
-
     for i in range(po_x):
-        y_pattern = tfs_along_axis(po_y, st_y, parent, basis_frame=x_pattern[i], axis='y')
-        pattern[i, :] = y_pattern
-        del y_pattern
-
-    return pattern.reshape(pattern.size)
+        for j in range(po_y):
+            tf = XForm(parent)
+            tf.translation.x = i * st_x
+            tf.translation.y = j * st_y
 
 
 def _create_circular_pattern(parent, num_points=0, r=0.0, tan_rot=False, cw=False, angular_section=2*pi):
@@ -259,7 +248,7 @@ def _create_circular_pattern(parent, num_points=0, r=0.0, tan_rot=False, cw=Fals
         pattern[i] = t
         del t
 
-    return pattern.reshape(pattern.size)
+    pattern.reshape(pattern.size)
 
 
 def _create_scatter_pattern(parent, points=None):
@@ -306,4 +295,4 @@ def _create_scatter_pattern(parent, points=None):
         pattern[i] = t
         i += 1
 
-    return pattern.reshape(pattern.size)
+    pattern.reshape(pattern.size)

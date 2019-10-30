@@ -35,6 +35,8 @@ add_service_files(
    CreateRectangularPattern.srv
    CreateCircularPattern.srv
    CreateScatterPattern.srv
+   SetIterationOrder.srv
+   GetIterationOrder.srv
  )
 
 generate_messages(
