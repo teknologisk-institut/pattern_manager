@@ -1,8 +1,4 @@
 string name
-string parent_name
-string ref_frame
-uint64 id
-bool active
+uint64 parent_id
 geometry_msgs/Vector3 translation
 geometry_msgs/Quaternion rotation
-uint64 number

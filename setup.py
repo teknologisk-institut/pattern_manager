@@ -9,7 +9,6 @@ setup_args = generate_distutils_setup(
         'pattern_manager.patterns',
         'pattern_manager.examples',
     ],
-    requires=['pluginlib', 'tf', 'numpy']
 )
 
 setup(**setup_args)

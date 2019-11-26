@@ -20,17 +20,14 @@ from __future__ import division
 from copy import deepcopy
 from pattern_manager.xform import XForm
 from math import cos, sin, pi
+from transformations import euler_matrix
 
 import geometry_msgs.msg as gm
 import numpy as np
 import tf.transformations as tfs
 import rospy
-# import logging
-# logging.basicConfig(format='(Pattern Manager) %(levelname)s: %(message)s', level=logging.DEBUG)
-# output = logging
 
 
-# Helper functions
 def handle_input_1d(number_of_points=0, step_size=0, line_length=0):
     """Generates 1D spatial information from 3 inputs.
 
@@ -81,32 +78,6 @@ def handle_input_1d(number_of_points=0, step_size=0, line_length=0):
         out_l = step_size * (number_of_points - 1)
         
         return out_p, out_s, out_l
-
-
-def tfs_along_axis(count, step_size, parent, basis_tf=None, axis='x'):
-    """Generate a series of given number of frames along one axis, with given distance between frames.
-    
-    :param count: Number of frames to generate
-    :type count: int
-    :param step_size: Distance between frames, in m
-    :type step_size: float
-    :param basis_frame: Frame to use as basis for generation, defaults to empty geometry_msgs.Transform()
-    :type basis_frame: geometry_msgs.Transform optional
-    :param axis: Which axis to generate the frames along, defaults to 'x'
-    :type axis: str, optional
-    :return: List of the generated frames. 
-    :rtype: numpy.array with dtype geometry_msgs.Transform
-    """
-
-    frames = []
-    for i in range(count):
-        transf = XForm(parent) if not basis_tf else deepcopy(basis_tf)
-        exec ("transf.translation." + axis + " = i * step_size")
-
-        transf.rotation.w = 1.0
-        frames[i] = transf
-
-    return frames
 
 
 def tf_to_matrix(transform):
@@ -188,9 +159,17 @@ def _create_linear_pattern(parent, num_points=0, step_size=0.0, line_len=0.0, ax
 
         return None
 
+    x_set = set()
+
     for i in range(po):
-        tf = XForm(parent)
-        tf.translation.x = i * st
+        x_set.add(i * st)
+
+    c = 0
+    for x in x_set:
+        tf = XForm(parent, name='{}_{}'.format(parent.name, c))
+        tf.translation.x = x
+
+        c += 1
 
 
 def _create_rectangular_pattern(parent, num_points=(0, 0), step_sizes=(0, 0), line_lens=(0.0, 0.0)):
@@ -203,11 +182,42 @@ def _create_rectangular_pattern(parent, num_points=(0, 0), step_sizes=(0, 0), li
 
         return None
 
+    xy_set = set()
+
     for i in range(po_x):
         for j in range(po_y):
-            tf = XForm(parent)
-            tf.translation.x = i * st_x
-            tf.translation.y = j * st_y
+            xy_set.add((i * st_x, j * st_y))
+
+    c = 0
+    for xy in xy_set:
+        tf = XForm(parent, name='{}_{}'.format(parent.name, c))
+        tf.translation.x = xy[0]
+        tf.translation.y = xy[1]
+
+        c += 1
+
+
+def _create_scatter_pattern(parent, points):
+
+    if not len(points) > 0:
+        rospy.logerr("Scatter points cannot be zero")
+
+        return None
+
+    xyz_set = set()
+
+    for p in points:
+        xyz_set.add((p[0], p[1], p[2]))
+
+    i = 0
+    for xyz in xyz_set:
+        tf = XForm(parent, name='{}_{}'.format(parent.name, i))
+
+        tf.translation.x = xyz[0]
+        tf.translation.y = xyz[1]
+        tf.translation.z = xyz[2]
+
+        i += 1
 
 
 def _create_circular_pattern(parent, num_points=0, r=0.0, tan_rot=False, cw=False, angular_section=2*pi):
@@ -229,70 +239,24 @@ def _create_circular_pattern(parent, num_points=0, r=0.0, tan_rot=False, cw=Fals
     if not angular_section == 2 * pi:
         num_points += 1
 
-    pattern = np.array(np.empty(num_points), dtype=XForm)
+    xyz_set = set()
 
     for i in range(num_points):
+        xyz_set.add((r * cos(i * angular_resolution), r * sin(i * angular_resolution), 0.0))
+
+    c = 0
+    for xyz in xyz_set:
         t = XForm(parent)
-        t.translation.x = r * cos(i * angular_resolution)
-        t.translation.y = r * sin(i * angular_resolution)
-        t.translation.z = 0.0
+        t.translation.x = xyz[0]
+        t.translation.y = xyz[1]
+        t.translation.z = xyz[2]
 
         if tan_rot:
-            yaw = pi / 2 + i * angular_resolution
-            M = pattern.tfs.euler_matrix(0, 0, yaw)
-            q = matrix_to_tf(M).rotation
+            yaw = pi / 2 + c * angular_resolution
+            m = tfs.euler_matrix(0, 0, yaw)
+            q = matrix_to_tf(m).rotation
             t.rotation = q
         else:
             t.rotation.w = 1.0
 
-        pattern[i] = t
-        del t
-
-    pattern.reshape(pattern.size)
-
-
-def _create_scatter_pattern(parent, points=None):
-    points = []
-    if type(points) == list:
-        for p in points:
-            if not type(p) == list:
-                rospy.logerr("Single input point is not a list")
-    else:
-        rospy.logerr("Point input is not a list of points")
-
-    if not len(points) > 0:
-        rospy.logerr("Scatter point list is empty")
-
-        return None
-
-    pattern = np.array(np.empty(len(points)), dtype=XForm)
-
-    i = 0
-    for p in points:
-        t = XForm(parent)
-
-        if len(p) == 3:
-            t.translation.x = p[0]
-            t.translation.y = p[1]
-            t.translation.z = p[2]
-            t.rotation.w = 1.0
-        elif len(p) == 6:
-            t.translation.x = p[0]
-            t.translation.y = p[1]
-            t.translation.z = p[2]
-
-            q = tfs.quaternion_from_euler(p[3], p[4], p[5], axes='sxyz')
-
-            t.rotation.x = q[0]
-            t.rotation.y = q[1]
-            t.rotation.z = q[2]
-            t.rotation.w = q[3]
-        else:
-            rospy.logerr("Incorrect point length (%s), aborting pattern generation" % len(p))
-
-            return False
-
-        pattern[i] = t
-        i += 1
-
-    pattern.reshape(pattern.size)
+        c += 1

@@ -1,7 +1,7 @@
-string name
-string num_points
-string step_sizes
-string lengths
-uint64 parent_id
+pattern_manager/PatternParent parent
+uint64[] num_points
+float64[] step_sizes
+float64[] lengths
+
 ---
 bool success

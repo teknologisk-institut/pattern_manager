@@ -1,6 +1,8 @@
-string name
+pattern_manager/PatternParent parent
 uint64 num_points
 float64 radius
-string parent_id
+bool tan_rot
+bool cw
+float64 angular_section
 ---
 bool success

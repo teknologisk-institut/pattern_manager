@@ -1,5 +1,4 @@
-string name
-float64[] points
-string parent_id
+pattern_manager/PatternParent parent
+pattern_manager/Point[] points
 ---
 bool success

@@ -18,6 +18,7 @@
 
 import rospy
 import ast
+import tf
 
 from pattern_manager import util
 from pattern_manager import XForm
@@ -81,14 +82,12 @@ class PatternManagerNode(object):
         resp = pm_srv.CreateLinearPatternResponse()
 
         try:
-            args = []
+            args = [req.num_points, req.step_size, req.length]
 
-            for a in [req.num_points, req.step_size, req.length]:
-                if a:
-                    arg = ast.literal_eval(a)
-                    args.append(arg)
+            t = XForm(XForm.get_node(req.parent.parent_id), name=req.parent.name)
+            t.translation = req.parent.translation
+            t.rotation = req.parent.rotation
 
-            t = XForm(XForm.get_node(req.parent_id), name=req.name)
             util.create_pattern('linear', t, args)
 
             rospy.logout("Linear pattern successfully created!")
@@ -105,14 +104,12 @@ class PatternManagerNode(object):
         resp = pm_srv.CreateRectangularPatternResponse()
 
         try:
-            args = []
+            args = [req.num_points, req.step_sizes, req.lengths]
 
-            for a in [req.num_points, req.step_sizes, req.lengths]:
-                if a:
-                    arg = ast.literal_eval(a)
-                    args.append(arg)
+            t = XForm(XForm.get_node(req.parent.parent_id), name=req.parent.name)
+            t.translation = req.parent.translation
+            t.rotation = req.parent.rotation
 
-            t = XForm(XForm.get_node(req.parent_id), name=req.name)
             util.create_pattern('rectangular', t, args)
 
             rospy.logout("Rectangular pattern successfully created!")
@@ -124,12 +121,52 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_create_circular_pattern(req):
-        pass
+    def cb_create_scatter_pattern(req):
+        rospy.logdebug("Received request to create a rectangular pattern")
+        resp = pm_srv.CreateScatterPatternResponse()
+
+        try:
+            points = []
+            for p in req.points:
+                points.append(p.point)
+
+            args = [points]
+
+            t = XForm(XForm.get_node(req.parent.parent_id), name=req.parent.name)
+            t.translation = req.parent.translation
+            t.rotation = req.parent.rotation
+
+            util.create_pattern('scatter', t, args)
+
+            rospy.logout("Scatter pattern successfully created!")
+            resp.success = True
+        except IndexError, e:
+            rospy.logwarn("Could not create pattern: %s" % e)
+            resp.success = False
+
+        return resp
 
     @staticmethod
-    def cb_create_scatter_pattern(req):
-        pass
+    def cb_create_circular_pattern(req):
+        rospy.logdebug("Received request to create a circular pattern")
+        resp = pm_srv.CreateCircularPatternResponse()
+
+        try:
+            args = [req.num_points, req.radius, req.tan_rot, req.cw]
+
+            t = XForm(XForm.get_node(req.parent.parent_id), name=req.parent.name)
+            t.translation = req.parent.translation
+            t.rotation = req.parent.rotation
+
+            util.create_pattern('circular', t, args)
+
+            rospy.logout("Circular pattern successfully created!")
+            resp.success = True
+        except IndexError, e:
+            rospy.logwarn("Could not create pattern: %s" % e)
+            resp.success = False
+
+        return resp
 
     @staticmethod
     def cb_get_active_ids(self):
@@ -216,6 +253,7 @@ class PatternManagerNode(object):
             t_params.active = t.active
             t_params.translation = t.translation
             t_params.rotation = t.rotation
+            t_params.number = t.number
 
             if t.parent:
                 t_params.parent_name = t.parent.name
@@ -281,10 +319,20 @@ class PatternManagerNode(object):
 
 
 if __name__ == "__main__":
-    rospy.init_node("pattern_manager_old", log_level=rospy.DEBUG)
+    rospy.init_node("pattern_manager", log_level=rospy.DEBUG)
     pmn = PatternManagerNode()
     rospy.loginfo("Pattern manager node started")
 
+    br = tf.TransformBroadcaster()
+
     r = rospy.Rate(5)
     while not rospy.is_shutdown():
+
+        for tf in XForm.get_nodes():
+            br.sendTransform([tf.translation.x, tf.translation.y, tf.translation.z],
+                             [tf.rotation.x, tf.rotation.y, tf.rotation.z, tf.rotation.w],
+                             rospy.Time.now(),
+                             str(tf.number),
+                             'world')
+
         r.sleep()

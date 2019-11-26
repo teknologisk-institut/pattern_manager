@@ -15,6 +15,8 @@ catkin_python_setup()
 add_message_files(
    FILES
    Params.msg
+   PatternParent.msg
+   Point.msg
  )
 
 add_service_files(

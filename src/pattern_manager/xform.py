@@ -26,7 +26,10 @@ class XForm(gm_msg.Transform):
     count = 0
 
     def __init__(self, parent, name=None, ref_frame=None):
-        super(XForm, self).__init__()
+        super(XForm, self).__init__(
+            translation=gm_msg.Vector3(x=0.0, y=0.0, z=0.0),
+            rotation=gm_msg.Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
+        )
 
         self.parent = parent
         self.name = name
@@ -35,10 +38,12 @@ class XForm(gm_msg.Transform):
         self.children = {}
         self.ref_frame = ref_frame
         self._iteration_order = []
+        self.number = XForm.count
+
+        XForm.count += 1
 
         if not name:
-            self.name = 'tf_' + str(XForm.count)
-            XForm.count += 1
+            self.name = 'tf_' + str(self.number)
 
         if not XForm.root:
             XForm.root = self
@@ -79,7 +84,7 @@ class XForm(gm_msg.Transform):
 
                 if not c.active:
                     c.set_active(actv)
-        else:
+        elif self.parent:
             self.active = actv
 
     @staticmethod
