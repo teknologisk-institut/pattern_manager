@@ -1,5 +1,5 @@
 string name
-string parent_name
+uint64 parent_id
 string ref_frame
 uint64 id
 bool active

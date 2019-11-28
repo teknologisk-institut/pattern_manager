@@ -19,6 +19,8 @@
 import rospy
 import geometry_msgs.msg as gm_msg
 
+from collections import OrderedDict
+
 
 class XForm(gm_msg.Transform):
 
@@ -35,9 +37,8 @@ class XForm(gm_msg.Transform):
         self.name = name
         self.active = False
         self.i = 0
-        self.children = {}
+        self.children = OrderedDict()
         self.ref_frame = ref_frame
-        self._iteration_order = []
         self.number = XForm.count
 
         XForm.count += 1
@@ -52,26 +53,7 @@ class XForm(gm_msg.Transform):
             self.parent.add_node(self)
 
             if not ref_frame:
-                self.ref_frame = self.parent.ref_frame
-
-    @property
-    def iteration_order(self):
-        return self._iteration_order
-
-    @iteration_order.setter
-    def iteration_order(self, order):
-
-        if len(self.children) == 0:
-            rospy.logwarn("Iteration order cannot be set for 0 child transforms. Skipping")
-
-            return
-
-        if not len(order) == len(self.children):
-            rospy.logwarn("Order length does not match the amount of child transforms. Skipping")
-
-            return
-
-        self.iteration_order = order
+                self.ref_frame = self.parent.name
 
     def add_node(self, chld):
         self.children[id(chld)] = chld
@@ -81,9 +63,8 @@ class XForm(gm_msg.Transform):
 
         if len(self.children) > 0:
             for c in self.children.values():
-
-                if not c.active:
-                    c.set_active(actv)
+                c.set_active(actv)
+                rospy.logwarn('%s | %s | %s' % ('tf_%d' % c.number, c.active, actv))
         elif self.parent:
             self.active = actv
 
@@ -92,8 +73,6 @@ class XForm(gm_msg.Transform):
         lst = XForm.get_active_nodes()
 
         if len(lst) > 0:
-            lst.reverse()
-
             return lst[0]
         else:
             return None

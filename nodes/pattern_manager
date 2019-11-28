@@ -26,14 +26,15 @@ from pattern_manager import srv as pm_srv
 from pattern_manager import msg as pm_msg
 from std_srvs.srv import Trigger, TriggerResponse
 from geometry_msgs.msg import Vector3, Quaternion
-
+from collections import OrderedDict
 
 class PatternManagerNode(object):
 
     def __init__(self):
-        t0 = XForm(name='root', parent=None, ref_frame='world')
+        XForm(name='root', parent=None, ref_frame='world')
 
-        rospy.Service('~get_transforms', pm_srv.GroupTree, self.cb_get_transforms)
+        rospy.Service('~get_transform', pm_srv.GetTransformParams, self.cb_get_transform)
+        rospy.Service('~get_transform_ids', pm_srv.ActiveIds, self.cb_get_transform_ids)
         rospy.Service('~create_transform', pm_srv.CreateGroup, self.cb_create_transform)
         rospy.Service('~set_active', pm_srv.SetActive, self.cb_set_active)
         rospy.Service('~remove_transform', pm_srv.NodeId, self.cb_remove_transform)
@@ -46,17 +47,19 @@ class PatternManagerNode(object):
         rospy.Service('~create_circular_pattern', pm_srv.CreateCircularPattern, self.cb_create_circular_pattern)
         rospy.Service('~create_scatter_pattern', pm_srv.CreateScatterPattern, self.cb_create_scatter_pattern)
         rospy.Service('~set_iteration_order', pm_srv.SetIterationOrder, self.cb_set_iteration_order)
-        rospy.Service('~get_iteration_order', pm_srv.GetIterationOrder, self.cb_get_iteration_order)
+        rospy.Service('~set_transform_parent', pm_srv.NodeId, self.cb_set_transform_parent)
 
     @staticmethod
-    def cb_set_iteration_order(req):
-        rospy.logdebug("Received request to set iteration order")
-        resp = pm_srv.SetIterationOrderResponse()
+    def cb_set_transform_parent(req):
+        rospy.logdebug("Received request update transform's parent")
+        resp = pm_srv.SetParentResponse()
 
         try:
-            tf = XForm.get_node(req.id)
-            tf.iteration_order = req.order
-            resp.success = True
+            t = XForm.get_node(req.id)
+            t_parent = XForm.get_node(req.parent_id)
+
+            t.parent = t_parent
+            t.ref_frame = t_parent.name
         except rospy.ROSException, e:
             resp.success = False
             rospy.logerr(e)
@@ -64,14 +67,32 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_get_iteration_order(req):
-        rospy.logdebug("Received request to retrieve iteration order")
-        resp = pm_srv.GetIterationOrderResponse()
+    def cb_get_transform_ids(req):
+        rospy.logdebug("Received request to retrieve all transform ids")
+        resp = pm_srv.ActiveIdsResponse()
+
+        for n in XForm.get_nodes():
+            resp.ids.append(id(n))
+
+        return resp
+
+    @staticmethod
+    def cb_set_iteration_order(req):
+        rospy.logdebug("Received request to set iteration order")
+        resp = pm_srv.SetIterationOrderResponse()
 
         try:
-            tf = XForm.get_node(req.id)
-            resp.order = tf.iteration_order
+            t = XForm.get_node(req.id)
+
+            ordered = OrderedDict()
+            for k in req.order:
+                ordered[k] = t.children[k]
+
+            t.children = ordered
+
+            resp.success = True
         except rospy.ROSException, e:
+            resp.success = False
             rospy.logerr(e)
 
         return resp
@@ -92,7 +113,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Linear pattern successfully created!")
             resp.success = True
-        except IndexError, e:
+        except rospy.ROSException, e:
             rospy.logwarn("Could not create pattern: %s" % e)
             resp.success = False
 
@@ -114,7 +135,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Rectangular pattern successfully created!")
             resp.success = True
-        except IndexError, e:
+        except rospy.ROSException, e:
             rospy.logwarn("Could not create pattern: %s" % e)
             resp.success = False
 
@@ -140,7 +161,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Scatter pattern successfully created!")
             resp.success = True
-        except IndexError, e:
+        except rospy.ROSException, e:
             rospy.logwarn("Could not create pattern: %s" % e)
             resp.success = False
 
@@ -162,7 +183,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Circular pattern successfully created!")
             resp.success = True
-        except IndexError, e:
+        except rospy.ROSException, e:
             rospy.logwarn("Could not create pattern: %s" % e)
             resp.success = False
 
@@ -214,11 +235,12 @@ class PatternManagerNode(object):
 
         try:
             n = XForm.get_node(req.id)
-            attr = getattr(n, req.var)
-            val = req.val
 
             if not hasattr(n, req.var):
                 raise Exception("Attribute %s does not exist in %s" % (req.var, n))
+
+            attr = getattr(n, req.var)
+            val = req.val
 
             if not type(attr) is str:
                 val = ast.literal_eval(val)
@@ -232,22 +254,23 @@ class PatternManagerNode(object):
 
             rospy.logout("Transform variable %s succesfully changed to: %s" % (req.var, val))
             resp.success = True
-        except:
+        except rospy.ROSException, e:
             rospy.logwarn("Could not change transform variable %s to: %s" % (req.var, req.val))
             resp.success = False
 
         return resp
 
     @staticmethod
-    def cb_get_transforms(req):
+    def cb_get_transform(req):
         rospy.logdebug("Received request to retrieve all transforms")
-        resp = pm_srv.GroupTreeResponse()
+        resp = pm_srv.GetTransformParamsResponse()
 
-        t_list = []
-        for t in XForm.get_nodes():
+        try:
+            t = XForm.get_node(req.id)
+
             t_params = pm_msg.Params()
             t_params.name = t.name
-            t_params.parent_name = t.name
+            t_params.parent_id = id(t)
             t_params.id = id(t)
             t_params.ref_frame = t.ref_frame
             t_params.active = t.active
@@ -256,12 +279,11 @@ class PatternManagerNode(object):
             t_params.number = t.number
 
             if t.parent:
-                t_params.parent_name = t.parent.name
+                t_params.parent_id = id(t.parent)
 
-            t_list.append(t_params)
-
-        resp.group_deps = t_list
-        resp.success = True
+            resp.params = t_params
+        except rospy.ROSException, e:
+            rospy.logwarn("Could not retrieve transform %s" % req.id)
 
         return resp
 
@@ -280,7 +302,7 @@ class PatternManagerNode(object):
             XForm(XForm.get_node(req.parent_id), ref_frame=req.ref_frame)
             rospy.logout("Transform {} successfully created!".format(req.group_name))
             resp.success = True
-        except IndexError, e:
+        except rospy.ROSException, e:
             rospy.logwarn("Could not create transform %s: %s" % (req.group_name, e))
             resp.success = False
 
@@ -294,9 +316,9 @@ class PatternManagerNode(object):
         try:
             XForm.get_node(req.id).set_active(req.active)
 
-            rospy.logout("Transform {} successfully activated!".format(req.id))
+            rospy.logout("Transform {} successfully (de)activated!".format(req.id))
             resp.success = True
-        except IndexError, e:
+        except rospy.ROSException, e:
             rospy.logwarn("Could not activate transform %s: %s" % (req.id, e))
             resp.success = False
 
@@ -311,7 +333,7 @@ class PatternManagerNode(object):
             XForm.remove_node(req.id)
             rospy.logout("Transform {} successfully removed!".format(req.id))
             resp.success = True
-        except IndexError, e:
+        except rospy.ROSException, e:
             rospy.logwarn("Could not remove transform %s: %s" % (req.id, e))
             resp.success = False
 
@@ -320,19 +342,30 @@ class PatternManagerNode(object):
 
 if __name__ == "__main__":
     rospy.init_node("pattern_manager", log_level=rospy.DEBUG)
+
     pmn = PatternManagerNode()
     rospy.loginfo("Pattern manager node started")
 
     br = tf.TransformBroadcaster()
-
     r = rospy.Rate(5)
+
     while not rospy.is_shutdown():
 
         for tf in XForm.get_nodes():
-            br.sendTransform([tf.translation.x, tf.translation.y, tf.translation.z],
-                             [tf.rotation.x, tf.rotation.y, tf.rotation.z, tf.rotation.w],
-                             rospy.Time.now(),
-                             str(tf.number),
-                             'world')
+            br.sendTransform(
+                [
+                    tf.translation.x,
+                    tf.translation.y,
+                    tf.translation.z
+                ],
+                [
+                    tf.rotation.x,
+                    tf.rotation.y,
+                    tf.rotation.z,
+                    tf.rotation.w
+                ],
+                rospy.Time.now(),
+                'tf_%s' % str(tf.number),
+                tf.ref_frame)
 
         r.sleep()

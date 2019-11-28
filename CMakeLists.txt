@@ -39,6 +39,8 @@ add_service_files(
    CreateScatterPattern.srv
    SetIterationOrder.srv
    GetIterationOrder.srv
+   GetTransformParams.srv
+   SetParent.srv
  )
 
 generate_messages(
