@@ -47,19 +47,21 @@ class PatternManagerNode(object):
         rospy.Service('~create_circular_pattern', pm_srv.CreateCircularPattern, self.cb_create_circular_pattern)
         rospy.Service('~create_scatter_pattern', pm_srv.CreateScatterPattern, self.cb_create_scatter_pattern)
         rospy.Service('~set_iteration_order', pm_srv.SetIterationOrder, self.cb_set_iteration_order)
-        rospy.Service('~set_transform_parent', pm_srv.NodeId, self.cb_set_transform_parent)
+        rospy.Service('~set_transform_parent', pm_srv.SetParent, self.cb_set_transform_parent)
 
     @staticmethod
     def cb_set_transform_parent(req):
-        rospy.logdebug("Received request update transform's parent")
+        rospy.logdebug("Received request to move transform")
         resp = pm_srv.SetParentResponse()
 
         try:
             t = XForm.get_node(req.id)
-            t_parent = XForm.get_node(req.parent_id)
+            del t.parent.children[req.id]
 
-            t.parent = t_parent
-            t.ref_frame = t_parent.name
+            new_parent = XForm.get_node(req.parent_id)
+            new_parent.add_node(t)
+
+            t.ref_frame = new_parent.name
         except rospy.ROSException, e:
             resp.success = False
             rospy.logerr(e)
@@ -330,7 +332,7 @@ class PatternManagerNode(object):
         resp = pm_srv.NodeIdResponse()
 
         try:
-            XForm.remove_node(req.id)
+            XForm.recursive_remove_node(req.id)
             rospy.logout("Transform {} successfully removed!".format(req.id))
             resp.success = True
         except rospy.ROSException, e:

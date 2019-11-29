@@ -94,19 +94,19 @@ class XForm(gm_msg.Transform):
         return lst
 
     @staticmethod
-    def remove_node(id_):
+    def recursive_remove_node(id_):
         if not XForm.get_node(id_).parent:
             rospy.logwarn("Removing the root transform is not allowed")
 
             return
 
-        XForm._remove_node(id_)
+        XForm._recursive_remove_node(id_)
         del XForm.get_node(id_).parent.children[id_]
 
     @staticmethod
-    def _remove_node(id_):
+    def _recursive_remove_node(id_):
         for k, v in XForm.get_node(id_).children.items():
-            XForm._remove_node(k)
+            XForm._recursive_remove_node(k)
             del XForm.get_node(id_).children[k]
 
     @staticmethod
