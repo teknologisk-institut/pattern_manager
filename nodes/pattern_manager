@@ -19,6 +19,7 @@
 import rospy
 import ast
 import tf
+import yaml
 
 from pattern_manager import util
 from pattern_manager import XForm
@@ -27,6 +28,7 @@ from pattern_manager import msg as pm_msg
 from std_srvs.srv import Trigger, TriggerResponse
 from geometry_msgs.msg import Vector3, Quaternion
 from collections import OrderedDict
+
 
 class PatternManagerNode(object):
 
@@ -48,6 +50,23 @@ class PatternManagerNode(object):
         rospy.Service('~create_scatter_pattern', pm_srv.CreateScatterPattern, self.cb_create_scatter_pattern)
         rospy.Service('~set_iteration_order', pm_srv.SetIterationOrder, self.cb_set_iteration_order)
         rospy.Service('~set_transform_parent', pm_srv.SetParent, self.cb_set_transform_parent)
+        rospy.Service('~save', pm_srv.Save, self.cb_save)
+
+    @staticmethod
+    def cb_save(req):
+        rospy.logdebug("Received request to save tree")
+        resp = pm_srv.SaveResponse()
+
+        try:
+            with open(req.path, 'w') as file_:
+                yaml.dump(XForm.to_dict(), file_)
+
+            resp.success = True
+        except rospy.ROSException, e:
+            resp.success = False
+            rospy.logerr(e)
+
+        return resp
 
     @staticmethod
     def cb_set_transform_parent(req):

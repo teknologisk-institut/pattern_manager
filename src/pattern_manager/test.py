@@ -17,6 +17,8 @@
 # Author: Mads Vainoe Baatrup
 
 import sys
+import json
+import yaml
 
 from pattern_manager.xform import XForm
 
@@ -36,9 +38,11 @@ if __name__ == '__main__':
     t8 = XForm(t7)
     t9 = XForm(t7)
 
-    t.active = True
-    t2.active = True
-    t5.active = True
+    print yaml.dump(XForm.to_dict())
+
+    # t.active = True
+    # t2.active = True
+    # t5.active = True
 
     # print "Active nodes:"
 
@@ -49,15 +53,15 @@ if __name__ == '__main__':
     # XForm.iterate()
     # print XForm.get_active_nodes()[0]
 
-    while XForm.get_current_node():
-        print XForm.get_current_node().name
-        XForm.iterate()
-
-    for i in range(10):
-        x = XForm(t9)
-
-    for n in XForm.get_nodes():
-        print n.name
+    # while XForm.get_current_node():
+    #     print XForm.get_current_node().name
+    #     XForm.iterate()
+    #
+    # for i in range(10):
+    #     x = XForm(t9)
+    #
+    # for n in XForm.get_nodes():
+    #     print n.name
 
     # print ''
     #

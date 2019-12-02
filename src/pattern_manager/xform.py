@@ -135,6 +135,7 @@ class XForm(gm_msg.Transform):
             res = None
             for c in root.children.values():
                 res = XForm.get_node(id_, c)
+
                 if res:
                     break
 
@@ -150,3 +151,25 @@ class XForm(gm_msg.Transform):
             return True
         else:
             return False
+
+    @staticmethod
+    def to_dict(root=None, dict_=None):
+
+        if not dict_:
+            dict_ = {}
+
+        if not root:
+            root = XForm.root
+
+        child_dict = {}
+        for k, v, in root.children.items():
+            child_dict[v.name] = {
+                'ref_frame': v.ref_frame,
+                'translation': [v.translation.x, v.translation.y, v.translation.z],
+                'rotation': [v.rotation.x, v.rotation.y, v.rotation.z, v.rotation.w]
+            }
+            dict_[root.name] = child_dict
+
+            XForm.to_dict(v, child_dict)
+
+        return dict_

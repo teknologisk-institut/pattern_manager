@@ -41,6 +41,7 @@ add_service_files(
    GetIterationOrder.srv
    GetTransformParams.srv
    SetParent.srv
+   Save.srv
  )
 
 generate_messages(
