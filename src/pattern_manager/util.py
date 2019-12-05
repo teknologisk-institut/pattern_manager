@@ -246,7 +246,7 @@ def _create_circular_pattern(parent, num_points=0, r=0.0, tan_rot=False, cw=Fals
 
     c = 0
     for xyz in xyz_set:
-        t = XForm(parent)
+        t = XForm(parent, name='{}_{}'.format(parent.name, c))
         t.translation.x = xyz[0]
         t.translation.y = xyz[1]
         t.translation.z = xyz[2]

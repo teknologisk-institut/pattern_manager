@@ -95,13 +95,14 @@ class XForm(gm_msg.Transform):
 
     @staticmethod
     def recursive_remove_node(id_):
-        if not XForm.get_node(id_).parent:
-            rospy.logwarn("Removing the root transform is not allowed")
-
-            return
-
         XForm._recursive_remove_node(id_)
-        del XForm.get_node(id_).parent.children[id_]
+
+        node = XForm.get_node(id_)
+
+        if node.parent:
+            del node.parent.children[id_]
+        else:
+            del node
 
     @staticmethod
     def _recursive_remove_node(id_):
@@ -161,15 +162,28 @@ class XForm(gm_msg.Transform):
         if not root:
             root = XForm.root
 
-        child_dict = {}
-        for k, v, in root.children.items():
-            child_dict[v.name] = {
-                'ref_frame': v.ref_frame,
-                'translation': [v.translation.x, v.translation.y, v.translation.z],
-                'rotation': [v.rotation.x, v.rotation.y, v.rotation.z, v.rotation.w]
-            }
-            dict_[root.name] = child_dict
+        dict_[root.name] = {
+                'ref_frame': root.ref_frame,
+                'translation': [root.translation.x, root.translation.y, root.translation.z],
+                'rotation': [root.rotation.x, root.rotation.y, root.rotation.z, root.rotation.w]
+        }
 
-            XForm.to_dict(v, child_dict)
+        for k, v, in root.children.items():
+            XForm.to_dict(v, dict_[root.name])
 
         return dict_
+
+    @staticmethod
+    def from_dict(dict_, root=None):
+
+        if not root:
+            root = XForm(None, name=dict_.keys()[0], ref_frame=dict_[dict_.keys()[0]]['ref_frame'])
+            XForm.root = root
+            dict_ = dict_[dict_.keys()[0]]
+
+        for k, v in dict_.items():
+
+            if isinstance(v, dict):
+                child = XForm(root, name=k, ref_frame=dict_[k]['ref_frame'])
+
+                XForm.from_dict(dict_[k], child)

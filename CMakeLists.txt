@@ -42,6 +42,7 @@ add_service_files(
    GetTransformParams.srv
    SetParent.srv
    Save.srv
+   GetTransformId.srv
  )
 
 generate_messages(

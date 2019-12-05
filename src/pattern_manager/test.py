@@ -24,7 +24,7 @@ from pattern_manager.xform import XForm
 
 
 if __name__ == '__main__':
-    t = XForm(name='root', parent=None)
+    t = XForm(name='root', parent=None, ref_frame='world')
     t1 = XForm(t)
     t2 = XForm(t)
     t3 = XForm(t)
@@ -38,7 +38,13 @@ if __name__ == '__main__':
     t8 = XForm(t7)
     t9 = XForm(t7)
 
-    print yaml.dump(XForm.to_dict())
+    js = json.dumps(XForm.to_dict(), sort_keys=True, indent=4)
+    dict_ = json.loads(js)
+
+    XForm.recursive_remove_node(id(t))
+
+    XForm.from_dict(dict_)
+    print json.dumps(XForm.to_dict(), sort_keys=True, indent=4)
 
     # t.active = True
     # t2.active = True

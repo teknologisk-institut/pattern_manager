@@ -36,13 +36,14 @@ class PatternManagerNode(object):
         XForm(name='root', parent=None, ref_frame='world')
 
         rospy.Service('~get_transform', pm_srv.GetTransformParams, self.cb_get_transform)
+        rospy.Service('~get_transform_id', pm_srv.GetTransformId, self.cb_get_transform_id)
         rospy.Service('~get_transform_ids', pm_srv.ActiveIds, self.cb_get_transform_ids)
         rospy.Service('~create_transform', pm_srv.CreateGroup, self.cb_create_transform)
         rospy.Service('~set_active', pm_srv.SetActive, self.cb_set_active)
         rospy.Service('~remove_transform', pm_srv.NodeId, self.cb_remove_transform)
         rospy.Service('~iterate', Trigger, self.cb_iterate)
-        rospy.Service('~update_tf_variable', pm_srv.UpdateVar, self.cb_update_tf_variable)
-        rospy.Service('~get_current_tf_id', pm_srv.IdRequest, self.cb_get_current_tf_id)
+        rospy.Service('~update_transform_variable', pm_srv.UpdateVar, self.cb_update_tf_variable)
+        rospy.Service('~get_current_transform_id', pm_srv.IdRequest, self.cb_get_current_tf_id)
         rospy.Service('~get_active_ids', pm_srv.ActiveIds, self.cb_get_active_ids)
         rospy.Service('~create_linear_pattern', pm_srv.CreateLinearPattern, self.cb_create_linear_pattern)
         rospy.Service('~create_rectangular_pattern', pm_srv.CreateRectangularPattern, self.cb_create_rectangular_pattern)
@@ -51,6 +52,41 @@ class PatternManagerNode(object):
         rospy.Service('~set_iteration_order', pm_srv.SetIterationOrder, self.cb_set_iteration_order)
         rospy.Service('~set_transform_parent', pm_srv.SetParent, self.cb_set_transform_parent)
         rospy.Service('~save', pm_srv.Save, self.cb_save)
+        rospy.Service('~load', pm_srv.Save, self.cb_load)
+
+    @staticmethod
+    def cb_get_transform_id(req):
+        rospy.logdebug("Received request to retrieve transform id")
+        resp = pm_srv.GetTransformIdResponse()
+
+        for n in XForm.get_nodes():
+            if n.name == req.name:
+                resp.id = id(n)
+
+                break
+
+        return resp
+
+    @staticmethod
+    def cb_load(req):
+        rospy.logdebug("Received request to load tree")
+        resp = pm_srv.SaveResponse()
+
+        try:
+            with open(req.path, 'r') as file_:
+                tree = yaml.load(file_)
+
+            XForm.recursive_remove_node(id(XForm.root))
+            XForm.from_dict(tree)
+
+            file_.close()
+
+            resp.success = True
+        except rospy.ROSException, e:
+            resp.success = False
+            rospy.logerr(e)
+
+        return resp
 
     @staticmethod
     def cb_save(req):
@@ -60,6 +96,8 @@ class PatternManagerNode(object):
         try:
             with open(req.path, 'w') as file_:
                 yaml.dump(XForm.to_dict(), file_)
+
+            file_.close()
 
             resp.success = True
         except rospy.ROSException, e:
@@ -314,13 +352,13 @@ class PatternManagerNode(object):
         resp = pm_srv.CreateGroupResponse()
 
         if not req.group_name:
-            rospy.logwarn("Transform must have a name!")
+            rospy.logwarn("Transform must have a name")
             resp.success = False
 
             return resp
 
         try:
-            XForm(XForm.get_node(req.parent_id), ref_frame=req.ref_frame)
+            XForm(XForm.get_node(req.parent_id), name=req.group_name, ref_frame=req.ref_frame)
             rospy.logout("Transform {} successfully created!".format(req.group_name))
             resp.success = True
         except rospy.ROSException, e:
@@ -351,6 +389,12 @@ class PatternManagerNode(object):
         resp = pm_srv.NodeIdResponse()
 
         try:
+            if id(XForm.root) == req.id:
+                rospy.logwarn("Removing root is not allowed. Ignoring action")
+                resp.success = False
+
+                return resp
+
             XForm.recursive_remove_node(req.id)
             rospy.logout("Transform {} successfully removed!".format(req.id))
             resp.success = True
