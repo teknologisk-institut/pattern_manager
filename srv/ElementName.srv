@@ -1,4 +1,0 @@
-# SPECIFIES A SINGLE GROUP INDEX, USED FOR MULTIPLE SERVICES
-string name
----
-bool success

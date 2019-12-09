@@ -1,4 +1,4 @@
-pattern_manager/PatternParent parent
+pattern_manager/Params parent
 uint64 num_points
 float64 radius
 bool tan_rot

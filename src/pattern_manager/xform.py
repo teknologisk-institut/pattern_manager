@@ -16,7 +16,6 @@
 
 # Author: Mads Vainoe Baatrup
 
-import rospy
 import geometry_msgs.msg as gm_msg
 
 from collections import OrderedDict
@@ -27,7 +26,7 @@ class XForm(gm_msg.Transform):
     root = None
     count = 0
 
-    def __init__(self, parent, name=None, ref_frame=None):
+    def __init__(self, parent, name, ref_frame=None):
         super(XForm, self).__init__(
             translation=gm_msg.Vector3(x=0.0, y=0.0, z=0.0),
             rotation=gm_msg.Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
@@ -42,9 +41,6 @@ class XForm(gm_msg.Transform):
         self.number = XForm.count
 
         XForm.count += 1
-
-        if not name:
-            self.name = 'tf_' + str(self.number)
 
         if not XForm.root:
             XForm.root = self
@@ -64,7 +60,6 @@ class XForm(gm_msg.Transform):
         if len(self.children) > 0:
             for c in self.children.values():
                 c.set_active(actv)
-                rospy.logwarn('%s | %s | %s' % ('tf_%d' % c.number, c.active, actv))
         elif self.parent:
             self.active = actv
 
@@ -185,5 +180,16 @@ class XForm(gm_msg.Transform):
 
             if isinstance(v, dict):
                 child = XForm(root, name=k, ref_frame=dict_[k]['ref_frame'])
+                child.translation = gm_msg.Vector3(
+                    x=dict_[k]['translation'][0],
+                    y=dict_[k]['translation'][1],
+                    z=dict_[k]['translation'][2]
+                )
+                child.rotation = gm_msg.Quaternion(
+                    x=dict_[k]['rotation'][0],
+                    y=dict_[k]['rotation'][1],
+                    z=dict_[k]['rotation'][2],
+                    w=dict_[k]['rotation'][3]
+                )
 
                 XForm.from_dict(dict_[k], child)

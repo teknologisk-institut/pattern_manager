@@ -1,5 +1,0 @@
-string type
-uint64 parent_id
-string[] params
----
-bool success

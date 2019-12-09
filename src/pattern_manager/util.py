@@ -17,12 +17,10 @@
 # Author: Mads Vainoe Baatrup
 
 from __future__ import division
-from copy import deepcopy
 from pattern_manager.xform import XForm
 from math import cos, sin, pi
-from transformations import euler_matrix
+from visualization_msgs.msg import Marker, MarkerArray
 
-import geometry_msgs.msg as gm
 import numpy as np
 import tf.transformations as tfs
 import rospy
@@ -260,3 +258,65 @@ def _create_circular_pattern(parent, num_points=0, r=0.0, tan_rot=False, cw=Fals
             t.rotation.w = 1.0
 
         c += 1
+
+
+def broadcast_transforms(br, xfs):
+
+    for xf in xfs:
+        br.sendTransform(
+            [
+                xf.translation.x,
+                xf.translation.y,
+                xf.translation.z
+            ],
+            [
+                xf.rotation.x,
+                xf.rotation.y,
+                xf.rotation.z,
+                xf.rotation.w
+            ],
+            rospy.Time.now(),
+            xf.name,
+            xf.ref_frame)
+
+
+def publish_markers(pub, xfs):
+
+    arr = MarkerArray()
+
+    id_ = 0
+    for xf in xfs:
+        marker = Marker()
+        marker.header.frame_id = xf.ref_frame
+        marker.header.stamp = rospy.Time.now()
+        marker.id = id_
+        marker.type = Marker.SPHERE
+        marker.action = marker.ADD
+        marker.pose.position.x = xf.translation.x
+        marker.pose.position.y = xf.translation.y
+        marker.pose.position.z = xf.translation.z
+        marker.pose.orientation.x = xf.rotation.x
+        marker.pose.orientation.y = xf.rotation.y
+        marker.pose.orientation.z = xf.rotation.z
+        marker.pose.orientation.w = xf.rotation.w
+        marker.scale.x = 0.1
+        marker.scale.y = 0.1
+        marker.scale.z = 0.1
+
+        r = g = b = 0.0
+        if id(XForm.get_current_node()) == id(xf):
+            g = 1.0
+        elif xf.active:
+            r = 1.0
+            g = 1.0
+
+        marker.color.a = 1.0
+        marker.color.r = r
+        marker.color.g = g
+        marker.color.b = b
+
+        arr.markers.append(marker)
+
+        id_ += 1
+
+    pub.publish(arr)

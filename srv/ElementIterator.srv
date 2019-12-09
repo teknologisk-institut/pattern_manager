@@ -1,5 +1,0 @@
-# GET ITERATOR FOR A SPECIFIC GROUP
-uint64 id
----
-uint8 iterator
-bool success

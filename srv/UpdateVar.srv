@@ -1,5 +1,0 @@
-uint64 id
-string var
-string val
----
-bool success

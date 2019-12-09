@@ -15,34 +15,26 @@ catkin_python_setup()
 add_message_files(
    FILES
    Params.msg
-   PatternParent.msg
    Point.msg
  )
 
 add_service_files(
    FILES
-   ElementName.srv
-   ElementIterator.srv
-   PatternTypes.srv
    CreateGroup.srv
-   CreatePattern.srv
-   GroupTree.srv
-   NodeId.srv
+   TransformId.srv
    SetActive.srv
-   PatternType.srv
-   UpdateVar.srv
-   IdRequest.srv
-   ActiveIds.srv
+   GetCurrentId.srv
+   GetIds.srv
    CreateLinearPattern.srv
    CreateRectangularPattern.srv
    CreateCircularPattern.srv
    CreateScatterPattern.srv
    SetIterationOrder.srv
-   GetIterationOrder.srv
    GetTransformParams.srv
    SetParent.srv
-   Save.srv
+   Filename.srv
    GetTransformId.srv
+   UpdateTransform.srv
  )
 
 generate_messages(
