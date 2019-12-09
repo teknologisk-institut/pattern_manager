@@ -1,7 +1,0 @@
-pattern_type: 'circular'
-pattern_params:
-  r: 0.5
-  num_points: 7
-base_params:
-  name: 'cheese_circle'
-  ref_frame_id: 'base_link'
