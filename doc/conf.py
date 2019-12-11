@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Pattern Manager documentation build configuration file, created by
-# sphinx-quickstart on Tue Jun  4 13:26:07 2019.
+# sphinx-quickstart on Tue Dec 10 08:29:41 2019.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -19,6 +19,8 @@ import os
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
+
+sys.path.append(os.path.join(os.path.dirname(__name__), '..'))
 
 # -- General configuration ------------------------------------------------
 
@@ -48,8 +50,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pattern Manager'
-copyright = u'2019, Mikkel Rath Hansen, Mads Vainø Baatrup'
-author = u'Mikkel Rath Hansen, Mads Vainø Baatrup'
+copyright = u'2019, Mads Vainoe Baatrup, Mikkel Rath Hansen'
+author = u'Mads Vainoe Baatrup, Mikkel Rath Hansen'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -224,7 +226,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'PatternManager.tex', u'Pattern Manager Documentation',
-     u'Mikkel Rath Hansen, Mads Vainø Baatrup', 'manual'),
+     u'Mads Vainoe Baatrup, Mikkel Rath Hansen', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

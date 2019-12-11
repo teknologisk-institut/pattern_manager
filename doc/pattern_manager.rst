@@ -1,22 +1,29 @@
 pattern_manager package
 =======================
 
-Subpackages
------------
-
-.. toctree::
-
-    pattern_manager.collection
-    pattern_manager.examples
-    pattern_manager.patterns
-
 Submodules
 ----------
 
-pattern_manager.utils module
+pattern_manager.patterns module
+-------------------------------
+
+.. automodule:: pattern_manager.patterns
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pattern_manager.util module
+---------------------------
+
+.. automodule:: pattern_manager.util
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pattern_manager.xform module
 ----------------------------
 
-.. automodule:: pattern_manager.utils
+.. automodule:: pattern_manager.xform
     :members:
     :undoc-members:
     :show-inheritance:

@@ -22,8 +22,21 @@ from collections import OrderedDict
 
 
 class XForm(gm_msg.Transform):
+    """
+    This class describes a tree of transforms and each nodes relation to other nodes
 
+    :param parent: The parent XForm of this XForm object
+    :type parent: XForm
+    :param name: The name of this XForm
+    :type name: str
+    :param ref_frame: The name of the reference frame of the XForm
+    :type ref_frame: str, optional
+    """
+
+    #: The root XForm of the tree
     root = None
+
+    #: The number of XForms created
     count = 0
 
     def __init__(self, parent, name, ref_frame=None):
@@ -52,10 +65,23 @@ class XForm(gm_msg.Transform):
                 self.ref_frame = self.parent.name
 
     def add_node(self, chld):
+        """
+        This function adds a child to the XForm and assigns itself as the childs parent
+
+        :param chld: The child object to be added
+        :type chld: XForm
+        """
+
         self.children[id(chld)] = chld
         chld.parent = self
 
     def set_active(self, actv):
+        """
+        This function sets the XForm and all of its descendants active/inactive
+
+        :param actv: This value determines whether to set the XForms active or inactive
+        :type actv: bool
+        """
 
         if len(self.children) > 0:
             for c in self.children.values():
@@ -65,6 +91,13 @@ class XForm(gm_msg.Transform):
 
     @staticmethod
     def get_current_node():
+        """
+        This function retrieves the currently first active XForm in the tree
+
+        :return: Returns the first active XForm in the tree
+        :rtype: XForm
+        """
+
         lst = XForm.get_active_nodes()
 
         if len(lst) > 0:
@@ -74,6 +107,15 @@ class XForm(gm_msg.Transform):
 
     @staticmethod
     def get_active_nodes(root=None):
+        """
+        This function retrieves all nodes which are set active
+
+        :param root: The XForm to begin the tree-search from
+        :type root: XForm, optional
+        :return: Returns all XForms which are currently set to active within the tree
+        :rtype: list
+        """
+
         lst = []
 
         if not root:
@@ -90,6 +132,13 @@ class XForm(gm_msg.Transform):
 
     @staticmethod
     def recursive_remove_node(id_):
+        """
+        This function initiates the removal of an XForm (tree-node) and all of its descendants
+
+        :param id_: The ID of the XForm to begin the recursive removal from
+        :type id_: int
+        """
+
         XForm._recursive_remove_node(id_)
 
         node = XForm.get_node(id_)
@@ -101,12 +150,28 @@ class XForm(gm_msg.Transform):
 
     @staticmethod
     def _recursive_remove_node(id_):
+        """
+        This function recursively removes an XForm (tree-node) and all of its descendants
+
+        :param id_: The ID of the XForm to begin the recursive removal from
+        :type id_: int
+        """
+
         for k, v in XForm.get_node(id_).children.items():
             XForm._recursive_remove_node(k)
             del XForm.get_node(id_).children[k]
 
     @staticmethod
     def get_nodes(root=None):
+        """
+        This function retrieves all XForm objects of the tree
+
+        :param root: The XForm to begin the tree-search from
+        :type root: XForm, optional
+        :return: Returns all XForms within the tree
+        :rtype: list
+        """
+
         lst = []
 
         if not root:
@@ -121,6 +186,16 @@ class XForm(gm_msg.Transform):
 
     @staticmethod
     def get_node(id_, root=None):
+        """
+        This function returns an XForm if one matches the ID
+
+        :param id_: The ID of the XForm object to be retrieved
+        :type id_: int
+        :param root: The XForm to begin the tree-search from
+        :type root: XForm, optional
+        :return: Returns the requested XForm if there is a match, else None
+        :rtype: XForm
+        """
 
         if not root:
             root = XForm.root
@@ -139,6 +214,13 @@ class XForm(gm_msg.Transform):
 
     @staticmethod
     def iterate():
+        """
+        This function iterates the list of active XForms, setting the current XForm inactive
+
+        :return: `True` if successful, else `False`
+        :rtype: bool
+        """
+
         actv = XForm.get_current_node()
 
         if actv:
@@ -150,6 +232,16 @@ class XForm(gm_msg.Transform):
 
     @staticmethod
     def to_dict(root=None, dict_=None):
+        """
+        This function creates a dictionary object from the XForm tree
+
+        :param root: The XForm to begin the dictionary from
+        :type root: XForm, optional
+        :param dict_: The dictionary object to populate
+        :type dict_: dict, optional
+        :return: Returns a dictionary of the XForm tree
+        :rtype: dict
+        """
 
         if not dict_:
             dict_ = {}
@@ -170,7 +262,15 @@ class XForm(gm_msg.Transform):
 
     @staticmethod
     def from_dict(dict_, root=None):
+        """
+        This function creates a XForm tree from a dictionary object
 
+        :param dict_: The dictionary to create the XForm tree from
+        :type dict_: dict
+        :param root: The current root XForm of the tree
+        :type root: XForm
+        """
+        
         if not root:
             root = XForm(None, name=dict_.keys()[0], ref_frame=dict_[dict_.keys()[0]]['ref_frame'])
             XForm.root = root

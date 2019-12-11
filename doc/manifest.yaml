@@ -4,6 +4,7 @@ brief: ''
 bugtracker: ''
 depends:
 - catkin
+- python-numpy
 - std_msgs
 - python-catkin-pkg
 - rostest
@@ -11,14 +12,31 @@ depends:
 - rosunit
 - tf
 - geometry_msgs
-description: A ROS-Industrial component for defining, configuring, and using patterns
-  in industrial robot applications
+description: "A ROS-Industrial component for defining, configuring, and using patterns\
+  \ in industrial robot applications.\nThis project has received funding from the\
+  \ European Union\u2019s Horizon 2020 research and innovation programme under grant\
+  \ agreement No. 732287 (ROSIN)."
 license: Apache-2.0
-maintainers: Mikkel Rath Hansen <mrp@teknologisk.dk>, Mads Baatrup <mvb@teknologisk.dk>
-msgs: []
+maintainers: Mikkel Rath Hansen <mrp@teknologisk.dk>, Mads Vainoe Baatrup <mvb@teknologisk.dk>
+msgs:
+- Params
+- Point
 package_type: package
 repo_url: ''
 srvs:
-- ElementName
-- ElementIterator
+- CreateRectangularPattern
+- SetActive
+- TransformId
+- SetIterationOrder
+- Filename
+- GetTransformId
+- CreateScatterPattern
+- CreateGroup
+- CreateLinearPattern
+- GetIds
+- GetTransformParams
+- SetParent
+- CreateCircularPattern
+- UpdateTransform
+- GetCurrentId
 url: ''

@@ -1,5 +1,5 @@
 .. Pattern Manager documentation master file, created by
-   sphinx-quickstart on Tue Jun  4 13:26:07 2019.
+   sphinx-quickstart on Tue Dec 10 08:29:41 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
@@ -8,35 +8,39 @@ Welcome to Pattern Manager's documentation!
 
 This ROS node enables arrangement, management, and runtime iteration through various types of patterns (for e.g. palletization processes).
 
-.. toctree::
-   :maxdepth: 2
-
 Currently supported pattern types include:
 
 - linear
 - rectangular
-- circualr
+- circular
 - scatter
 
-Example arrangement of groups and patterns:
+Example arrangement of patterns and grouping of transforms:
 
 .. code-block:: bash
 
-	g0                          # Root (group)
-	├── g1                      # Group
-	│   ├── p1                  # Pattern
-	│   │   ├── tf1             # Transform
-	│   │   ├── tf2
-	│   │   ├── tf3
+	root [tf0]                      # <transform-name> [<transform-number>]
+	├── grp1 [tf1]                    
+	│   ├── lin1 [tf2]              # linear pattern of transforms
+	│   │   ├── lin1_1 [tf3]           
+	│   │   ├── lin1_2 [tf4]
+	│   │   ├── lin1_3 [tf5]
 	│   │   └── ...
 	│   └── ...
-	├── g2
-	│   ├── g3
-	│   │   └── p1
-	│   │       ├── tf1
+	├── grp2 [tf6]
+	│   ├── grp3 [tf7]
+	│   │   └── rect1 [tf8]         # rectangular pattern of transforms
+	│   │       ├── rect1_1 [tf9]
+	│   │       └── rect1_2 [tf10]
 	│   │       └── ...
 	│   └── ...
 	└── ...
+
+
+Contents:
+
+.. toctree::
+   :maxdepth: 2
 
 Indices and tables
 ==================
@@ -44,10 +48,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-Class diagram
-=============
-
-.. figure:: images/pm.svg
-
 
