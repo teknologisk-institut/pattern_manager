@@ -7,7 +7,7 @@ Submodules
 pattern_manager.patterns module
 -------------------------------
 
-.. automodule:: pattern_manager.patterns
+.. automodule:: pattern_manager.pattern
     :members:
     :undoc-members:
     :show-inheritance:

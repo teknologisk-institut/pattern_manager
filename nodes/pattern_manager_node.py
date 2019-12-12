@@ -19,43 +19,55 @@
 import rospy
 import tf
 import yaml
+import pluginlib
+import os
 
-from pattern_manager import util
-from pattern_manager import patterns
+from pattern_manager import pattern
 from pattern_manager import XForm
 from pattern_manager import srv as pm_srv
 from pattern_manager import msg as pm_msg
+from pattern_manager import util
 from std_srvs.srv import Trigger, TriggerResponse
 from collections import OrderedDict
 from visualization_msgs.msg import MarkerArray
 
 
 class PatternManagerNode(object):
+    """
+    This class serves as the node interface for the pattern manager package
+    """
 
     def __init__(self):
+        dirname = os.path.dirname(__file__)
+        filename = os.path.join(dirname, '../src/pattern_manager/plugins')
+
+        loader = pluginlib.PluginLoader(group="patterns", paths=[filename])
+        self.plugins = loader.plugins
+        self.plugin = None
+
         XForm(name='root', parent=None, ref_frame='world')
 
-        rospy.Service('~get_transform', pm_srv.GetTransformParams, self.cb_get_transform)
-        rospy.Service('~get_transform_id', pm_srv.GetTransformId, self.cb_get_transform_id)
-        rospy.Service('~get_transform_ids', pm_srv.GetIds, self.cb_get_transform_ids)
-        rospy.Service('~create_transform', pm_srv.CreateGroup, self.cb_create_transform)
-        rospy.Service('~set_active', pm_srv.SetActive, self.cb_set_active)
-        rospy.Service('~remove_transform', pm_srv.TransformId, self.cb_remove_transform)
-        rospy.Service('~iterate', Trigger, self.cb_iterate)
-        rospy.Service('~update_transform_variable', pm_srv.UpdateTransform, self.cb_update_tf_variable)
-        rospy.Service('~get_current_transform_id', pm_srv.GetCurrentId, self.cb_get_current_tf_id)
-        rospy.Service('~get_active_ids', pm_srv.GetIds, self.cb_get_active_ids)
-        rospy.Service('~create_linear_pattern', pm_srv.CreateLinearPattern, self.cb_create_linear_pattern)
-        rospy.Service('~create_rectangular_pattern', pm_srv.CreateRectangularPattern, self.cb_create_rectangular_pattern)
-        rospy.Service('~create_circular_pattern', pm_srv.CreateCircularPattern, self.cb_create_circular_pattern)
-        rospy.Service('~create_scatter_pattern', pm_srv.CreateScatterPattern, self.cb_create_scatter_pattern)
-        rospy.Service('~set_iteration_order', pm_srv.SetIterationOrder, self.cb_set_iteration_order)
-        rospy.Service('~set_transform_parent', pm_srv.SetParent, self.cb_set_transform_parent)
-        rospy.Service('~save', pm_srv.Filename, self.cb_save)
-        rospy.Service('~load', pm_srv.Filename, self.cb_load)
+        rospy.Service('~get_transform', pm_srv.GetTransformParams, self._cb_get_transform)
+        rospy.Service('~get_transform_id', pm_srv.GetTransformId, self._cb_get_transform_id)
+        rospy.Service('~get_transform_ids', pm_srv.GetIds, self._cb_get_transform_ids)
+        rospy.Service('~create_transform', pm_srv.CreateGroup, self._cb_create_transform)
+        rospy.Service('~set_active', pm_srv.SetActive, self._cb_set_active)
+        rospy.Service('~remove_transform', pm_srv.TransformId, self._cb_remove_transform)
+        rospy.Service('~iterate', Trigger, self._cb_iterate)
+        rospy.Service('~update_transform', pm_srv.UpdateTransform, self._cb_update_transform)
+        rospy.Service('~get_current_transform_id', pm_srv.GetCurrentId, self._cb_get_current_tf_id)
+        rospy.Service('~get_active_ids', pm_srv.GetIds, self._cb_get_active_ids)
+        rospy.Service('~create_linear_pattern', pm_srv.CreateLinearPattern, self._cb_create_linear_pattern)
+        rospy.Service('~create_rectangular_pattern', pm_srv.CreateRectangularPattern, self._cb_create_rectangular_pattern)
+        rospy.Service('~create_circular_pattern', pm_srv.CreateCircularPattern, self._cb_create_circular_pattern)
+        rospy.Service('~create_scatter_pattern', pm_srv.CreateScatterPattern, self._cb_create_scatter_pattern)
+        rospy.Service('~set_iteration_order', pm_srv.SetIterationOrder, self._cb_set_iteration_order)
+        rospy.Service('~set_transform_parent', pm_srv.SetParent, self._cb_set_transform_parent)
+        rospy.Service('~save', pm_srv.Filename, self._cb_save)
+        rospy.Service('~load', pm_srv.Filename, self._cb_load)
 
     @staticmethod
-    def cb_get_transform_id(req):
+    def _cb_get_transform_id(req):
         """
         This callback function retrieves an XForm ID from a supplied XForm name
 
@@ -78,7 +90,7 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_load(req):
+    def _cb_load(req):
         """
         This callback function loads a .yaml file into a dictionary to create an XForm tree from
 
@@ -108,7 +120,7 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_save(req):
+    def _cb_save(req):
         """
         This callback function saves the XForm tree to a .yaml file representation
 
@@ -135,7 +147,7 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_set_transform_parent(req):
+    def _cb_set_transform_parent(req):
         """
         This callback function sets the parent object of an XForm
 
@@ -163,7 +175,7 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_get_transform_ids(req):
+    def _cb_get_transform_ids(req):
         """
         This callback function retrieves the IDs of all currently existing XForm objects
 
@@ -185,7 +197,7 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_set_iteration_order(req):
+    def _cb_set_iteration_order(req):
         """
         This callback function sets the order of an XForms children
 
@@ -214,15 +226,14 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def cb_create_linear_pattern(req):
+    def _cb_create_linear_pattern(self, req):
         """
-        This callback function generates an XForm pattern in a linear shape
+        This callback function creates a pattern of XForms in a linear shape
 
-        :param req: A request object containing an XForm ID and a list of child IDs in a fixed order
-        :type req: SetIterationOrderRequest
+        :param req: A request object containing the number of points, step size, and length of the pattern
+        :type req: CreateLinearPatternRequest
         :return: A response object containing a boolean whether the call was successful or not
-        :rtype: SetIterationOrderResponse
+        :rtype: CreateLinearPatternResponse
         """
 
         rospy.logdebug("Received request to create a linear pattern")
@@ -235,7 +246,8 @@ class PatternManagerNode(object):
             t.translation = req.parent.translation
             t.rotation = req.parent.rotation
 
-            patterns.create_pattern(patterns.Pattern.linear, t, args)
+            self.plugin = self.plugins.pattern.linear(t, *args)
+            self.plugin.generate()
 
             rospy.logout("Linear pattern successfully created!")
             resp.success = True
@@ -245,8 +257,16 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def cb_create_rectangular_pattern(req):
+    def _cb_create_rectangular_pattern(self, req):
+        """
+        This callback function creates a pattern of XForms in a rectangular shape
+
+        :param req: A request object containing the number of points, step sizes, and lengths of the pattern
+        :type req: CreateRectangularPatternRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: CreateRectangularPatternResponse
+        """
+
         rospy.logdebug("Received request to create a rectangular pattern")
         resp = pm_srv.CreateRectangularPatternResponse()
 
@@ -257,7 +277,8 @@ class PatternManagerNode(object):
             t.translation = req.parent.translation
             t.rotation = req.parent.rotation
 
-            patterns.create_pattern(patterns.Pattern.rectangular, t, args)
+            self.plugin = self.plugins.pattern.rectangular(t, *args)
+            self.plugin.generate()
 
             rospy.logout("Rectangular pattern successfully created!")
             resp.success = True
@@ -267,8 +288,15 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def cb_create_scatter_pattern(req):
+    def _cb_create_scatter_pattern(self, req):
+        """
+        This callback function creates a pattern of XForms in a scatter pattern
+
+        :param req: A request object containing a list of points to create XForms for
+        :type req: CreateScatterPatternRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: CreateScatterPatternResponse
+        """
         rospy.logdebug("Received request to create a rectangular pattern")
         resp = pm_srv.CreateScatterPatternResponse()
 
@@ -283,7 +311,8 @@ class PatternManagerNode(object):
             t.translation = req.parent.translation
             t.rotation = req.parent.rotation
 
-            patterns.create_pattern(patterns.Pattern.scatter, t, args)
+            self.plugin = self.plugins.pattern.scatter(t, *args)
+            self.plugin.generate()
 
             rospy.logout("Scatter pattern successfully created!")
             resp.success = True
@@ -293,8 +322,17 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def cb_create_circular_pattern(req):
+    def _cb_create_circular_pattern(self, req):
+        """
+        This callback function creates a pattern of XForms in a circular shape
+
+        :param req: A request object containing the number of points, radius, if counter-clockwise,
+        and if tangent rotation
+        :type req: CreateCircularPatternRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: CreateCircularPatternResponse
+        """
+
         rospy.logdebug("Received request to create a circular pattern")
         resp = pm_srv.CreateCircularPatternResponse()
 
@@ -305,7 +343,8 @@ class PatternManagerNode(object):
             t.translation = req.parent.translation
             t.rotation = req.parent.rotation
 
-            patterns.create_pattern(patterns.Pattern.circular, t, args)
+            self.plugin = self.plugins.pattern.circular(t, *args)
+            self.plugin.generate()
 
             rospy.logout("Circular pattern successfully created!")
             resp.success = True
@@ -316,7 +355,16 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_get_active_ids(self):
+    def _cb_get_active_ids(req):
+        """
+        This callback function retrieves all IDs of active XForms
+
+        :param req: An empty request object
+        :type req: GetIdsRequest
+        :return: A response object containing a list of IDs
+        :rtype: GetIdsResponse
+        """
+
         rospy.logdebug("Received request to retrieve active transform ids")
         resp = pm_srv.GetIdsResponse()
 
@@ -326,7 +374,16 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_get_current_tf_id(req):
+    def _cb_get_current_tf_id(req):
+        """
+        This callback function retrieves the ID of the next XForm in the iteration
+
+        :param req: An empty request object
+        :type req: GetCurrentIdRequest
+        :return: A response object containing the ID of the XForm which is next in the iteration
+        :rtype: GetCurrentIdResponse
+        """
+
         rospy.logdebug("Received request to retrieve current transform id")
         resp = pm_srv.GetCurrentIdResponse()
 
@@ -341,7 +398,16 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_iterate(req):
+    def _cb_iterate(req):
+        """
+        This callback function triggers an iteration of the currently active XForms
+
+        :param req: An empty request object
+        :type req: TriggerRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: TriggerResponse
+        """
+
         rospy.logdebug('Received request to iterate')
         resp = TriggerResponse()
 
@@ -355,8 +421,17 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_update_tf_variable(req):
-        rospy.logdebug('Received request to change value of attribute for transform %s' % req.id)
+    def _cb_update_transform(req):
+        """
+        This callback function updates an existing XForm object's attributes
+
+        :param req: A request object containing an XForm ID, name, reference frame, translation, and rotation
+        :type req: UpdateTransformRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: UpdateTransformResponse
+        """
+
+        rospy.logdebug('Received request to update transform %s' % req.id)
         resp = pm_srv.UpdateTransformResponse()
 
         try:
@@ -367,7 +442,7 @@ class PatternManagerNode(object):
             n.translation = req.translation
             n.rotation = req.rotation
 
-            rospy.logout("Transform %s variable succesfully changed" % req.id)
+            rospy.logout("Transform %s succesfully updated" % req.id)
             resp.success = True
         except rospy.ROSException, e:
             rospy.logerr(e)
@@ -376,7 +451,17 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_get_transform(req):
+    def _cb_get_transform(req):
+        """
+        This callback function retrieves various attributes of an XForm
+
+        :param req: A reqiest object containing the ID of the XForm
+        :type req: GetTransformParamsRequest
+        :return: A response object containing an object which contains the XForm's name, ID, parent ID,
+        reference frame, if active, translation, rotation, and number
+        :rtype: GetTransformParamsResponse
+        """
+
         rospy.logdebug("Received request to retrieve all transforms")
         resp = pm_srv.GetTransformParamsResponse()
 
@@ -403,7 +488,16 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_create_transform(req):
+    def _cb_create_transform(req):
+        """
+        This callback function creates a new XForm object
+
+        :param req: A request object containing a parent ID, a name, and a reference frame for the new XForm object
+        :type req: CreateGroupRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: CreateGroupResponse
+        """
+
         rospy.logdebug("Received request to create transform")
         resp = pm_srv.CreateGroupResponse()
 
@@ -424,7 +518,16 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_set_active(req):
+    def _cb_set_active(req):
+        """
+        This callback function sets a transforms active attribute to the requested value (`True`/`False`)
+
+        :param req: A request object containing an XForm ID
+        :type req: SetActiveRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: SetActiveResponse
+        """
+
         rospy.logdebug('Received request to set active transform %s', req.id)
         resp = pm_srv.SetActiveResponse()
 
@@ -440,7 +543,16 @@ class PatternManagerNode(object):
         return resp
 
     @staticmethod
-    def cb_remove_transform(req):
+    def _cb_remove_transform(req):
+        """
+        This callback function recursively removes an XForm an all of its descendants
+
+        :param req: A request object containing an XForm ID
+        :type req: TransformIdRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: TransformIdResponse
+        """
+
         rospy.logdebug('Received request to remove transform %s', req.id)
         resp = pm_srv.TransformIdResponse()
 
