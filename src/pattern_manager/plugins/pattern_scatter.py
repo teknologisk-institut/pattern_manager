@@ -42,7 +42,7 @@ class ScatterPattern(Pattern):
 
     def generate(self):
         """
-        This function generates the XForm pattern from the supplied arguments
+        This function generates the XForm pattern from the instance attributes
         """
 
         if not len(self.points) > 0:

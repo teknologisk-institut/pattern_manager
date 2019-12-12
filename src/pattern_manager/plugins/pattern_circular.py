@@ -57,7 +57,7 @@ class CircularPattern(Pattern):
 
     def generate(self):
         """
-        This function generates the XForm pattern from the supplied arguments
+        This function generates the XForm pattern from the instance attributes
         """
 
         if abs(self.r) > 0:
