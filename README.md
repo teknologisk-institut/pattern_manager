@@ -5,12 +5,14 @@ This package implements a ROS package for defining, configuring, and working wit
 ### Status
 
 We have implemented the ROS package purely in Python, with the key components necessary for working with patterns throughout the rest of the FTP:
-- An XForm class is implemented as a tree node. Each transform is contained within an XForm node. The XForm class contains all necessary functions to manage and configuring the transform tree.
+- An `XForm` class is implemented as a tree node. Each transform is contained within an `XForm` node. The `XForm` class contains all necessary functions to manage and configuring the transform tree.
 - how are transforms grouped?(parent, ref_frame)
-- XForm nodes contain an attribute describing whether the node is 'active' or not. This property affords the functionality of iterating through transform, as well choosing which transforms should be iterable.
-- what are patterns?
-- A standard set of pattern plugins are implemented for generating some primitive pattern types (linear, rectangular, circular, and scatter). The plugin system implements pluginlib, allowing for easy extensibility of the pattern set.
-
+- `XForm` nodes contain an attribute describing whether the node is 'active' or not. This property affords the functionality of iterating through transform, as well choosing which transforms should be iterable.
+- Patterns of transforms simply consist of a parent `XForm` with a number of child `XForm`'s positioned in the respective pattern shape.
+- Patterns are generated from a set of distinct pattern subclasses, which each have a unique reimplementation of a generator function.
+- Patterns are implemented as plugins (via `pluginlib`), allowing for easy extensibility of the set of pattern types.
+- A standard set of pattern plugins are implemented for generating some primitive pattern types (linear, rectangular, circular, and scatter).
+- Patterns can be grouped be creating new `XForm` object and assigning it as the parent of the various pattern parents (see `grp`s in <a name="Example tree-structure"></a>).
 
 
 - A Pattern parent class is implemented, allowing holding and iteration through a set of positions (internally stores as a list of geometry_msgs/Transform), as well as configuration of many additional parameters (parent frame, offset from parent frame, iteration order, etc.).
@@ -42,13 +44,12 @@ We have not fully merged the dependencies into the rosdep repositories, so you w
 pip install pluginlib
 ```
 
-### Example group and pattern tree-structure
+### Example tree-structure
 
 Patterns can be organized in groups, that can themselves be organized in groups. This enables a user to combine multiple (groups of) patterns, which in turn allows seamless iteration through multiple patterns, as if it was one pattern. 
 
 The following is the structure in the example implemented in the node:
-
-.. code-block:: bash
+```
 
     root [tf0]                      # <transform-name> [<transform-number>]
     ├── grp1 [tf1]                    
@@ -66,6 +67,7 @@ The following is the structure in the example implemented in the node:
     │   │       └── ...
     │   └── ...
     └── ...
+```
 
 ### Acknowledgement
 
