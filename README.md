@@ -12,7 +12,7 @@ We have implemented the ROS package purely in Python, with the key components ne
 - Patterns are generated from a set of distinct pattern subclasses, which each have a unique reimplementation of a generator function.
 - Patterns are implemented as plugins (via `pluginlib`), allowing for easy extensibility of the set of pattern types.
 - A standard set of pattern plugins are implemented for generating some primitive pattern types (linear, rectangular, circular, and scatter).
-- Patterns can be grouped be creating new `XForm` object and assigning it as the parent of the various pattern parents (see `grp` in [Example tree-structure][]).
+- Patterns can be grouped be creating new `XForm` object and assigning it as the parent of the various pattern parents (see `grp` in <a href="#example-tree-structure">Pattern Manager</a>).
 
 
 - A Pattern parent class is implemented, allowing holding and iteration through a set of positions (internally stores as a list of geometry_msgs/Transform), as well as configuration of many additional parameters (parent frame, offset from parent frame, iteration order, etc.).
@@ -44,7 +44,7 @@ We have not fully merged the dependencies into the rosdep repositories, so you w
 pip install pluginlib
 ```
 
-### Example tree-structure
+### Example tree structure
 
 Patterns can be organized in groups, that can themselves be organized in groups. This enables a user to combine multiple (groups of) patterns, which in turn allows seamless iteration through multiple patterns, as if it was one pattern. 
 
