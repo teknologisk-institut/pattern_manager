@@ -12,7 +12,7 @@ We have implemented the ROS package purely in Python, with the key components ne
 - Patterns are generated from a set of distinct pattern subclasses, which each have a unique reimplementation of a generator function.
 - Patterns are implemented as plugins (via `pluginlib`), allowing for easy extensibility of the set of pattern types.
 - A standard set of pattern plugins are implemented for generating some primitive pattern types (linear, rectangular, circular, and scatter).
-- Patterns can be grouped be creating new `XForm` object and assigning it as the parent of the various pattern parents (see `grp` in <a href="#example-tree-structure">Example tree structure</a>).
+- Patterns can be grouped be creating new `XForm` object and assigning it as the parent of the various pattern parents (see `grp1` in <a href="#example-tree-structure">Example tree structure</a>).
 
 
 - A Pattern parent class is implemented, allowing holding and iteration through a set of positions (internally stores as a list of geometry_msgs/Transform), as well as configuration of many additional parameters (parent frame, offset from parent frame, iteration order, etc.).
@@ -52,16 +52,19 @@ The following is the structure in the example implemented in the node:
 ```
 
     root [tf0]                      # <transform-name> [<transform-number>]
-    ├── grp1 [tf1]                    
-    │   ├── lin1 [tf2]              # linear pattern of transforms
+    ├── grp1 [tf1]                  # transform as pattern group/container
+    │   ├── lin1 [tf2]              # ex. linear pattern of transforms
     │   │   ├── lin1_1 [tf3]           
     │   │   ├── lin1_2 [tf4]
     │   │   ├── lin1_3 [tf5]
     │   │   └── ...
-    │   └── ...
+    │   └── lin2 [tf11]
+    │       ├── lin2_1 [tf12]           
+    │       ├── lin2_2 [tf13]
+    │       └── lin2_3 [tf14]
     ├── grp2 [tf6]
     │   ├── grp3 [tf7]
-    │   │   └── rect1 [tf8]         # rectangular pattern of transforms
+    │   │   └── rect1 [tf8]         # ex. rectangular pattern of transforms
     │   │       ├── rect1_1 [tf9]
     │   │       └── rect1_2 [tf10]
     │   │       └── ...
