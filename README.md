@@ -11,7 +11,7 @@ We have implemented the ROS package purely in Python, with the key components ne
 - Patterns are generated from a set of distinct pattern subclasses, which each have a unique reimplementation of a generator function.
 - Patterns are implemented as plugins (via `pluginlib`), allowing for easy extensibility of the set of pattern types.
 - A standard set of pattern plugins are implemented for generating some primitive pattern types (linear, rectangular, circular, and scatter).
-- Patterns and transforms can be grouped by creating a new `XForm` object and assigning it as the parent of the various pattern/transform parents (see `grp1` and `grp2` in <a href="#example-tree-structure">Example tree structure</a>).
+- Patterns and transforms can be grouped by creating a new `XForm` object and assigning it as the parent of the various pattern/transform parents (see `grp1` and `grp2` in <a href="#example-tree-structure">here</a>).
 - The XForm tree can be saved as a .yaml file, which allows for editing the tree in a text editor. Saved or manually constructed .yaml files can also be loaded to generate a reflective `XForm` tree.
 - An RQT graphical user interface plugin has been designed (rqt_pattern_manager) for intuitive interaction with the Pattern Manager ROS node. The GUI affords then same functionalities as the ros services of this package.
 
