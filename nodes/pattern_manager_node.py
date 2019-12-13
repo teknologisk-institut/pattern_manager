@@ -50,7 +50,7 @@ class PatternManagerNode(object):
         rospy.Service('~get_transform', pm_srv.GetTransformParams, self._cb_get_transform)
         rospy.Service('~get_transform_id', pm_srv.GetTransformId, self._cb_get_transform_id)
         rospy.Service('~get_transform_ids', pm_srv.GetIds, self._cb_get_transform_ids)
-        rospy.Service('~create_transform', pm_srv.CreateGroup, self._cb_create_transform)
+        rospy.Service('~create_transform', pm_srv.CreateTransform, self._cb_create_transform)
         rospy.Service('~set_active', pm_srv.SetActive, self._cb_set_active)
         rospy.Service('~remove_transform', pm_srv.TransformId, self._cb_remove_transform)
         rospy.Service('~iterate', Trigger, self._cb_iterate)
@@ -493,23 +493,26 @@ class PatternManagerNode(object):
         This callback function creates a new XForm object
 
         :param req: A request object containing a parent ID, a name, and a reference frame for the new XForm object
-        :type req: CreateGroupRequest
+        :type req: CreateTransformRequest
         :return: A response object containing a boolean whether the call was successful or not
-        :rtype: CreateGroupResponse
+        :rtype: CreateTransformResponse
         """
 
         rospy.logdebug("Received request to create transform")
-        resp = pm_srv.CreateGroupResponse()
+        resp = pm_srv.CreateTransformResponse()
 
-        if not req.group_name:
+        if not req.params.name:
             rospy.logwarn("Transform must have a name")
             resp.success = False
 
             return resp
 
         try:
-            XForm(XForm.get_node(req.parent_id), name=req.group_name, ref_frame=req.ref_frame)
-            rospy.logout("Transform {} successfully created!".format(req.group_name))
+            t = XForm(XForm.get_node(req.params.parent_id), name=req.params.name, ref_frame=req.params.ref_frame)
+            t.translation = req.params.translation
+            t.rotation = req.params.rotation
+
+            rospy.logout("Transform {} successfully created!".format(req.params.name))
             resp.success = True
         except rospy.ROSException, e:
             rospy.logerr(e)

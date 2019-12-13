@@ -20,7 +20,7 @@ add_message_files(
 
 add_service_files(
    FILES
-   CreateGroup.srv
+   CreateTransform.srv
    TransformId.srv
    SetActive.srv
    GetCurrentId.srv

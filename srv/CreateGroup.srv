@@ -1,7 +1,0 @@
-# CREATE A NEW GROUP
-string group_name
-uint64 parent_id
-string ref_frame
----
-uint8 id
-bool success
