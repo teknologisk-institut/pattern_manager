@@ -16,6 +16,7 @@ This project has received funding from the European Union’s Horizon 2020 resea
   <depend>geometry_msgs</depend>
   <depend>tf</depend>
   <depend>python-numpy</depend>
+  <depend>python-yaml</depend>
 
   <build_depend>python-catkin-pkg</build_depend>
 

@@ -40,8 +40,8 @@ class PatternManagerNode(object):
     def __init__(self):
         dirname = os.path.dirname(__file__)
         filename = os.path.join(dirname, '../src/pattern_manager/plugins')
-
         loader = pluginlib.PluginLoader(group="patterns", paths=[filename])
+
         self.plugins = loader.plugins
         self.plugin = None
 
