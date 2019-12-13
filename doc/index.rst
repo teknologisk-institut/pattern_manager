@@ -19,23 +19,26 @@ Example arrangement of patterns and grouping of transforms:
 
 .. code-block:: bash
 
-	root [tf0]                      # <transform-name> [<transform-number>]
-	├── grp1 [tf1]                    
-	│   ├── lin1 [tf2]              # linear pattern of transforms
-	│   │   ├── lin1_1 [tf3]           
-	│   │   ├── lin1_2 [tf4]
-	│   │   ├── lin1_3 [tf5]
-	│   │   └── ...
-	│   └── ...
-	├── grp2 [tf6]
-	│   ├── grp3 [tf7]
-	│   │   └── rect1 [tf8]         # rectangular pattern of transforms
-	│   │       ├── rect1_1 [tf9]
-	│   │       └── rect1_2 [tf10]
-	│   │       └── ...
-	│   └── ...
-	└── ...
-
+    root [tf0]                      # <transform-name> [<transform-number>]
+    ├── grp1 [tf1]                  # transform as pattern group/container
+    │   ├── lin1 [tf2]              # ex. linear pattern of transforms
+    │   │   ├── lin1_1 [tf3]           
+    │   │   ├── lin1_2 [tf4]
+    │   │   ├── lin1_3 [tf5]
+    │   │   └── ...
+    │   └── lin2 [tf11]
+    │       ├── lin2_1 [tf12]           
+    │       ├── lin2_2 [tf13]
+    │       └── lin2_3 [tf14]
+    ├── grp2 [tf6]
+    │   ├── grp3 [tf7]
+    │   │   ├── rect1 [tf8]         # ex. rectangular pattern of transforms
+    │   │   │   ├── rect1_1 [tf9]
+    │   │   │   ├── rect1_2 [tf10]
+    │   │   │   └── ...
+    │   │   └── ...
+    │   └── ...
+    └── ...
 
 Contents:
 

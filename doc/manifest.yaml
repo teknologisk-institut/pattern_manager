@@ -3,6 +3,7 @@ authors: ''
 brief: ''
 bugtracker: ''
 depends:
+- python-yaml
 - catkin
 - python-numpy
 - std_msgs
@@ -30,8 +31,8 @@ srvs:
 - SetIterationOrder
 - Filename
 - GetTransformId
+- CreateTransform
 - CreateScatterPattern
-- CreateGroup
 - CreateLinearPattern
 - GetIds
 - GetTransformParams
