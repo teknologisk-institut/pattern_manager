@@ -5,7 +5,7 @@ This package implements a ROS package for defining, configuring, and working wit
 ### Status
 
 We have implemented the ROS package purely in Python, with the key components necessary for working with patterns throughout the rest of the FTP:
-- An `XForm` class is implemented as a tree node. Each transform is contained within an `XForm` node. The `XForm` class contains all necessary functions to manage and configuring the transform tree.
+- An `XForm` class is implemented as a tree node. Each transform is contained within an `XForm` node. The `XForm` class contains all necessary functions to manage and configure the transform tree.
 - `XForm` nodes contain an attribute describing whether the node is 'active' or not. This property affords the functionality of iterating through transform, as well choosing which transforms should be iterable.
 - Patterns of transforms simply consist of a parent `XForm` with a number of child `XForm`'s positioned in the respective pattern shape.
 - Patterns are generated from a set of distinct pattern subclasses, which each have a unique reimplementation of a generator function.
@@ -16,7 +16,7 @@ We have implemented the ROS package purely in Python, with the key components ne
 - An RQT graphical user interface plugin has been designed (<a href="https://github.com/teknologisk-institut/rqt_pattern_manager">rqt_pattern_manager</a>) for intuitive interaction with the Pattern Manager ROS node. The GUI affords then same functionalities as the ros services of this package.
 
 #### Work-in-progress
-
+- Code coverage
 - Extensive behaviour and API documentation, as well as writing tutorials for the ROS wiki page.
 
 ### Dependencies

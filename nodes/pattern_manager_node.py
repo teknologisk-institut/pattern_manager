@@ -21,6 +21,7 @@ import tf
 import yaml
 import pluginlib
 import os
+import json
 
 from pattern_manager import pattern
 from pattern_manager import XForm
@@ -65,6 +66,33 @@ class PatternManagerNode(object):
         rospy.Service('~set_transform_parent', pm_srv.SetParent, self._cb_set_transform_parent)
         rospy.Service('~save', pm_srv.Filename, self._cb_save)
         rospy.Service('~load', pm_srv.Filename, self._cb_load)
+        rospy.Service('~print_tree', Trigger, self._cb_print_tree)
+
+    @staticmethod
+    def _cb_print_tree(req):
+        """
+        This callback function prints the XForm tree in the node output
+
+        :param req: An empty request object
+        :type req: TriggerRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: TriggerResponse
+        """
+
+        rospy.logdebug("Received request print transform tree")
+        resp = TriggerResponse()
+
+        try:
+            dict_ = XForm.to_dict()
+            rospy.logout(json.dumps(dict_, sort_keys=True, indent=4, separators=(',', ':')))
+
+            resp.message = 'Tree sent to node output'
+            resp.success = True
+        except rospy.ROSException, e:
+            resp.success = False
+            rospy.logerr(e)
+
+        return resp
 
     @staticmethod
     def _cb_get_transform_id(req):
