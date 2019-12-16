@@ -2,7 +2,8 @@
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>pattern_manager</name>
-  <version>0.0.1</version>
+  <url>http://www.ros.org/wiki/pattern_manager</url>
+  <version>1.0.0</version>
   <description>A ROS-Industrial component for defining, configuring, and using patterns in industrial robot applications.
 This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No. 732287 (ROSIN).</description>
   <maintainer email="mrp@teknologisk.dk">Mikkel Rath Hansen</maintainer>

@@ -49,6 +49,7 @@ class PatternManagerNode(object):
         XForm(name='root', parent=None, ref_frame='world')
 
         rospy.Service('~get_transform', pm_srv.GetTransformParams, self._cb_get_transform)
+        rospy.Service('~get_transforms', pm_srv.GetTransforms, self._cb_get_transforms)
         rospy.Service('~get_transform_id', pm_srv.GetTransformId, self._cb_get_transform_id)
         rospy.Service('~get_transform_ids', pm_srv.GetIds, self._cb_get_transform_ids)
         rospy.Service('~create_transform', pm_srv.CreateTransform, self._cb_create_transform)
@@ -67,6 +68,48 @@ class PatternManagerNode(object):
         rospy.Service('~save', pm_srv.Filename, self._cb_save)
         rospy.Service('~load', pm_srv.Filename, self._cb_load)
         rospy.Service('~print_tree', Trigger, self._cb_print_tree)
+
+    @staticmethod
+    def _cb_get_transforms(req):
+        """
+        This callback function retrieves XForm children of a parent XForm
+
+        :param req: A request object containing the ID of the parent XForm
+        :type req: GetTransformsRequest
+        :return: A response object containing a list of XForms which contain the XForms' name, ID, parent ID,
+        reference frame, if active, translation, rotation, and number
+        :rtype: GetTransformsResponse
+        """
+
+        rospy.logdebug("Received request retrieve transforms")
+        resp = pm_srv.GetTransformsResponse()
+
+        try:
+            parent = XForm.get_node(req.parent_id)
+            for t in XForm.get_nodes(root=parent):
+
+                if id(t) == req.parent_id:
+                    continue
+
+                t_params = pm_msg.Params()
+                t_params.name = t.name
+                t_params.parent_id = id(t)
+                t_params.id = id(t)
+                t_params.ref_frame = t.ref_frame
+                t_params.active = t.active
+                t_params.translation = t.translation
+                t_params.rotation = t.rotation
+                t_params.number = t.number
+
+                if t.parent:
+                    t_params.parent_id = id(t.parent)
+
+                resp.transforms.append(t_params)
+
+        except rospy.ROSException, e:
+            rospy.logerr(e)
+
+        return resp
 
     @staticmethod
     def _cb_print_tree(req):
@@ -439,9 +482,12 @@ class PatternManagerNode(object):
         rospy.logdebug('Received request to iterate')
         resp = TriggerResponse()
 
-        if XForm.get_current_node():
+        cur_node = XForm.get_current_node()
+
+        if cur_node:
             XForm.iterate()
 
+            resp.message = 'Transform: {}'.format(cur_node.name)
             resp.success = True
         else:
             resp.success = False
