@@ -37,7 +37,7 @@ The ROS package is implemented purely in Python. The accompanying Graphical User
 
 ### Example tree structure
 
-Patterns of transforms can be grouped with other patterns of transforms. Additionally, this groupings can also be grouped into . This enables a user to combine multiple (groups of) patterns, which in turn allows seamless iteration through multiple patterns, as if it was one pattern. 
+Patterns of transforms can be grouped with other patterns. Additionally, this groupings can also be sub-grouped. This enables the user to combine multiple (groups of) patterns, which in turn allows seamless iteration through multiple patterns, as if it was one pattern.
 
 The following is an example of such a structure:
 ```
