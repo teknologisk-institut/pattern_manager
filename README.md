@@ -7,15 +7,15 @@ This package implements a ROS package for defining, configuring, and working wit
 The ROS package is implemented purely in Python. The accompanying Graphical User Interface (GUI) has been developed as an RQT (Qt-based framework for ROS GUI development) plugin, which allows easy integration with existing ROS software (such as RViz). The following documentation, functionalities, and features are as of the final reporting, implemented in the Pattern Manager ROS package.
 
 #### Structure and Behaviour
-- All patterns and transforms are represented by a single class named, XForm.
-- The XForm (as in transform) class is implemented as a tree node. Each transform is contained within an XForm node. The XForm class contains all necessary functions to manage and configure the transform tree structure.
-- Patterns of transforms simply consist of a parent XForm object with any number of child-XForm objects (hence a tree structure) positioned in the respective pattern shape, relative to the parent.
-- XForm nodes contain an attribute describing whether the node is “active”, or not. Setting this property allows choosing which transforms should be iterated and affords the functionality of iterating through transforms sequentially.
-- Pattern classes are implemented as plugins (via pluginlib), allowing for easy extensibility of the set of pattern types.
+- All patterns and transforms are represented by a single class: `XForm`.
+- The `XForm` (as in transform) class is implemented as a tree node. Each transform is contained within an `XForm` node. The `XForm` class contains all necessary functions to manage and configure the transform tree structure.
+- Patterns of transforms simply consist of a parent `XForm` object with any number of child-`XForm` objects (hence a tree structure) positioned in the respective pattern shape, relative to the parent.
+- `XForm` nodes contain an attribute describing whether the node is “active”, or not. Setting this property allows choosing which transforms should be iterated and affords the functionality of iterating through transforms sequentially.
+- Pattern classes are implemented as plugins, allowing for easy extensibility of the set of pattern types.
 - A standard set of pattern plugins are implemented for generating some primitive pattern types (i.e. linear, rectangular, circular, and scatter).
-- With the flexible nature of the tree structure it is possible to group transforms and/or patterns by creating a new XForm object and assigning it as the parent of various patterns or sub-groups (see `grp1` and `grp2` <a href="#example-tree-structure">here</a>).
-- The XForm tree can be stored as a .yaml file, which in addition to allowing users to persistently store their configuration, also allows for editing of the tree by hand using a text editor.
-- Saved (or manually constructed) .yaml files can also be loaded to generate a reflective XForm tree.
+- With the flexible nature of the tree structure it is possible to group transforms and/or patterns by creating a new `XForm` object and assigning it as the parent of various patterns or sub-groups (see `grp1` and `grp2` <a href="#example-tree-structure">here</a>).
+- The `XForm` tree can be stored as a .yaml file, which in addition to allowing users to persistently store their configuration, also allows for editing of the tree by hand using a text editor.
+- Saved (or manually constructed) .yaml files can also be loaded to generate a reflective `XForm` tree.
 - All required functionality for creating and managing patterns and transforms is enabled through ROS services.
 - Geometric information about the position and orientation of each transform is published and broadcasted to the frame and coordinate management tool, tf. The data broadcasted about the transforms from within the node can therefore be tracked and visualized at any time using tools such as the ROS 3D visualization tool, RViz.
 - The node also publishes Marker Messages which are used to draw primitive, color-coded, markers in RViz at each transform position. These markers are used to indicate whether a transform is active and if it is the next transform in the iteration.
@@ -30,30 +30,10 @@ The ROS package is implemented purely in Python. The accompanying Graphical User
 - The Pattern Manager ROS package has been thoroughly documented:
 - The source code has been documented with reStructuredText docstrings.
 - API documentation has been generated using rosdoc_lite (utilizing Sphinx).
-- Additionally, A ROS wiki has been created, which contains a package description, links to source code, examples, tutorials, and documentation.
-- Common cases are unit-tested using the Python unittest library.
-
-We have implemented the ROS package purely in Python, with the key components necessary for working with patterns throughout the rest of the FTP:
-- An `XForm` class is implemented as a tree node. Each transform is contained within an `XForm` node. The `XForm` class contains all necessary functions to manage and configure the transform tree.
-- `XForm` nodes contain an attribute describing whether the node is 'active' or not. This property affords the functionality of iterating through transform, as well choosing which transforms should be iterable.
-- Patterns of transforms simply consist of a parent `XForm` with a number of child `XForm`'s positioned in the respective pattern shape.
-- Patterns are generated from a set of distinct pattern subclasses, which each have a unique reimplementation of a generator function.
-- Patterns are implemented as plugins (via `pluginlib`), allowing for easy extensibility of the set of pattern types.
-- A standard set of pattern plugins are implemented for generating some primitive pattern types (linear, rectangular, circular, and scatter).
-- Patterns and transforms can be grouped by creating a new `XForm` object and assigning it as the parent of the various pattern/transform parents (see `grp1` and `grp2` <a href="#example-tree-structure">here</a>).
-- The XForm tree can be saved as a .yaml file, which allows for editing the tree in a text editor. Saved or manually constructed .yaml files can also be loaded to generate a reflective `XForm` tree.
-- An RQT graphical user interface plugin has been designed (<a href="https://github.com/teknologisk-institut/rqt_pattern_manager">rqt_pattern_manager</a>) for intuitive interaction with the Pattern Manager ROS node. The GUI affords then same functionalities as the ros services of this package.
 
 #### Work-in-progress
 - Code coverage
-- Extensive behaviour and API documentation, as well as writing tutorials for the ROS wiki page.
-
-### Dependencies
-
-We have not fully merged the dependencies into the rosdep repositories, so you will need to install the following Python dependencies, e.g. through `pip`:
-```
-pip install pluginlib
-```
+- Extensive behaviour and API documentation, and tutorials for the ROS wiki page.
 
 ### Example tree structure
 
