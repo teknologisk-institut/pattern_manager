@@ -4,7 +4,7 @@ This package implements a ROS package for defining, configuring, and working wit
 
 ### Status
 
-The ROS package is implemented purely in Python. The accompanying Graphical User Interface (GUI) has been developed as an RQT (Qt-based framework for ROS GUI development) plugin, which allows easy integration with existing ROS software (such as RViz). The following documentation, functionalities, and features are as of the final reporting, implemented in the Pattern Manager ROS package.
+We have implemented the ROS package purely in Python, with the key components necessary for working with patterns throughout the rest of the FTP:
 
 #### Structure and Behaviour
 - All patterns and transforms are represented by a single class: `XForm`.
@@ -37,7 +37,7 @@ The ROS package is implemented purely in Python. The accompanying Graphical User
 
 ### Example tree structure
 
-Patterns of transforms can be grouped with other patterns. Additionally, this groupings can also be sub-grouped. This enables the user to combine multiple (groups of) patterns, which in turn allows seamless iteration through multiple patterns, as if it was one pattern.
+Patterns of transforms can be grouped with other patterns. Additionally, these groupings can also be sub-grouped. This enables the user to combine multiple (groups of) patterns, which in turn allows seamless iteration through multiple patterns, as if it was one pattern.
 
 The following is an example of such a structure:
 ```
