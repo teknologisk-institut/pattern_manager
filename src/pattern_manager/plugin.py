@@ -16,13 +16,13 @@
 
 # Author: Mads Vainoe Baatrup
 
-import pluginlib
+import os, sys, inspect
+import pkgutil, importlib
 
 
-@pluginlib.Parent('pattern', group='patterns')
-class Pattern(object):
+class Plugin(object):
     """
-    This class is the plugin parent object for pattern plugins
+    This class is the base plugin object for pattern plugins
 
     :param parent: An XForm parent object under which to create the XForm pattern
     :type parent: XForm
@@ -31,11 +31,36 @@ class Pattern(object):
     def __init__(self, parent):
         self.parent = parent
 
-    @pluginlib.abstractmethod
     def generate(self):
         """
         This abstract method is implemented in each plugin and is responsible for generating the
         specific pattern of XForm objects
         """
 
-        pass
+        raise NotImplementedError
+
+
+class PluginLoader(object):
+
+    def __init__(self, module):
+        self.plugins = {}
+        self.module = module
+
+        self.load_patterns()
+
+    def load_patterns(self):
+        pkg = importlib.import_module(self.module)
+
+        self.plugins = {}
+        for _, name, ispkg in pkgutil.iter_modules(pkg.__path__, pkg.__name__ + '.'):
+
+            if ispkg:
+                continue
+
+            plugin_module = importlib.import_module(name)
+            cls_members = inspect.getmembers(plugin_module, inspect.isclass)
+
+            for _, cls in cls_members:
+
+                if issubclass(cls, Plugin) and cls is not Plugin:
+                    self.plugins[name.split('.')[-1]] = cls

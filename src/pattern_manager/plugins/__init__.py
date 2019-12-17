@@ -1,4 +1,0 @@
-from pattern_linear import LinearPattern
-from pattern_rectangular import RectangularPattern
-from pattern_circular import CircularPattern
-from pattern_scatter import ScatterPattern

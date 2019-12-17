@@ -19,13 +19,13 @@
 import rospy
 import tf.transformations as tfs
 
-from pattern_manager.pattern import Pattern
+from pattern_manager.plugin import Plugin
 from pattern_manager.util import matrix_to_tf
 from pattern_manager.xform import XForm
 from math import cos, sin, pi
 
 
-class CircularPattern(Pattern):
+class CircularPattern(Plugin):
     """
     This plugin class specifies the attributes of, and is responsible for the generation of, a circular XForm pattern
 
@@ -42,9 +42,6 @@ class CircularPattern(Pattern):
     :param angular_section: The size of an angular section
     :type angular_section: float, optional
     """
-
-    # The plugin alias
-    _alias_ = 'circular'
 
     def __init__(self, parent, num_points=0, r=0.0, tan_rot=False, cw=False, angular_section=2*pi):
         super(CircularPattern, self).__init__(parent)

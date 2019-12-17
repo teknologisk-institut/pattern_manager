@@ -18,11 +18,11 @@
 
 import rospy
 
-from pattern_manager.pattern import Pattern
+from pattern_manager.plugin import Plugin
 from pattern_manager.xform import XForm
 
 
-class ScatterPattern(Pattern):
+class ScatterPattern(Plugin):
     """
     This plugin class specifies the attributes of, and is responsible for the generation of, a scattered XForm pattern
 
@@ -31,9 +31,6 @@ class ScatterPattern(Pattern):
     :param points: The points which make up the pattern
     :type points: list, optional
     """
-
-    # The plugin alias
-    _alias_ = 'scatter'
 
     def __init__(self, parent, points):
         super(ScatterPattern, self).__init__(parent)

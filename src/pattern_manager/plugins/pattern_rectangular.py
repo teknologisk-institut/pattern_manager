@@ -18,12 +18,12 @@
 
 import rospy
 
-from pattern_manager.pattern import Pattern
+from pattern_manager.plugin import Plugin
 from pattern_manager.util import handle_input_1d
 from pattern_manager.xform import XForm
 
 
-class RectangularPattern(Pattern):
+class RectangularPattern(Plugin):
     """
     This plugin class specifies the attributes of, and is responsible for the generation of, a rectangular XForm pattern
 
@@ -36,9 +36,6 @@ class RectangularPattern(Pattern):
     :param line_lens: The total length of the pattern
     :type line_lens: list, optional
     """
-
-    # The plugin alias
-    _alias_ = 'rectangular'
 
     def __init__(self, parent, num_points=(0, 0), step_sizes=(0, 0), line_lens=(0.0, 0.0)):
         super(RectangularPattern, self).__init__(parent)

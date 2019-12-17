@@ -19,11 +19,11 @@
 import rospy
 import tf
 import yaml
-import pluginlib
+# import pluginlib
 import os
 import json
 
-from pattern_manager import pattern
+from pattern_manager import plugin
 from pattern_manager import XForm
 from pattern_manager import srv as pm_srv
 from pattern_manager import msg as pm_msg
@@ -39,11 +39,8 @@ class PatternManagerNode(object):
     """
 
     def __init__(self):
-        dirname = os.path.dirname(__file__)
-        filename = os.path.join(dirname, '../src/pattern_manager/plugins')
-        loader = pluginlib.PluginLoader(group="patterns", paths=[filename])
-
-        self.plugins = loader.plugins
+        plugin_loader = plugin.PluginLoader('pattern_manager.plugins')
+        self.plugins = plugin_loader.plugins
         self.plugin = None
 
         XForm(name='root', parent=None, ref_frame='world')
@@ -317,7 +314,7 @@ class PatternManagerNode(object):
             t.translation = req.parent.translation
             t.rotation = req.parent.rotation
 
-            self.plugin = self.plugins.pattern.linear(t, *args)
+            self.plugin = self.plugins['pattern_linear'](t, *args)
             self.plugin.generate()
 
             rospy.logout("Linear pattern successfully created!")
@@ -348,7 +345,7 @@ class PatternManagerNode(object):
             t.translation = req.parent.translation
             t.rotation = req.parent.rotation
 
-            self.plugin = self.plugins.pattern.rectangular(t, *args)
+            self.plugin = self.plugins['pattern_rectangular'](t, *args)
             self.plugin.generate()
 
             rospy.logout("Rectangular pattern successfully created!")
@@ -382,7 +379,7 @@ class PatternManagerNode(object):
             t.translation = req.parent.translation
             t.rotation = req.parent.rotation
 
-            self.plugin = self.plugins.pattern.scatter(t, *args)
+            self.plugin = self.plugins['pattern_scatter'](t, *args)
             self.plugin.generate()
 
             rospy.logout("Scatter pattern successfully created!")
@@ -414,7 +411,7 @@ class PatternManagerNode(object):
             t.translation = req.parent.translation
             t.rotation = req.parent.rotation
 
-            self.plugin = self.plugins.pattern.circular(t, *args)
+            self.plugin = self.plugins['pattern_circular'](t, *args)
             self.plugin.generate()
 
             rospy.logout("Circular pattern successfully created!")

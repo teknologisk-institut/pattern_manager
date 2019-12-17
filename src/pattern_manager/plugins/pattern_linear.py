@@ -18,12 +18,12 @@
 
 import rospy
 
-from pattern_manager.pattern import Pattern
+from pattern_manager.plugin import Plugin
 from pattern_manager.util import handle_input_1d
 from pattern_manager.xform import XForm
 
 
-class LinearPattern(Pattern):
+class LinearPattern(Plugin):
     """
     This plugin class specifies the attributes of, and is responsible for the generation of, a linear XForm pattern
 
@@ -36,9 +36,6 @@ class LinearPattern(Pattern):
     :param line_len: The total length of the pattern
     :type line_len: float, optional
     """
-
-    # The plugin alias
-    _alias_ = 'linear'
 
     def __init__(self, parent, num_points=0, step_size=0.0, line_len=0.0):
         super(LinearPattern, self).__init__(parent)
