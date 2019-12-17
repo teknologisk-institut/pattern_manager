@@ -17,7 +17,6 @@
 # Author: Mads Vainoe Baatrup
 
 import geometry_msgs.msg as gm_msg
-import rospy
 
 from collections import OrderedDict
 
@@ -100,8 +99,6 @@ class XForm(gm_msg.Transform):
         """
 
         lst = XForm.get_active_nodes()
-
-        rospy.logwarn(lst)
 
         if len(lst) > 0:
             return lst[0]
