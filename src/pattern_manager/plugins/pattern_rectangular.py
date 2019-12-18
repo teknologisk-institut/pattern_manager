@@ -38,13 +38,14 @@ class RectangularPattern(Plugin):
     """
 
     def __init__(self, parent, num_points=(0, 0), step_sizes=(0, 0), line_lens=(0.0, 0.0)):
-        super(RectangularPattern, self).__init__(parent)
+        super(RectangularPattern, self).__init__()
 
+        self.parent = parent
         self.num_points = num_points
         self.step_sizes = step_sizes
         self.line_lens = line_lens
 
-    def generate(self):
+    def process(self):
         """
         This function generates the XForm pattern from the instance attributes
         """

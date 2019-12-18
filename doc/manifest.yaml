@@ -38,6 +38,7 @@ srvs:
 - GetTransformParams
 - SetParent
 - CreateCircularPattern
+- GetTransforms
 - UpdateTransform
 - GetCurrentId
-url: ''
+url: http://www.ros.org/wiki/pattern_manager

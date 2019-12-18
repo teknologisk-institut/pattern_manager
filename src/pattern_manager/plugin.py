@@ -16,40 +16,47 @@
 
 # Author: Mads Vainoe Baatrup
 
-import os, sys, inspect
-import pkgutil, importlib
+import inspect
+import pkgutil
+import importlib
 
 
 class Plugin(object):
     """
-    This class is the base plugin object for pattern plugins
-
-    :param parent: An XForm parent object under which to create the XForm pattern
-    :type parent: XForm
+    This class is the base class for plugins
     """
 
-    def __init__(self, parent):
-        self.parent = parent
+    def __init__(self):
+        pass
 
-    def generate(self):
+    def process(self):
         """
-        This abstract method is implemented in each plugin and is responsible for generating the
-        specific pattern of XForm objects
+        This method is implemented in each Plugin subclass
         """
 
         raise NotImplementedError
 
 
 class PluginLoader(object):
+    """
+    This class is responsible for loading plugins from a specified package
 
-    def __init__(self, module):
+    :param package: The name of the package to load plugins from
+    :type package: str
+    """
+
+    def __init__(self, package):
         self.plugins = {}
-        self.module = module
+        self.package = package
 
-        self.load_patterns()
+        self.load_plugins()
 
-    def load_patterns(self):
-        pkg = importlib.import_module(self.module)
+    def load_plugins(self):
+        """
+        This function walks a package's modules to find and load plugins
+        """
+
+        pkg = importlib.import_module(self.package)
 
         self.plugins = {}
         for _, name, ispkg in pkgutil.iter_modules(pkg.__path__, pkg.__name__ + '.'):
@@ -62,5 +69,7 @@ class PluginLoader(object):
 
             for _, cls in cls_members:
 
-                if issubclass(cls, Plugin) and cls is not Plugin:
-                    self.plugins[name.split('.')[-1]] = cls
+                if not issubclass(cls, Plugin) or cls is Plugin:
+                    continue
+
+                self.plugins[name.split('.')[-1]] = cls

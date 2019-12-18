@@ -54,7 +54,7 @@
 <dl class="class">
 <dt id="pattern_manager.plugins.pattern_circular.CircularPattern">
 <em class="property">class </em><code class="descclassname">pattern_manager.plugins.pattern_circular.</code><code class="descname">CircularPattern</code><span class="sig-paren">(</span><em>parent</em>, <em>num_points=0</em>, <em>r=0.0</em>, <em>tan_rot=False</em>, <em>cw=False</em>, <em>angular_section=6.283185307179586</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.plugins.pattern_circular.CircularPattern" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pattern_manager.html#pattern_manager.pattern.Pattern" title="pattern_manager.pattern.Pattern"><code class="xref py py-class docutils literal"><span class="pre">pattern_manager.pattern.Pattern</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="pattern_manager.html#pattern_manager.plugin.Plugin" title="pattern_manager.plugin.Plugin"><code class="xref py py-class docutils literal"><span class="pre">pattern_manager.plugin.Plugin</span></code></a></p>
 <p>This plugin class specifies the attributes of, and is responsible for the generation of, a circular XForm pattern</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -73,8 +73,8 @@
 </tbody>
 </table>
 <dl class="method">
-<dt id="pattern_manager.plugins.pattern_circular.CircularPattern.generate">
-<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.plugins.pattern_circular.CircularPattern.generate" title="Permalink to this definition">¶</a></dt>
+<dt id="pattern_manager.plugins.pattern_circular.CircularPattern.process">
+<code class="descname">process</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.plugins.pattern_circular.CircularPattern.process" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function generates the XForm pattern from the instance attributes</p>
 </dd></dl>
 
@@ -86,7 +86,7 @@
 <dl class="class">
 <dt id="pattern_manager.plugins.pattern_linear.LinearPattern">
 <em class="property">class </em><code class="descclassname">pattern_manager.plugins.pattern_linear.</code><code class="descname">LinearPattern</code><span class="sig-paren">(</span><em>parent</em>, <em>num_points=0</em>, <em>step_size=0.0</em>, <em>line_len=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.plugins.pattern_linear.LinearPattern" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pattern_manager.html#pattern_manager.pattern.Pattern" title="pattern_manager.pattern.Pattern"><code class="xref py py-class docutils literal"><span class="pre">pattern_manager.pattern.Pattern</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="pattern_manager.html#pattern_manager.plugin.Plugin" title="pattern_manager.plugin.Plugin"><code class="xref py py-class docutils literal"><span class="pre">pattern_manager.plugin.Plugin</span></code></a></p>
 <p>This plugin class specifies the attributes of, and is responsible for the generation of, a linear XForm pattern</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -103,8 +103,8 @@
 </tbody>
 </table>
 <dl class="method">
-<dt id="pattern_manager.plugins.pattern_linear.LinearPattern.generate">
-<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.plugins.pattern_linear.LinearPattern.generate" title="Permalink to this definition">¶</a></dt>
+<dt id="pattern_manager.plugins.pattern_linear.LinearPattern.process">
+<code class="descname">process</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.plugins.pattern_linear.LinearPattern.process" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function generates the XForm pattern from the instance attributes</p>
 </dd></dl>
 
@@ -116,7 +116,7 @@
 <dl class="class">
 <dt id="pattern_manager.plugins.pattern_rectangular.RectangularPattern">
 <em class="property">class </em><code class="descclassname">pattern_manager.plugins.pattern_rectangular.</code><code class="descname">RectangularPattern</code><span class="sig-paren">(</span><em>parent</em>, <em>num_points=(0</em>, <em>0)</em>, <em>step_sizes=(0</em>, <em>0)</em>, <em>line_lens=(0.0</em>, <em>0.0)</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.plugins.pattern_rectangular.RectangularPattern" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pattern_manager.html#pattern_manager.pattern.Pattern" title="pattern_manager.pattern.Pattern"><code class="xref py py-class docutils literal"><span class="pre">pattern_manager.pattern.Pattern</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="pattern_manager.html#pattern_manager.plugin.Plugin" title="pattern_manager.plugin.Plugin"><code class="xref py py-class docutils literal"><span class="pre">pattern_manager.plugin.Plugin</span></code></a></p>
 <p>This plugin class specifies the attributes of, and is responsible for the generation of, a rectangular XForm pattern</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -133,8 +133,8 @@
 </tbody>
 </table>
 <dl class="method">
-<dt id="pattern_manager.plugins.pattern_rectangular.RectangularPattern.generate">
-<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.plugins.pattern_rectangular.RectangularPattern.generate" title="Permalink to this definition">¶</a></dt>
+<dt id="pattern_manager.plugins.pattern_rectangular.RectangularPattern.process">
+<code class="descname">process</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.plugins.pattern_rectangular.RectangularPattern.process" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function generates the XForm pattern from the instance attributes</p>
 </dd></dl>
 
@@ -146,7 +146,7 @@
 <dl class="class">
 <dt id="pattern_manager.plugins.pattern_scatter.ScatterPattern">
 <em class="property">class </em><code class="descclassname">pattern_manager.plugins.pattern_scatter.</code><code class="descname">ScatterPattern</code><span class="sig-paren">(</span><em>parent</em>, <em>points</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.plugins.pattern_scatter.ScatterPattern" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pattern_manager.html#pattern_manager.pattern.Pattern" title="pattern_manager.pattern.Pattern"><code class="xref py py-class docutils literal"><span class="pre">pattern_manager.pattern.Pattern</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="pattern_manager.html#pattern_manager.plugin.Plugin" title="pattern_manager.plugin.Plugin"><code class="xref py py-class docutils literal"><span class="pre">pattern_manager.plugin.Plugin</span></code></a></p>
 <p>This plugin class specifies the attributes of, and is responsible for the generation of, a scattered XForm pattern</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -161,8 +161,8 @@
 </tbody>
 </table>
 <dl class="method">
-<dt id="pattern_manager.plugins.pattern_scatter.ScatterPattern.generate">
-<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.plugins.pattern_scatter.ScatterPattern.generate" title="Permalink to this definition">¶</a></dt>
+<dt id="pattern_manager.plugins.pattern_scatter.ScatterPattern.process">
+<code class="descname">process</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.plugins.pattern_scatter.ScatterPattern.process" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function generates the XForm pattern from the instance attributes</p>
 </dd></dl>
 

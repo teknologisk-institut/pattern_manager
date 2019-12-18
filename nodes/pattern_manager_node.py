@@ -315,7 +315,7 @@ class PatternManagerNode(object):
             t.rotation = req.parent.rotation
 
             self.plugin = self.plugins['pattern_linear'](t, *args)
-            self.plugin.generate()
+            self.plugin.process()
 
             rospy.logout("Linear pattern successfully created!")
             resp.success = True
@@ -346,7 +346,7 @@ class PatternManagerNode(object):
             t.rotation = req.parent.rotation
 
             self.plugin = self.plugins['pattern_rectangular'](t, *args)
-            self.plugin.generate()
+            self.plugin.process()
 
             rospy.logout("Rectangular pattern successfully created!")
             resp.success = True
@@ -380,7 +380,7 @@ class PatternManagerNode(object):
             t.rotation = req.parent.rotation
 
             self.plugin = self.plugins['pattern_scatter'](t, *args)
-            self.plugin.generate()
+            self.plugin.process()
 
             rospy.logout("Scatter pattern successfully created!")
             resp.success = True
@@ -412,7 +412,7 @@ class PatternManagerNode(object):
             t.rotation = req.parent.rotation
 
             self.plugin = self.plugins['pattern_circular'](t, *args)
-            self.plugin.generate()
+            self.plugin.process()
 
             rospy.logout("Circular pattern successfully created!")
             resp.success = True

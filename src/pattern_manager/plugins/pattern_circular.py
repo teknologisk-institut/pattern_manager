@@ -44,15 +44,16 @@ class CircularPattern(Plugin):
     """
 
     def __init__(self, parent, num_points=0, r=0.0, tan_rot=False, cw=False, angular_section=2*pi):
-        super(CircularPattern, self).__init__(parent)
+        super(CircularPattern, self).__init__()
 
+        self.parent = parent
         self.num_points = num_points
         self.r = r
         self.tan_rot = tan_rot
         self.cw = cw
         self.angular_section = angular_section
 
-    def generate(self):
+    def process(self):
         """
         This function generates the XForm pattern from the instance attributes
         """

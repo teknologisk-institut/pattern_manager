@@ -33,11 +33,12 @@ class ScatterPattern(Plugin):
     """
 
     def __init__(self, parent, points):
-        super(ScatterPattern, self).__init__(parent)
+        super(ScatterPattern, self).__init__()
 
+        self.parent = parent
         self.points = points
 
-    def generate(self):
+    def process(self):
         """
         This function generates the XForm pattern from the instance attributes
         """

@@ -38,13 +38,14 @@ class LinearPattern(Plugin):
     """
 
     def __init__(self, parent, num_points=0, step_size=0.0, line_len=0.0):
-        super(LinearPattern, self).__init__(parent)
+        super(LinearPattern, self).__init__()
 
+        self.parent = parent
         self.num_points = num_points
         self.step_size = step_size
         self.line_len = line_len
 
-    def generate(self):
+    def process(self):
         """
         This function generates the XForm pattern from the instance attributes
         """
