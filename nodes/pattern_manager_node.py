@@ -43,7 +43,7 @@ class PatternManagerNode(object):
         self.plugins = plugin_loader.plugins
         self.plugin = None
 
-        XForm(name='root', parent=None, ref_frame='world')
+        self.root = XForm(name='root', parent=None, ref_frame='world')
 
         rospy.Service('~get_transform', pm_srv.GetTransformParams, self._cb_get_transform)
         rospy.Service('~get_transforms', pm_srv.GetTransforms, self._cb_get_transforms)
@@ -66,8 +66,7 @@ class PatternManagerNode(object):
         rospy.Service('~load', pm_srv.Filename, self._cb_load)
         rospy.Service('~print_tree', Trigger, self._cb_print_tree)
 
-    @staticmethod
-    def _cb_get_transforms(req):
+    def _cb_get_transforms(self, req):
         """
         This callback function retrieves XForm children of a parent XForm
 
@@ -82,8 +81,8 @@ class PatternManagerNode(object):
         resp = pm_srv.GetTransformsResponse()
 
         try:
-            parent = XForm.get_node(req.parent_id)
-            for t in XForm.get_nodes(root=parent):
+            parent = self.root.get_node(req.parent_id)
+            for t in self.root.get_nodes(root=parent):
 
                 if id(t) == req.parent_id:
                     continue
@@ -108,8 +107,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def _cb_print_tree(req):
+    def _cb_print_tree(self, req):
         """
         This callback function prints the XForm tree in the node output
 
@@ -123,7 +121,7 @@ class PatternManagerNode(object):
         resp = TriggerResponse()
 
         try:
-            dict_ = XForm.to_dict()
+            dict_ = self.root.to_dict()
             rospy.logout(json.dumps(dict_, sort_keys=True, indent=4, separators=(',', ':')))
 
             resp.message = 'Tree sent to node output'
@@ -134,8 +132,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def _cb_get_transform_id(req):
+    def _cb_get_transform_id(self, req):
         """
         This callback function retrieves an XForm ID from a supplied XForm name
 
@@ -149,7 +146,7 @@ class PatternManagerNode(object):
         resp = pm_srv.GetTransformIdResponse()
 
         try:
-            for n in XForm.get_nodes():
+            for n in self.root.get_nodes():
                 if n.name == req.name:
                     resp.id = id(n)
         except rospy.ROSException, e:
@@ -157,8 +154,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def _cb_load(req):
+    def _cb_load(self, req):
         """
         This callback function loads a .yaml file into a dictionary to create an XForm tree from
 
@@ -175,8 +171,8 @@ class PatternManagerNode(object):
             with open(req.path, 'r') as file_:
                 tree = yaml.load(file_)
 
-            XForm.recursive_remove_node(id(XForm.root))
-            XForm.from_dict(tree)
+            self.root.recursive_remove_node(id(self.root))
+            self.root.from_dict(tree)
 
             file_.close()
 
@@ -187,8 +183,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def _cb_save(req):
+    def _cb_save(self, req):
         """
         This callback function saves the XForm tree to a .yaml file representation
 
@@ -203,7 +198,7 @@ class PatternManagerNode(object):
 
         try:
             with open(req.path, 'w') as file_:
-                yaml.dump(XForm.to_dict(), file_)
+                yaml.dump(self.root.to_dict(), file_)
 
             file_.close()
 
@@ -214,8 +209,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def _cb_set_transform_parent(req):
+    def _cb_set_transform_parent(self, req):
         """
         This callback function sets the parent object of an XForm
 
@@ -229,10 +223,10 @@ class PatternManagerNode(object):
         resp = pm_srv.SetParentResponse()
 
         try:
-            t = XForm.get_node(req.id)
+            t = self.root.get_node(req.id)
             del t.parent.children[req.id]
 
-            new_parent = XForm.get_node(req.parent_id)
+            new_parent = self.root.get_node(req.parent_id)
             new_parent.add_node(t)
 
             t.ref_frame = new_parent.name
@@ -242,8 +236,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def _cb_get_transform_ids(req):
+    def _cb_get_transform_ids(self, req):
         """
         This callback function retrieves the IDs of all currently existing XForm objects
 
@@ -257,15 +250,14 @@ class PatternManagerNode(object):
         resp = pm_srv.GetIdsResponse()
 
         try:
-            for n in XForm.get_nodes():
+            for n in self.root.get_nodes():
                 resp.ids.append(id(n))
         except rospy.ROSException, e:
             rospy.logerr(e)
 
         return resp
 
-    @staticmethod
-    def _cb_set_iteration_order(req):
+    def _cb_set_iteration_order(self, req):
         """
         This callback function sets the order of an XForms children
 
@@ -279,7 +271,7 @@ class PatternManagerNode(object):
         resp = pm_srv.SetIterationOrderResponse()
 
         try:
-            t = XForm.get_node(req.id)
+            t = self.root.get_node(req.id)
 
             ordered = OrderedDict()
             for k in req.order:
@@ -310,7 +302,7 @@ class PatternManagerNode(object):
         try:
             args = [req.num_points, req.step_size, req.length]
 
-            t = XForm(XForm.get_node(req.parent.parent_id), name=req.parent.name)
+            t = XForm(self.root.get_node(req.parent.parent_id), name=req.parent.name)
             t.translation = req.parent.translation
             t.rotation = req.parent.rotation
 
@@ -341,7 +333,7 @@ class PatternManagerNode(object):
         try:
             args = [req.num_points, req.step_sizes, req.lengths]
 
-            t = XForm(XForm.get_node(req.parent.parent_id), name=req.parent.name)
+            t = XForm(self.root.get_node(req.parent.parent_id), name=req.parent.name)
             t.translation = req.parent.translation
             t.rotation = req.parent.rotation
 
@@ -375,7 +367,7 @@ class PatternManagerNode(object):
 
             args = [points]
 
-            t = XForm(XForm.get_node(req.parent.parent_id), name=req.parent.name)
+            t = XForm(self.root.get_node(req.parent.parent_id), name=req.parent.name)
             t.translation = req.parent.translation
             t.rotation = req.parent.rotation
 
@@ -407,7 +399,7 @@ class PatternManagerNode(object):
         try:
             args = [req.num_points, req.radius, req.tan_rot, req.cw]
 
-            t = XForm(XForm.get_node(req.parent.parent_id), name=req.parent.name)
+            t = XForm(self.root.get_node(req.parent.parent_id), name=req.parent.name)
             t.translation = req.parent.translation
             t.rotation = req.parent.rotation
 
@@ -422,8 +414,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def _cb_get_active_ids(req):
+    def _cb_get_active_ids(self, req):
         """
         This callback function retrieves all IDs of active XForms
 
@@ -436,13 +427,12 @@ class PatternManagerNode(object):
         rospy.logdebug("Received request to retrieve active transform ids")
         resp = pm_srv.GetIdsResponse()
 
-        for n in XForm.get_active_nodes():
+        for n in self.root.get_active_nodes():
             resp.ids.append(id(n))
 
         return resp
 
-    @staticmethod
-    def _cb_get_current_tf_id(req):
+    def _cb_get_current_tf_id(self, req):
         """
         This callback function retrieves the ID of the next XForm in the iteration
 
@@ -455,7 +445,7 @@ class PatternManagerNode(object):
         rospy.logdebug("Received request to retrieve current transform id")
         resp = pm_srv.GetCurrentIdResponse()
 
-        id_ = id(XForm.get_current_node())
+        id_ = id(self.root.get_current_node())
 
         if id_:
             resp.id = id_
@@ -465,8 +455,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def _cb_iterate(req):
+    def _cb_iterate(self, req):
         """
         This callback function triggers an iteration of the currently active XForms
 
@@ -479,10 +468,10 @@ class PatternManagerNode(object):
         rospy.logdebug('Received request to iterate')
         resp = TriggerResponse()
 
-        cur_node = XForm.get_current_node()
+        cur_node = self.root.get_current_node()
 
         if cur_node:
-            XForm.iterate()
+            self.root.iterate()
 
             resp.message = 'Transform: {}'.format(cur_node.name)
             resp.success = True
@@ -491,8 +480,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def _cb_update_transform(req):
+    def _cb_update_transform(self, req):
         """
         This callback function updates an existing XForm object's attributes
 
@@ -506,7 +494,7 @@ class PatternManagerNode(object):
         resp = pm_srv.UpdateTransformResponse()
 
         try:
-            n = XForm.get_node(req.id)
+            n = self.root.get_node(req.id)
 
             n.name = req.name
             n.ref_frame = req.ref_frame
@@ -521,8 +509,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def _cb_get_transform(req):
+    def _cb_get_transform(self, req):
         """
         This callback function retrieves various attributes of an XForm
 
@@ -537,7 +524,7 @@ class PatternManagerNode(object):
         resp = pm_srv.GetTransformParamsResponse()
 
         try:
-            t = XForm.get_node(req.id)
+            t = self.root.get_node(req.id)
 
             t_params = pm_msg.Params()
             t_params.name = t.name
@@ -558,8 +545,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def _cb_create_transform(req):
+    def _cb_create_transform(self, req):
         """
         This callback function creates a new XForm object
 
@@ -579,7 +565,7 @@ class PatternManagerNode(object):
             return resp
 
         try:
-            t = XForm(XForm.get_node(req.params.parent_id), name=req.params.name, ref_frame=req.params.ref_frame)
+            t = XForm(self.root.get_node(req.params.parent_id), name=req.params.name, ref_frame=req.params.ref_frame)
             t.translation = req.params.translation
             t.rotation = req.params.rotation
 
@@ -591,8 +577,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def _cb_set_active(req):
+    def _cb_set_active(self, req):
         """
         This callback function sets a transforms active attribute to the requested value (`True`/`False`)
 
@@ -606,7 +591,7 @@ class PatternManagerNode(object):
         resp = pm_srv.SetActiveResponse()
 
         try:
-            XForm.get_node(req.id).set_active(req.active)
+            self.root.get_node(req.id).set_active(req.active)
 
             rospy.logout("Transform {} successfully (de)activated!".format(req.id))
             resp.success = True
@@ -616,8 +601,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    @staticmethod
-    def _cb_remove_transform(req):
+    def _cb_remove_transform(self, req):
         """
         This callback function recursively removes an XForm an all of its descendants
 
@@ -631,13 +615,13 @@ class PatternManagerNode(object):
         resp = pm_srv.TransformIdResponse()
 
         try:
-            if id(XForm.root) == req.id:
+            if id(self.root) == req.id:
                 rospy.logwarn("Removing root is not allowed. Ignoring action")
                 resp.success = False
 
                 return resp
 
-            XForm.recursive_remove_node(req.id)
+            self.root.recursive_remove_node(req.id)
             rospy.logout("Transform {} successfully removed!".format(req.id))
             resp.success = True
         except rospy.ROSException, e:
@@ -659,8 +643,8 @@ if __name__ == "__main__":
     r = rospy.Rate(5)
 
     while not rospy.is_shutdown():
-        nodes = XForm.get_nodes()
-        actv_nodes = XForm.get_active_nodes()
+        nodes = pmn.root.get_nodes(pmn.root)
+        actv_nodes = pmn.root.get_active_nodes(pmn.root)
 
         util.broadcast_transforms(br, nodes)
         util.publish_markers(pub, actv_nodes)

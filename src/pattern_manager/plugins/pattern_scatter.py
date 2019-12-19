@@ -53,12 +53,17 @@ class ScatterPattern(Plugin):
         for p in self.points:
             xyz_set.add((p[0], p[1], p[2]))
 
-        i = 0
+        tfs = []
+        c = 0
         for xyz in xyz_set:
-            tf = XForm(self.parent, name='{}_{}'.format(self.parent.name, i))
+            tf = XForm(self.parent, name='{}_{}'.format(self.parent.name, c))
 
             tf.translation.x = xyz[0]
             tf.translation.y = xyz[1]
             tf.translation.z = xyz[2]
 
-            i += 1
+            tfs.append(tf)
+
+            c += 1
+
+        return tfs

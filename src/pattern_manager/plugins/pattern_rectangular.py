@@ -64,10 +64,15 @@ class RectangularPattern(Plugin):
             for j in range(po_y):
                 xy_set.add((i * st_x, j * st_y))
 
+        tfs = []
         c = 0
         for xy in xy_set:
             tf = XForm(self.parent, name='{}_{}'.format(self.parent.name, c))
             tf.translation.x = xy[0]
             tf.translation.y = xy[1]
 
+            tfs.append(tf)
+
             c += 1
+
+        return tfs

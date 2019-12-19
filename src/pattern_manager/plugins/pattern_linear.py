@@ -62,9 +62,14 @@ class LinearPattern(Plugin):
         for i in range(po):
             x_set.add(i * st)
 
+        tfs = []
         c = 0
         for x in x_set:
             tf = XForm(self.parent, name='{}_{}'.format(self.parent.name, c))
             tf.translation.x = x
 
+            tfs.append(tf)
+
             c += 1
+
+        return tfs

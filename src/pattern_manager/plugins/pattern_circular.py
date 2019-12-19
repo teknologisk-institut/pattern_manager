@@ -17,7 +17,7 @@
 # Author: Mads Vainoe Baatrup
 
 import rospy
-import tf.transformations as tfs
+import tf.transformations as transformations
 
 from pattern_manager.plugin import Plugin
 from pattern_manager.util import matrix_to_tf
@@ -80,19 +80,24 @@ class CircularPattern(Plugin):
         for i in range(self.num_points):
             xyz_set.add((self.r * cos(i * angular_resolution), self.r * sin(i * angular_resolution), 0.0))
 
+        tfs = []
         c = 0
         for xyz in xyz_set:
-            t = XForm(self.parent, name='{}_{}'.format(self.parent.name, c))
-            t.translation.x = xyz[0]
-            t.translation.y = xyz[1]
-            t.translation.z = xyz[2]
+            tf = XForm(self.parent, name='{}_{}'.format(self.parent.name, c))
+            tf.translation.x = xyz[0]
+            tf.translation.y = xyz[1]
+            tf.translation.z = xyz[2]
 
             if self.tan_rot:
                 yaw = pi / 2 + c * angular_resolution
-                m = tfs.euler_matrix(0, 0, yaw)
+                m = transformations.euler_matrix(0, 0, yaw)
                 q = matrix_to_tf(m).rotation
-                t.rotation = q
+                tf.rotation = q
             else:
-                t.rotation.w = 1.0
+                tf.rotation.w = 1.0
+
+            tfs.append(tf)
 
             c += 1
+
+        return tfs
