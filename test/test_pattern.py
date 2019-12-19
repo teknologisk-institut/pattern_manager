@@ -49,8 +49,8 @@ class PatternTestCase(unittest.TestCase):
 
         self.assertEquals(len(self.root.get_nodes()), 5)
 
-        x = [0.0, 1.0, -1.0]
-        y = [0.0, 1.0, -1.0]
+        x = [0.0, 0.0, 1.0, -1.0]
+        y = [0.0, 0.0, 1.0, -1.0]
 
         for xf in xforms:
             for f in x:
