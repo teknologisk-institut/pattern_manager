@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 
 from pattern_manager.xform import XForm
 from pattern_manager.plugins import \
@@ -43,24 +44,27 @@ class PatternTestCase(unittest.TestCase):
             y.remove(xf.translation.y)
 
     def test_circular_pattern(self):
-        pass
-        # parent = XForm(None, 'root')
-        # pattern = pattern_circular.CircularPattern(parent, num_points=4, r=1)
-        # xforms = pattern.process()
-        #
-        # self.assertEquals(len(XForm.get_nodes()), 4)
-        #
-        # x = [0.0, 1.0, 0.0, 1.0]
-        # y = [0.0, 1.0, 0.0, 1.0]
-        #
-        # for xf in xforms:
-        #     self.assertIn(xf.translation.x, x)
-        #     self.assertIn(xf.translation.y, y)
-        #
-        #     x.remove(xf.translation.x)
-        #     y.remove(xf.translation.y)
-        #
-        # XForm.recursive_remove_node(id(XForm.root))
+        pattern = pattern_circular.CircularPattern(self.root, num_points=4, r=1)
+        xforms = pattern.process()
+
+        self.assertEquals(len(self.root.get_nodes()), 5)
+
+        x = [0.0, 1.0, -1.0]
+        y = [0.0, 1.0, -1.0]
+
+        for xf in xforms:
+            for f in x:
+
+                if np.isclose(xf.translation.x, f, rtol=1e-05, atol=1e-08, equal_nan=False):
+                    x.remove(f)
+
+            for f in y:
+
+                if np.isclose(xf.translation.y, f, rtol=1e-05, atol=1e-08, equal_nan=False):
+                    y.remove(f)
+
+        self.assertEquals(len(x), 0)
+        self.assertEquals(len(y), 0)
 
     def test_scatter_pattern(self):
         pattern = pattern_scatter.ScatterPattern(self.root, points=[
