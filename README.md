@@ -27,12 +27,12 @@ We have implemented the ROS package purely in Python, with the key components ne
 - The GUI additionally allows for drag-and-drop functionality for reordering transforms and re-parenting transforms and patterns of transforms.
 
 #### Documentation, testing, integration
-- The Pattern Manager ROS package has been thoroughly documented:
 - The source code has been documented with reStructuredText docstrings.
 - API documentation has been generated using rosdoc_lite (utilizing Sphinx).
+- Unit test have been created for source code behaviors (Python unittest library).
 
 #### Work-in-progress
-- Code coverage
+- CI on ROS build farm.
 - Extensive behaviour and API documentation, and tutorials for the ROS wiki page.
 
 ### Example tree structure
