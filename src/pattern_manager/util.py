@@ -178,3 +178,12 @@ def publish_markers(pub, xfs, root):
         id_ += 1
 
     pub.publish(arr)
+
+
+if __name__ == '__main__':
+    import tf
+
+    m = tf.transformations.euler_matrix(0, 0, 1)
+    q = matrix_to_tf(m).rotation
+
+    print q

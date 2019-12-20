@@ -59,3 +59,4 @@ include_directories(
 catkin_add_nosetests(test/test_xform.py)
 catkin_add_nosetests(test/test_plugin.py)
 catkin_add_nosetests(test/test_pattern.py)
+catkin_add_nosetests(test/test_util.py)
