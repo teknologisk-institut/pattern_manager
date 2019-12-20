@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   rostest
   geometry_msgs
   message_generation
+  visualization_msgs
 )
 
 catkin_python_setup()
@@ -42,6 +43,7 @@ generate_messages(
    DEPENDENCIES
    std_msgs
    geometry_msgs
+   visualization_msgs
 )
 
 catkin_package(

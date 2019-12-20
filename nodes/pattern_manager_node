@@ -251,7 +251,10 @@ class PatternManagerNode(object):
         try:
             for n in self.root.get_nodes():
                 resp.ids.append(id(n))
+
+            resp.success = True
         except rospy.ROSException, e:
+            resp.success = False
             rospy.logerr(e)
 
         return resp
