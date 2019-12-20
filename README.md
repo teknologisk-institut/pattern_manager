@@ -29,10 +29,10 @@ We have implemented the ROS package purely in Python, with the key components ne
 #### Documentation, testing, integration
 - The source code has been documented with reStructuredText docstrings.
 - API documentation has been generated using rosdoc_lite (utilizing Sphinx).
-- Unit test have been created for source code behaviors (Python unittest library).
+- Unit test have been created for source code modules (Python unittest library).
+- Package and documentation added to ROS build farm.
 
 #### Work-in-progress
-- CI on ROS build farm.
 - Extensive behaviour and API documentation, and tutorials for the ROS wiki page.
 
 ### Example tree structure
