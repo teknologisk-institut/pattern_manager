@@ -56,7 +56,9 @@ include_directories(
 )
 
 ## Add folders to be run by python nosetests
-catkin_add_nosetests(test/test_xform.py)
-catkin_add_nosetests(test/test_plugin.py)
-catkin_add_nosetests(test/test_pattern.py)
-catkin_add_nosetests(test/test_util.py)
+if (CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(test/test_xform.py)
+  catkin_add_nosetests(test/test_plugin.py)
+  catkin_add_nosetests(test/test_pattern.py)
+  catkin_add_nosetests(test/test_util.py)
+endif()
