@@ -229,6 +229,9 @@ class XForm(gm_msg.Transform):
             return False
 
     def clear(self):
+        """
+        This function resets the tree from this node, effectively removin all descendant nodes
+        """
         self.recursive_remove_node(id(self))
 
     def to_dict(self, root=None, dict_=None):

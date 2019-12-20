@@ -272,16 +272,6 @@ class PatternManagerNode(object):
         try:
             t = self.root.get_node(req.id)
 
-            rospy.logwarn('req order: ')
-            for id_ in req.order:
-                rospy.logwarn(self.root.get_node(id_).name)
-
-            rospy.logwarn('')
-
-            rospy.logwarn('parent children: ')
-            for child in t.children.values():
-                rospy.logwarn(child.name)
-
             ordered = OrderedDict()
             for k in req.order:
                 ordered[k] = t.children[k]
