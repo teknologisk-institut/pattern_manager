@@ -152,7 +152,7 @@
 
 <dl class="function">
 <dt id="pattern_manager.util.publish_markers">
-<code class="descclassname">pattern_manager.util.</code><code class="descname">publish_markers</code><span class="sig-paren">(</span><em>pub</em>, <em>xfs</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.util.publish_markers" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pattern_manager.util.</code><code class="descname">publish_markers</code><span class="sig-paren">(</span><em>pub</em>, <em>xfs</em>, <em>root</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.util.publish_markers" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function is responsible for publishing markers for each XForm</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -203,15 +203,20 @@
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pattern_manager.xform.XForm.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt id="pattern_manager.xform.XForm.count">
 <code class="descname">count</code><em class="property"> = 0</em><a class="headerlink" href="#pattern_manager.xform.XForm.count" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of XForms created</p>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pattern_manager.xform.XForm.from_dict">
-<em class="property">static </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>dict_</em>, <em>root=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.from_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">from_dict</code><span class="sig-paren">(</span><em>dict_</em>, <em>root=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function creates a XForm tree from a dictionary object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -227,9 +232,9 @@
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pattern_manager.xform.XForm.get_active_nodes">
-<em class="property">static </em><code class="descname">get_active_nodes</code><span class="sig-paren">(</span><em>root=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.get_active_nodes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_active_nodes</code><span class="sig-paren">(</span><em>root=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.get_active_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function retrieves all nodes which are set active</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -245,9 +250,9 @@
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pattern_manager.xform.XForm.get_current_node">
-<em class="property">static </em><code class="descname">get_current_node</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.get_current_node" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_current_node</code><span class="sig-paren">(</span><em>root=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.get_current_node" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function retrieves the currently first active XForm in the tree</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -261,9 +266,9 @@
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pattern_manager.xform.XForm.get_node">
-<em class="property">static </em><code class="descname">get_node</code><span class="sig-paren">(</span><em>id_</em>, <em>root=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.get_node" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_node</code><span class="sig-paren">(</span><em>id_</em>, <em>root=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.get_node" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function returns an XForm if one matches the ID</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -285,9 +290,9 @@
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pattern_manager.xform.XForm.get_nodes">
-<em class="property">static </em><code class="descname">get_nodes</code><span class="sig-paren">(</span><em>root=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.get_nodes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_nodes</code><span class="sig-paren">(</span><em>root=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.get_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function retrieves all XForm objects of the tree</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -303,9 +308,9 @@
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pattern_manager.xform.XForm.iterate">
-<em class="property">static </em><code class="descname">iterate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.iterate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">iterate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.iterate" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function iterates the list of active XForms, setting the current XForm inactive</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -319,9 +324,9 @@
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pattern_manager.xform.XForm.recursive_remove_node">
-<em class="property">static </em><code class="descname">recursive_remove_node</code><span class="sig-paren">(</span><em>id_</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.recursive_remove_node" title="Permalink to this definition">¶</a></dt>
+<code class="descname">recursive_remove_node</code><span class="sig-paren">(</span><em>id_</em>, <em>root=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.recursive_remove_node" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function initiates the removal of an XForm (tree-node) and all of its descendants</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -331,12 +336,6 @@
 </tr>
 </tbody>
 </table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pattern_manager.xform.XForm.root">
-<code class="descname">root</code><em class="property"> = None</em><a class="headerlink" href="#pattern_manager.xform.XForm.root" title="Permalink to this definition">¶</a></dt>
-<dd><p>The root XForm of the tree</p>
 </dd></dl>
 
 <dl class="method">
@@ -353,9 +352,9 @@
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pattern_manager.xform.XForm.to_dict">
-<em class="property">static </em><code class="descname">to_dict</code><span class="sig-paren">(</span><em>root=None</em>, <em>dict_=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_dict</code><span class="sig-paren">(</span><em>root=None</em>, <em>dict_=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pattern_manager.xform.XForm.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function creates a dictionary object from the XForm tree</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

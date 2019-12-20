@@ -91,3 +91,7 @@ class PatternTestCase(unittest.TestCase):
 
     def tearDown(self):
         del self.root
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -130,7 +130,7 @@ def broadcast_transforms(br, xfs):
             xf.ref_frame)
 
 
-def publish_markers(pub, xfs):
+def publish_markers(pub, xfs, root):
     """
     This function is responsible for publishing markers for each XForm
 
@@ -162,7 +162,7 @@ def publish_markers(pub, xfs):
         marker.scale.z = 0.1
 
         r = g = b = 0.0
-        if id(XForm.get_current_node()) == id(xf):
+        if id(root.get_current_node()) == id(xf):
             g = 1.0
         elif xf.active:
             r = 1.0
