@@ -24,7 +24,7 @@ We have implemented the ROS package purely in Python, with the key components ne
 - A considerable effort was also put into developing a GUI (<a href="https://github.com/teknologisk-institut/rqt_pattern_manager">rqt_pattern_manager</a>) to enable simple and intuitive interaction with the Pattern Manager node.
 - As the GUI was designed as an RQT plugin it is very easy to integrate into existing ROS software, which makes particularly good sense in the case of RViz, which accepts RQT plugins as extended program functionality. This means the GUI can be opened from within RViz as part of the editor’s environment.
 - All the same functionalities available by interacting directly with the Pattern Manager ROS node, are available from within the RQT plugin.
-- The GUI additionally allows for drag-and-drop functionality for reordering transforms and re-parenting transforms and patterns of transforms.
+- The GUI additionally allows for drag-and-drop functionality for reordering and re-parenting transforms (incl. patterns).
 
 #### Documentation, testing, integration
 - The source code has been documented with reStructuredText docstrings.
