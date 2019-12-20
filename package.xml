@@ -15,6 +15,7 @@ This project has received funding from the European Union’s Horizon 2020 resea
   <depend>rospy</depend>
   <depend>std_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>visualization_msgs</depend>
   <depend>tf</depend>
   <depend>python-numpy</depend>
   <depend>python-yaml</depend>

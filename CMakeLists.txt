@@ -37,6 +37,9 @@ add_service_files(
    GetTransformId.srv
    UpdateTransform.srv
    GetTransforms.srv
+   SetName.srv
+   SetRotation.srv
+   SetTranslation.srv
  )
 
 generate_messages(

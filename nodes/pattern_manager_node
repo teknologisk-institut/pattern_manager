@@ -65,6 +65,66 @@ class PatternManagerNode(object):
         rospy.Service('~save', pm_srv.Filename, self._cb_save)
         rospy.Service('~load', pm_srv.Filename, self._cb_load)
         rospy.Service('~print_tree', Trigger, self._cb_print_tree)
+        rospy.Service('~set_name', pm_srv.SetName, self._cb_set_name)
+        rospy.Service('~set_reference_frame', pm_srv.SetName, self._cb_set_ref_frame)
+        rospy.Service('~set_translation', pm_srv.SetTranslation, self._cb_set_translation)
+        rospy.Service('~set_rotation', pm_srv.SetRotation, self._cb_set_rotation)
+
+    def _cb_set_name(self, req):
+        rospy.logdebug("Received request to set transform name")
+        resp = pm_srv.SetNameResponse()
+
+        try:
+            t = self.root.get_node(req.id)
+            t.name = req.name
+            resp.success = True
+        except rospy.ROSException, e:
+            resp.success = False
+            rospy.logerr(e)
+
+        return resp
+
+    def _cb_set_ref_frame(self, req):
+        rospy.logdebug("Received request to set transform reference frame")
+        resp = pm_srv.SetNameResponse()
+
+        try:
+            t = self.root.get_node(req.id)
+            t.ref_frame = req.name
+            resp.success = True
+        except rospy.ROSException, e:
+            resp.success = False
+            rospy.logerr(e)
+
+        return resp
+
+    def _cb_set_rotation(self, req):
+        rospy.logdebug("Received request to set transform rotation")
+        resp = pm_srv.SetRotationResponse()
+
+        try:
+            t = self.root.get_node(req.id)
+            t.rotation = req.rotation
+            resp.success = True
+        except rospy.ROSException, e:
+            resp.success = False
+            rospy.logerr(e)
+
+        return resp
+
+    def _cb_set_translation(self, req):
+        rospy.logdebug("Received request to set transform translation")
+        resp = pm_srv.SetTranslationResponse()
+
+        try:
+            t = self.root.get_node(req.id)
+            t.translation = req.translation
+            resp.success = True
+        except rospy.ROSException, e:
+            resp.success = False
+            rospy.logerr(e)
+
+        return resp
 
     def _cb_get_transforms(self, req):
         """
