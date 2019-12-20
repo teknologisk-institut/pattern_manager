@@ -1,4 +1,4 @@
-pattern_manager/Params parent
+pattern_manager/CreationParams parent
 uint64[] num_points
 float64[] step_sizes
 float64[] lengths

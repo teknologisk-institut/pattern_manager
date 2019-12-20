@@ -297,11 +297,11 @@ class PatternManagerNode(object):
 
     def _cb_get_transform_ids(self, req):
         """
-        This callback function retrieves the IDs of all currently existing XForm objects
+        This callback function retrieves the IDs and names of all currently existing XForm objects
 
         :param req: An empty request object
         :type req: GetIdsRequest
-        :return: A response object containing a list of IDs
+        :return: A response object containing a list of IDs and a list of names each associated with an ID
         :rtype: GetIdsResponse
         """
 
@@ -311,6 +311,7 @@ class PatternManagerNode(object):
         try:
             for n in self.root.get_nodes():
                 resp.ids.append(id(n))
+                resp.names.append('%s: (%s)' % (n.name, str(id(n))))
 
             resp.success = True
         except rospy.ROSException, e:
@@ -627,7 +628,8 @@ class PatternManagerNode(object):
             return resp
 
         try:
-            t = XForm(self.root.get_node(req.params.parent_id), name=req.params.name, ref_frame=req.params.ref_frame)
+            parent = self.root.get_node(req.params.parent_id)
+            t = XForm(parent, name=req.params.name, ref_frame=parent.name)
             t.translation = req.params.translation
             t.rotation = req.params.rotation
 

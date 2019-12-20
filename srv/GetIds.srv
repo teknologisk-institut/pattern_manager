@@ -1,3 +1,4 @@
 ---
 uint64[] ids
+string[] names
 bool success

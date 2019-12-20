@@ -1,4 +1,4 @@
-pattern_manager/Params parent
+pattern_manager/CreationParams parent
 pattern_manager/Point[] points
 ---
 bool success

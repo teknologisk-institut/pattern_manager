@@ -1,3 +1,3 @@
-pattern_manager/Params params
+pattern_manager/CreationParams params
 ---
 bool success

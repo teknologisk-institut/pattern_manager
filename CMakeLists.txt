@@ -17,6 +17,7 @@ add_message_files(
    FILES
    Params.msg
    Point.msg
+   CreationParams.msg
  )
 
 add_service_files(
