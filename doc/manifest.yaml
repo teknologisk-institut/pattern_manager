@@ -11,6 +11,7 @@ depends:
 - rostest
 - rospy
 - rosunit
+- visualization_msgs
 - tf
 - geometry_msgs
 description: "A ROS-Industrial component for defining, configuring, and using patterns\
@@ -20,6 +21,7 @@ description: "A ROS-Industrial component for defining, configuring, and using pa
 license: Apache-2.0
 maintainers: Mikkel Rath Hansen <mrp@teknologisk.dk>, Mads Vainoe Baatrup <mvb@teknologisk.dk>
 msgs:
+- CreationParams
 - Params
 - Point
 package_type: package
@@ -38,6 +40,9 @@ srvs:
 - GetTransformParams
 - SetParent
 - CreateCircularPattern
+- SetTranslation
+- SetRotation
+- SetName
 - GetTransforms
 - UpdateTransform
 - GetCurrentId

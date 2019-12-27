@@ -1,11 +1,18 @@
 pattern_manager package
 =======================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    pattern_manager.plugins
+
 Submodules
 ----------
 
-pattern_manager.patterns module
--------------------------------
+pattern_manager.plugin module
+-----------------------------
 
 .. automodule:: pattern_manager.plugin
     :members:

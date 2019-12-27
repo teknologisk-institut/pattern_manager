@@ -1,49 +1,18 @@
 .. Pattern Manager documentation master file, created by
-   sphinx-quickstart on Tue Dec 10 08:29:41 2019.
+   sphinx-quickstart on Fri Dec 27 22:15:53 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
 Welcome to Pattern Manager's documentation!
 ===========================================
 
-This ROS node enables arrangement, management, and runtime iteration through various types of patterns (for e.g. palletization processes).
-
-Currently supported pattern types include:
-
-- linear
-- rectangular
-- circular
-- scatter
-
-Example arrangement of patterns and grouping of transforms:
-
-.. code-block:: bash
-
-    root [tf0]                      # <transform-name> [<transform-number>]
-    ├── grp1 [tf1]                  # transform as pattern group/container
-    │   ├── lin1 [tf2]              # ex. linear pattern of transforms
-    │   │   ├── lin1_1 [tf3]           
-    │   │   ├── lin1_2 [tf4]
-    │   │   ├── lin1_3 [tf5]
-    │   │   └── ...
-    │   └── lin2 [tf11]
-    │       ├── lin2_1 [tf12]           
-    │       ├── lin2_2 [tf13]
-    │       └── lin2_3 [tf14]
-    ├── grp2 [tf6]
-    │   ├── grp3 [tf7]
-    │   │   ├── rect1 [tf8]         # ex. rectangular pattern of transforms
-    │   │   │   ├── rect1_1 [tf9]
-    │   │   │   ├── rect1_2 [tf10]
-    │   │   │   └── ...
-    │   │   └── ...
-    │   └── ...
-    └── ...
-
 Contents:
 
 .. toctree::
    :maxdepth: 2
+
+   modules
+
 
 Indices and tables
 ==================
