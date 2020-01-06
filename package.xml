@@ -4,12 +4,11 @@
   <name>pattern_manager</name>
   <url>http://www.ros.org/wiki/pattern_manager</url>
   <version>1.0.0</version>
-  <description>A ROS-Industrial component for defining, configuring, and using patterns in industrial robot applications.
-This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No. 732287 (ROSIN).</description>
+  <description>A ROS package for defining, configuring, and working with patterns in robotics applications. This allows a robotics application developer to easily define a pattern, or group of patterns, for batch processing of structured parts, e.g. palletizing operations.</description>
   <maintainer email="mrp@teknologisk.dk">Mikkel Rath Hansen</maintainer>
   <maintainer email="mvb@teknologisk.dk">Mads Vainoe Baatrup</maintainer>
   <license>Apache-2.0</license>
-
+  <author>Mads Vainoe Baatrup</author>
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>python-catkin-pkg</build_depend>
   
