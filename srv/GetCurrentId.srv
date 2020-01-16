@@ -1,3 +1,4 @@
 ---
 uint64 id
+string name
 bool success

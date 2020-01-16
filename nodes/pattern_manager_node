@@ -490,8 +490,15 @@ class PatternManagerNode(object):
         rospy.logdebug("Received request to retrieve active transform ids")
         resp = pm_srv.GetIdsResponse()
 
-        for n in self.root.get_active_nodes():
-            resp.ids.append(id(n))
+        try:
+            for n in self.root.get_active_nodes():
+                resp.ids.append(id(n))
+                resp.names.append('%s: (%s)' % (n.name, str(id(n))))
+
+            resp.success = True
+        except rospy.ROSException, e:
+            resp.success = False
+            rospy.logerr(e)
 
         return resp
 
@@ -508,10 +515,11 @@ class PatternManagerNode(object):
         rospy.logdebug("Received request to retrieve current transform id")
         resp = pm_srv.GetCurrentIdResponse()
 
-        id_ = id(self.root.get_current_node())
+        n = self.root.get_current_node()
 
-        if id_:
-            resp.id = id_
+        if n:
+            resp.id = id(n)
+            resp.name = n.name
             resp.success = True
         else:
             resp.success = False
