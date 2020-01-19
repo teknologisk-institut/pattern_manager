@@ -9,11 +9,11 @@ We have implemented the ROS package purely in Python, with the key components ne
 #### Structure and Behaviour
 - All patterns and transforms are represented by a single class: `XForm`.
 - The `XForm` (as in transform) class is implemented as a tree node. Each transform is contained within an `XForm` node. The `XForm` class contains all necessary functions to manage and configure the transform tree structure.
-- Patterns of transforms simply consist of a parent `XForm` object with any number of child-`XForm` objects (hence a tree structure) positioned in the respective pattern shape, relative to the parent.
+- Patterns of transforms consist of a parent `XForm` object with n child-`XForm` objects (hence a tree structure) positioned in the respective pattern shape, relative to the parent.
 - `XForm` nodes contain an attribute describing whether the node is “active”, or not. Setting this property allows choosing which transforms should be iterated and affords the functionality of iterating through transforms sequentially.
 - Pattern classes are implemented as plugins, allowing for easy extensibility of the set of pattern types.
 - A standard set of pattern plugins are implemented for generating some primitive pattern types (i.e. linear, rectangular, circular, and scatter).
-- With the flexible nature of the tree structure it is possible to group transforms and/or patterns by creating a new `XForm` object and assigning it as the parent of various patterns or sub-groups (see `grp1` and `grp2` <a href="#example-tree-structure">here</a>).
+- It is possible to group transforms and/or patterns by creating a new `XForm` object and assigning it as the parent of various patterns or sub-groups (see `grp1` and `grp2` <a href="#example-tree-structure">here</a>).
 - The `XForm` tree can be stored as a .yaml file, which in addition to allowing users to persistently store their configuration, also allows for editing of the tree by hand using a text editor.
 - Saved (or manually constructed) .yaml files can also be loaded to generate a reflective `XForm` tree.
 - All required functionality for creating and managing patterns and transforms is enabled through ROS services.
@@ -21,8 +21,8 @@ We have implemented the ROS package purely in Python, with the key components ne
 - The node also publishes Marker Messages which are used to draw primitive, color-coded, markers in RViz at each transform position. These markers are used to indicate whether a transform is active and if it is the next transform in the iteration.
 
 #### Graphical User Interface
-- A considerable effort was also put into developing a GUI (<a href="https://github.com/teknologisk-institut/rqt_pattern_manager">rqt_pattern_manager</a>) to enable simple and intuitive interaction with the Pattern Manager node.
-- As the GUI was designed as an RQT plugin it is very easy to integrate into existing ROS software, which makes particularly good sense in the case of RViz, which accepts RQT plugins as extended program functionality. This means the GUI can be opened from within RViz as part of the editor’s environment.
+- Additionally, a GUI (<a href="https://github.com/teknologisk-institut/rqt_pattern_manager">rqt_pattern_manager</a>) has been developed to enable simple and intuitive interaction with the Pattern Manager node.
+- As the GUI was designed as an RQT plugin it is easy to integrate into existing ROS software, which makes particularly good sense in the case of RViz, which accepts RQT plugins as extended program functionality. This means the GUI can be opened from within RViz as part of the editor’s environment.
 - All the same functionalities available by interacting directly with the Pattern Manager ROS node, are available from within the RQT plugin.
 - The GUI additionally allows for drag-and-drop functionality for reordering and re-parenting transforms (incl. patterns).
 
@@ -32,9 +32,7 @@ We have implemented the ROS package purely in Python, with the key components ne
 - Unit test have been created for source code modules (Python unittest library).
 - Package added to ROS build farm.
 - Documentation added to ROS documentation index.
-
-#### Work-in-progress
-- Extensive behaviour and API documentation, and tutorials for the ROS wiki page.
+- Tutorials added to the ROS wiki page.
 
 ### Example tree structure
 
