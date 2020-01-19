@@ -364,10 +364,15 @@ class PatternManagerNode(object):
 
         try:
             args = [req.num_points, req.step_size, req.length]
+            trans = req.parent.translation
+            rot = req.parent.rotation
 
             t = XForm(self.root.get_node(req.parent.parent_id), name=req.parent.name)
-            t.translation = req.parent.translation
-            t.rotation = req.parent.rotation
+
+            if rot.x != 0.0 or rot.y != 0.0 or rot.z != 0.0 or rot.w != 0.0:
+                t.rotation = rot
+
+            t.translation = trans
 
             self.plugin = self.plugins['pattern_linear'](t, *args)
             self.plugin.process()
@@ -395,10 +400,15 @@ class PatternManagerNode(object):
 
         try:
             args = [req.num_points, req.step_sizes, req.lengths]
+            trans = req.parent.translation
+            rot = req.parent.rotation
 
             t = XForm(self.root.get_node(req.parent.parent_id), name=req.parent.name)
-            t.translation = req.parent.translation
-            t.rotation = req.parent.rotation
+
+            if rot.x != 0.0 or rot.y != 0.0 or rot.z != 0.0 or rot.w != 0.0:
+                t.rotation = rot
+
+            t.translation = trans
 
             self.plugin = self.plugins['pattern_rectangular'](t, *args)
             self.plugin.process()
@@ -429,10 +439,15 @@ class PatternManagerNode(object):
                 points.append(p.point)
 
             args = [points]
+            trans = req.parent.translation
+            rot = req.parent.rotation
 
             t = XForm(self.root.get_node(req.parent.parent_id), name=req.parent.name)
-            t.translation = req.parent.translation
-            t.rotation = req.parent.rotation
+
+            if rot.x != 0.0 or rot.y != 0.0 or rot.z != 0.0 or rot.w != 0.0:
+                t.rotation = rot
+
+            t.translation = trans
 
             self.plugin = self.plugins['pattern_scatter'](t, *args)
             self.plugin.process()
@@ -461,10 +476,15 @@ class PatternManagerNode(object):
 
         try:
             args = [req.num_points, req.radius, req.tan_rot, req.cw]
+            trans = req.parent.translation
+            rot = req.parent.rotation
 
             t = XForm(self.root.get_node(req.parent.parent_id), name=req.parent.name)
-            t.translation = req.parent.translation
-            t.rotation = req.parent.rotation
+
+            if rot.x != 0.0 or rot.y != 0.0 or rot.z != 0.0 or rot.w != 0.0:
+                t.rotation = rot
+
+            t.translation = trans
 
             self.plugin = self.plugins['pattern_circular'](t, *args)
             self.plugin.process()
@@ -637,9 +657,15 @@ class PatternManagerNode(object):
 
         try:
             parent = self.root.get_node(req.params.parent_id)
+            trans = req.params.translation
+            rot = req.params.rotation
+
             t = XForm(parent, name=req.params.name, ref_frame=parent.name)
-            t.translation = req.params.translation
-            t.rotation = req.params.rotation
+
+            if rot.x != 0.0 or rot.y != 0.0 or rot.z != 0.0 or rot.w != 0.0:
+                t.rotation = rot
+
+            t.translation = trans
 
             rospy.logout("Transform {} successfully created!".format(req.params.name))
             resp.success = True
