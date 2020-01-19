@@ -102,6 +102,14 @@ def matrix_to_tf(matrix):
     return t
 
 
+def is_zero_element(rot):
+
+    if rot.x == rot.y == rot.z == rot.w == 0.0:
+        return True
+
+    return False
+
+
 def broadcast_transforms(br, xfs):
     """
     This function is responsible for broadcasting the XForms translation and rotation via tf
@@ -178,12 +186,3 @@ def publish_markers(pub, xfs, root):
         id_ += 1
 
     pub.publish(arr)
-
-
-if __name__ == '__main__':
-    import tf
-
-    m = tf.transformations.euler_matrix(0, 0, 1)
-    q = matrix_to_tf(m).rotation
-
-    print q
