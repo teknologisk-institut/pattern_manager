@@ -8,7 +8,7 @@
   <maintainer email="mrp@teknologisk.dk">Mikkel Rath Hansen</maintainer>
   <maintainer email="mvb@teknologisk.dk">Mads Vainoe Baatrup</maintainer>
   <license>Apache-2.0</license>
-  <author>Mads Vainoe Baatrup</author>
+  <author>Mads Vainoe Baatrup, Mikkel Rath Hansen</author>
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>python-catkin-pkg</build_depend>
   
