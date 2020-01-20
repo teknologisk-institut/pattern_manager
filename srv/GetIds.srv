@@ -1,4 +1,3 @@
 ---
-uint64[] ids
-string[] names
+pattern_manager/NameAndId[] names_and_ids
 bool success

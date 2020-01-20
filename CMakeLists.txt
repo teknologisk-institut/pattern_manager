@@ -18,6 +18,7 @@ add_message_files(
    Params.msg
    Point.msg
    CreationParams.msg
+   NameAndId.msg
  )
 
 add_service_files(
@@ -41,6 +42,9 @@ add_service_files(
    SetName.srv
    SetRotation.srv
    SetTranslation.srv
+   GetTransformName.srv
+   GetTransformsInfo.srv
+   GetChildren.srv
  )
 
 generate_messages(

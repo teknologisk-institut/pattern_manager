@@ -45,17 +45,21 @@ class PatternManagerNode(object):
 
         self.root = XForm(name='root', parent=None, ref_frame='world')
 
-        rospy.Service('~get_transform', pm_srv.GetTransformParams, self._cb_get_transform)
-        rospy.Service('~get_transforms', pm_srv.GetTransforms, self._cb_get_transforms)
+        rospy.Service('~get_transform_info', pm_srv.GetTransformParams, self._cb_get_transform_info)
+        rospy.Service('~get_children_info', pm_srv.GetTransforms, self._cb_get_children_info)
+        rospy.Service('~get_children', pm_srv.GetChildren, self._cb_get_children)
         rospy.Service('~get_transform_id', pm_srv.GetTransformId, self._cb_get_transform_id)
-        rospy.Service('~get_transform_ids', pm_srv.GetIds, self._cb_get_transform_ids)
+        rospy.Service('~get_transform_name', pm_srv.GetTransformName, self._cb_get_transform_name)
+        rospy.Service('~get_transforms', pm_srv.GetIds, self._cb_get_transforms)
+        rospy.Service('~get_transforms_info', pm_srv.GetTransformsInfo, self._cb_get_transforms_info)
         rospy.Service('~create_transform', pm_srv.CreateTransform, self._cb_create_transform)
         rospy.Service('~set_active', pm_srv.SetActive, self._cb_set_active)
         rospy.Service('~remove_transform', pm_srv.TransformId, self._cb_remove_transform)
         rospy.Service('~iterate', Trigger, self._cb_iterate)
         rospy.Service('~update_transform', pm_srv.UpdateTransform, self._cb_update_transform)
-        rospy.Service('~get_current_transform_id', pm_srv.GetCurrentId, self._cb_get_current_tf_id)
-        rospy.Service('~get_active_ids', pm_srv.GetIds, self._cb_get_active_ids)
+        rospy.Service('~get_current_transform', pm_srv.GetCurrentId, self._cb_get_current_transform)
+        rospy.Service('~get_active_transforms', pm_srv.GetIds, self._cb_get_active_transforms)
+        rospy.Service('~get_active_transforms_info', pm_srv.GetTransformsInfo, self._cb_get_active_transforms_info)
         rospy.Service('~create_linear_pattern', pm_srv.CreateLinearPattern, self._cb_create_linear_pattern)
         rospy.Service('~create_rectangular_pattern', pm_srv.CreateRectangularPattern, self._cb_create_rectangular_pattern)
         rospy.Service('~create_circular_pattern', pm_srv.CreateCircularPattern, self._cb_create_circular_pattern)
@@ -70,7 +74,135 @@ class PatternManagerNode(object):
         rospy.Service('~set_translation', pm_srv.SetTranslation, self._cb_set_translation)
         rospy.Service('~set_rotation', pm_srv.SetRotation, self._cb_set_rotation)
 
+    def _cb_get_children(self, req):
+        """
+        This callback function retrieves the names and ids of all child XForm objects of a specified parent
+
+        :param req: A request object containing the parent ID of the children to retrieve
+        :type req: GetChildrenRequest
+        :return: A response object containing a list of names and ids of each child XForm of the requested parent
+        :rtype: GetChildrenResponse
+        """
+
+        rospy.logdebug("Received request to retrieve all child transforms")
+        resp = pm_srv.GetChildrenResponse()
+
+        try:
+            parent = self.root.get_node(req.parent_id)
+            for n in self.root.get_nodes(root=parent):
+
+                if id(n) == req.parent_id:
+                    continue
+
+                name_and_id = pm_msg.NameAndId()
+                name_and_id.name = n.name
+                name_and_id.id = id(n)
+                resp.names_and_ids.append(name_and_id)
+        except rospy.ROSException, e:
+            rospy.logerr(e)
+
+        return resp
+
+    def _cb_get_active_transforms_info(self, req):
+        """
+        This callback function retrieves object info of all active XForm objects
+
+        :param req: An empty request object
+        :type req: GetTransformsInfoRequest
+        :return: A response object containing a list of information on each active XForm object
+        :rtype: GetTransformsInfoResponse
+        """
+
+        rospy.logdebug("Received request to retrieve info of all active transforms")
+        resp = pm_srv.GetTransformsInfoResponse()
+
+        try:
+            for t in self.root.get_active_nodes():
+                t_params = pm_msg.Params()
+                t_params.name = t.name
+                t_params.parent_id = id(t)
+                t_params.id = id(t)
+                t_params.ref_frame = t.ref_frame
+                t_params.active = t.active
+                t_params.translation = t.translation
+                t_params.rotation = t.rotation
+                t_params.number = t.number
+
+                if t.parent:
+                    t_params.parent_id = id(t.parent)
+
+                resp.transforms.append(t_params)
+        except rospy.ROSException, e:
+            rospy.logerr(e)
+
+        return resp
+
+    def _cb_get_transforms_info(self, req):
+        """
+        This callback function retrieves object info of all XForm objects
+
+        :param req: An empty request object
+        :type req: GetTransformsInfoRequest
+        :return: A response object containing a list of information on each XForm object
+        :rtype: GetTransformsInfoResponse
+        """
+
+        rospy.logdebug("Received request to retrieve info of all transforms")
+        resp = pm_srv.GetTransformsInfoResponse()
+
+        try:
+            for t in self.root.get_nodes():
+                t_params = pm_msg.Params()
+                t_params.name = t.name
+                t_params.parent_id = id(t)
+                t_params.id = id(t)
+                t_params.ref_frame = t.ref_frame
+                t_params.active = t.active
+                t_params.translation = t.translation
+                t_params.rotation = t.rotation
+                t_params.number = t.number
+
+                if t.parent:
+                    t_params.parent_id = id(t.parent)
+
+                resp.transforms.append(t_params)
+        except rospy.ROSException, e:
+            rospy.logerr(e)
+
+        return resp
+
+    def _cb_get_transform_name(self, req):
+        """
+        This callback function retrieves an XForm's name by ID
+
+        :param req: A request object containing the ID of the XForm
+        :type req: GetTransformNameRequest
+        :return: A response object containing the name of the XForm object
+        :rtype: GetTransformNameResponse
+        """
+
+        rospy.logdebug("Received request to retrieve transform name")
+        resp = pm_srv.GetTransformNameResponse()
+
+        try:
+            for n in self.root.get_nodes():
+                if id(n) == req.id:
+                    resp.name = n.name
+        except rospy.ROSException, e:
+            rospy.logerr(e)
+
+        return resp
+
     def _cb_set_name(self, req):
+        """
+        This callback function sets an XForm's name
+
+        :param req: A request object containing the ID of the XForm
+        :type req: SetNameRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: SetNameResponse
+        """
+
         rospy.logdebug("Received request to set transform name")
         resp = pm_srv.SetNameResponse()
 
@@ -85,6 +217,15 @@ class PatternManagerNode(object):
         return resp
 
     def _cb_set_ref_frame(self, req):
+        """
+        This callback function sets an XForm's reference frame
+
+        :param req: A request object containing the ID of the XForm
+        :type req: SetNameRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: SetNameResponse
+        """
+
         rospy.logdebug("Received request to set transform reference frame")
         resp = pm_srv.SetNameResponse()
 
@@ -99,6 +240,15 @@ class PatternManagerNode(object):
         return resp
 
     def _cb_set_rotation(self, req):
+        """
+        This callback function sets an XForm's rotation
+
+        :param req: A request object containing the ID of the XForm
+        :type req: SetRotationRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: SetRotationResponse
+        """
+
         rospy.logdebug("Received request to set transform rotation")
         resp = pm_srv.SetRotationResponse()
 
@@ -113,6 +263,15 @@ class PatternManagerNode(object):
         return resp
 
     def _cb_set_translation(self, req):
+        """
+        This callback function sets an XForm's translation
+
+        :param req: A request object containing the ID of the XForm
+        :type req: SetTranslationRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: SetTranslationResponse
+        """
+
         rospy.logdebug("Received request to set transform translation")
         resp = pm_srv.SetTranslationResponse()
 
@@ -126,7 +285,7 @@ class PatternManagerNode(object):
 
         return resp
 
-    def _cb_get_transforms(self, req):
+    def _cb_get_children_info(self, req):
         """
         This callback function retrieves XForm children of a parent XForm
 
@@ -295,13 +454,13 @@ class PatternManagerNode(object):
 
         return resp
 
-    def _cb_get_transform_ids(self, req):
+    def _cb_get_transforms(self, req):
         """
         This callback function retrieves the IDs and names of all currently existing XForm objects
 
         :param req: An empty request object
         :type req: GetIdsRequest
-        :return: A response object containing a list of IDs and a list of names each associated with an ID
+        :return: A response object containing a list of IDs and names each associated with an ID
         :rtype: GetIdsResponse
         """
 
@@ -310,8 +469,10 @@ class PatternManagerNode(object):
 
         try:
             for n in self.root.get_nodes():
-                resp.ids.append(id(n))
-                resp.names.append('%s: (%s)' % (n.name, str(id(n))))
+                name_and_id = pm_msg.NameAndId()
+                name_and_id.name = n.name
+                name_and_id.id = id(n)
+                resp.names_and_ids.append(name_and_id)
 
             resp.success = True
         except rospy.ROSException, e:
@@ -485,13 +646,13 @@ class PatternManagerNode(object):
 
         return resp
 
-    def _cb_get_active_ids(self, req):
+    def _cb_get_active_transforms(self, req):
         """
-        This callback function retrieves all IDs of active XForms
+        This callback function retrieves all names and IDs of active XForms
 
         :param req: An empty request object
         :type req: GetIdsRequest
-        :return: A response object containing a list of IDs
+        :return: A response object containing a list of names and IDs
         :rtype: GetIdsResponse
         """
 
@@ -500,8 +661,10 @@ class PatternManagerNode(object):
 
         try:
             for n in self.root.get_active_nodes():
-                resp.ids.append(id(n))
-                resp.names.append('%s: (%s)' % (n.name, str(id(n))))
+                name_and_id = pm_msg.NameAndId()
+                name_and_id.name = n.name
+                name_and_id.id = id(n)
+                resp.names_and_ids.append(name_and_id)
 
             resp.success = True
         except rospy.ROSException, e:
@@ -510,13 +673,13 @@ class PatternManagerNode(object):
 
         return resp
 
-    def _cb_get_current_tf_id(self, req):
+    def _cb_get_current_transform(self, req):
         """
-        This callback function retrieves the ID of the next XForm in the iteration
+        This callback function retrieves the name and ID of the current XForm in the iteration
 
         :param req: An empty request object
         :type req: GetCurrentIdRequest
-        :return: A response object containing the ID of the XForm which is next in the iteration
+        :return: A response object containing the name and ID of the XForm which is current in the iteration
         :rtype: GetCurrentIdResponse
         """
 
@@ -552,7 +715,7 @@ class PatternManagerNode(object):
         if cur_node:
             self.root.iterate()
 
-            resp.message = 'Transform: {}'.format(cur_node.name)
+            resp.message = 'New current transform: {}'.format(self.root.get_current_node())
             resp.success = True
         else:
             resp.success = False
@@ -575,10 +738,16 @@ class PatternManagerNode(object):
         try:
             n = self.root.get_node(req.id)
 
-            n.name = req.name
-            n.ref_frame = req.ref_frame
-            n.translation = req.translation
-            n.rotation = req.rotation
+            if req.name != '':
+                n.name = req.name
+            if req.ref_frame != '':
+                n.ref_frame = req.ref_frame
+            if not req.translation.x == req.translation.y == req.translation.z == 0.0:
+                n.translation = req.translation
+            if not util.is_zero_element(req.rotation):
+                n.rotation = req.rotation
+            if not req.active == n.active:
+                n.active = req.active
 
             rospy.logout("Transform %s succesfully updated" % req.id)
             resp.success = True
@@ -588,11 +757,11 @@ class PatternManagerNode(object):
 
         return resp
 
-    def _cb_get_transform(self, req):
+    def _cb_get_transform_info(self, req):
         """
         This callback function retrieves various attributes of an XForm
 
-        :param req: A reqiest object containing the ID of the XForm
+        :param req: A request object containing the ID of the XForm
         :type req: GetTransformParamsRequest
         :return: A response object containing an object which contains the XForm's name, ID, parent ID,
         reference frame, if active, translation, rotation, and number
