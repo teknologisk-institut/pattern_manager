@@ -32,6 +32,7 @@ add_service_files(
    CreateRectangularPattern.srv
    CreateCircularPattern.srv
    CreateScatterPattern.srv
+   CreateHoneycombPattern.srv
    SetIterationOrder.srv
    GetTransformParams.srv
    SetParent.srv

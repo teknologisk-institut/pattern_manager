@@ -64,6 +64,7 @@ class PatternManagerNode(object):
         rospy.Service('~create_rectangular_pattern', pm_srv.CreateRectangularPattern, self._cb_create_rectangular_pattern)
         rospy.Service('~create_circular_pattern', pm_srv.CreateCircularPattern, self._cb_create_circular_pattern)
         rospy.Service('~create_scatter_pattern', pm_srv.CreateScatterPattern, self._cb_create_scatter_pattern)
+        rospy.Service('~create_honeycomb_pattern', pm_srv.CreateHoneycombPattern, self._cb_create_honeycomb_pattern)
         rospy.Service('~set_iteration_order', pm_srv.SetIterationOrder, self._cb_set_iteration_order)
         rospy.Service('~set_transform_parent', pm_srv.SetParent, self._cb_set_transform_parent)
         rospy.Service('~save', pm_srv.Filename, self._cb_save)
@@ -646,6 +647,39 @@ class PatternManagerNode(object):
 
         return resp
 
+    def _cb_create_honeycomb_pattern(self, req):
+        """
+        This callback function creates a pattern of XForms in an honeycomb shape
+
+        :param req: A request object containing the number of points, step sizes, and lengths of the pattern
+        :type req: CreateHoneycombPatternRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: CreateHoneycombPatternResponse
+        """
+
+        rospy.logdebug("Received request to create an honeycomb pattern")
+        resp = pm_srv.CreateHoneycombPatternResponse()
+
+        try:
+            args = [req.num_points, req.step_sizes, req.lengths]
+
+            t = XForm(self.root.get_node(req.parent.parent_id), name=req.parent.name)
+            t.translation = req.parent.translation
+
+            if not util.is_zero_element(req.parent.rotation):
+                t.rotation = req.parent.rotation
+
+            self.plugin = self.plugins['pattern_honeycomb'](t, *args)
+            self.plugin.process()
+
+            rospy.logout("Honeycomb pattern successfully created!")
+            resp.success = True
+        except rospy.ROSException, e:
+            rospy.logerr(e)
+            resp.success = False
+
+        return resp
+
     def _cb_get_active_transforms(self, req):
         """
         This callback function retrieves all names and IDs of active XForms
@@ -710,11 +744,10 @@ class PatternManagerNode(object):
         rospy.logdebug('Received request to iterate')
         resp = TriggerResponse()
 
+        self.root.iterate()
+
         cur_node = self.root.get_current_node()
-
         if cur_node:
-            self.root.iterate()
-
             resp.message = 'New current transform: {}'.format(self.root.get_current_node())
             resp.success = True
         else:
