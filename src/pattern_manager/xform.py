@@ -160,7 +160,7 @@ class XForm(gm_msg.Transform):
         if not root:
             root = self
 
-        for k, v in self.get_node(id_, root).children.items():
+        for k, v in self.get_node(id_, root).children.copy().items():
             self._recursive_remove_node(k)
             del self.get_node(id_, root).children[k]
 
@@ -272,10 +272,10 @@ class XForm(gm_msg.Transform):
         :param root: The current root XForm of the tree
         :type root: XForm
         """
-        
+
         if not root:
             root = self
-            dict_ = dict_[dict_.keys()[0]]
+            dict_ = dict_[list(dict_)[0]]
 
         for k, v in dict_.items():
 

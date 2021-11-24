@@ -53,7 +53,7 @@ class RectangularPattern(Plugin):
         try:
             (po_x, st_x, le_x) = handle_input_1d(self.num_points[0], self.step_sizes[0], self.line_lens[0])
             (po_y, st_y, le_y) = handle_input_1d(self.num_points[1], self.step_sizes[1], self.line_lens[1])
-        except TypeError, e:
+        except TypeError as e:
             rospy.logerr(e)
 
             return None

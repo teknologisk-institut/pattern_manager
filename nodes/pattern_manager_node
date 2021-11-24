@@ -99,7 +99,7 @@ class PatternManagerNode(object):
                 name_and_id.name = n.name
                 name_and_id.id = id(n)
                 resp.names_and_ids.append(name_and_id)
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -133,7 +133,7 @@ class PatternManagerNode(object):
                     t_params.parent_id = id(t.parent)
 
                 resp.transforms.append(t_params)
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -167,7 +167,7 @@ class PatternManagerNode(object):
                     t_params.parent_id = id(t.parent)
 
                 resp.transforms.append(t_params)
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -189,7 +189,7 @@ class PatternManagerNode(object):
             for n in self.root.get_nodes():
                 if id(n) == req.id:
                     resp.name = n.name
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -211,7 +211,7 @@ class PatternManagerNode(object):
             t = self.root.get_node(req.id)
             t.name = req.name
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -234,7 +234,7 @@ class PatternManagerNode(object):
             t = self.root.get_node(req.id)
             t.ref_frame = req.name
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -257,7 +257,7 @@ class PatternManagerNode(object):
             t = self.root.get_node(req.id)
             t.rotation = req.rotation
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -280,7 +280,7 @@ class PatternManagerNode(object):
             t = self.root.get_node(req.id)
             t.translation = req.translation
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -322,7 +322,7 @@ class PatternManagerNode(object):
 
                 resp.transforms.append(t_params)
 
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -346,7 +346,7 @@ class PatternManagerNode(object):
 
             resp.message = 'Tree sent to node output'
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -369,7 +369,7 @@ class PatternManagerNode(object):
             for n in self.root.get_nodes():
                 if n.name == req.name:
                     resp.id = id(n)
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -389,7 +389,7 @@ class PatternManagerNode(object):
 
         try:
             with open(req.path, 'r') as file_:
-                tree = yaml.load(file_)
+                tree = yaml.safe_load(file_)
 
             self.root.recursive_remove_node(id(self.root))
             self.root.from_dict(tree)
@@ -397,7 +397,7 @@ class PatternManagerNode(object):
             file_.close()
 
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -423,7 +423,7 @@ class PatternManagerNode(object):
             file_.close()
 
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -449,7 +449,7 @@ class PatternManagerNode(object):
             new_parent.add_node(t)
 
             t.ref_frame = new_parent.name
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -476,7 +476,7 @@ class PatternManagerNode(object):
                 resp.names_and_ids.append(name_and_id)
 
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -505,7 +505,7 @@ class PatternManagerNode(object):
             t.children = ordered
 
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -538,7 +538,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Linear pattern successfully created!")
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -571,7 +571,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Rectangular pattern successfully created!")
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -607,7 +607,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Scatter pattern successfully created!")
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -641,7 +641,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Circular pattern successfully created!")
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -674,7 +674,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Honeycomb pattern successfully created!")
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -701,7 +701,7 @@ class PatternManagerNode(object):
                 resp.names_and_ids.append(name_and_id)
 
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -784,7 +784,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Transform %s succesfully updated" % req.id)
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -821,7 +821,7 @@ class PatternManagerNode(object):
                 t_params.parent_id = id(t.parent)
 
             resp.params = t_params
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -855,7 +855,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Transform {} successfully created!".format(req.params.name))
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -879,7 +879,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Transform {} successfully (de)activated!".format(req.id))
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -908,7 +908,7 @@ class PatternManagerNode(object):
             self.root.recursive_remove_node(req.id)
             rospy.logout("Transform {} successfully removed!".format(req.id))
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
