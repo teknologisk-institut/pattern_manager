@@ -17,7 +17,7 @@
 # Author: Mads Vainoe Baatrup
 
 import rospy
-import tf
+import tf2_ros
 import yaml
 # import pluginlib
 import os
@@ -916,21 +916,31 @@ class PatternManagerNode(object):
 
 
 if __name__ == "__main__":
-    rospy.init_node("pattern_manager", log_level=rospy.DEBUG)
+    
+    # Node
+    rospy.init_node("pattern_manager", log_level=rospy.INFO)
 
+    # Parameters
+    tf_prefix = rospy.get_param("~tf_prefix", default='')
+
+    # TF2
+    tf_broadcaster = tf2_ros.TransformBroadcaster()
+    
+    # Published Topics
+    visualization_marker_array_pub = rospy.Publisher("visualization_marker_array", MarkerArray, queue_size=10)
+
+
+    # Pattern Manager
     pmn = PatternManagerNode()
     rospy.loginfo("Pattern manager node started")
 
-    br = tf.TransformBroadcaster()
-    pub = rospy.Publisher("visualization_marker_array", MarkerArray, queue_size=10)
-
-    r = rospy.Rate(5)
-
+    # Loop
+    rate = rospy.Rate(5)
     while not rospy.is_shutdown():
         nodes = pmn.root.get_nodes(pmn.root)
         actv_nodes = pmn.root.get_active_nodes(pmn.root)
 
-        util.broadcast_transforms(br, nodes)
-        util.publish_markers(pub, actv_nodes, pmn.root)
+        util.broadcast_transforms(tf_broadcaster, nodes, tf_prefix)
+        util.publish_markers(visualization_marker_array_pub, actv_nodes, pmn.root, tf_prefix)
 
-        r.sleep()
+        rate.sleep()

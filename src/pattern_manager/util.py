@@ -18,6 +18,7 @@
 
 from __future__ import division
 from pattern_manager.xform import XForm
+from geometry_msgs.msg import TransformStamped
 from visualization_msgs.msg import Marker, MarkerArray
 
 import tf.transformations as tfs
@@ -110,7 +111,7 @@ def is_zero_element(rot):
     return False
 
 
-def broadcast_transforms(br, xfs):
+def broadcast_transforms(tf_broadcaster, xfs, tf_prefix=''):
     """
     This function is responsible for broadcasting the XForms translation and rotation via tf
 
@@ -121,24 +122,23 @@ def broadcast_transforms(br, xfs):
     """
 
     for xf in xfs:
-        br.sendTransform(
-            [
-                xf.translation.x,
-                xf.translation.y,
-                xf.translation.z
-            ],
-            [
-                xf.rotation.x,
-                xf.rotation.y,
-                xf.rotation.z,
-                xf.rotation.w
-            ],
-            rospy.Time.now(),
-            xf.name,
-            xf.ref_frame)
+
+        tf = TransformStamped()
+        tf.header.stamp = rospy.Time.now()
+        tf.header.frame_id = tf_prefix + '/' + xf.ref_frame
+        tf.child_frame_id = tf_prefix + '/' + xf.name
+        tf.transform.translation.x = xf.translation.x
+        tf.transform.translation.y = xf.translation.y
+        tf.transform.translation.z = xf.translation.z
+        tf.transform.rotation.x = xf.rotation.x
+        tf.transform.rotation.y = xf.rotation.y
+        tf.transform.rotation.z = xf.rotation.z
+        tf.transform.rotation.w = xf.rotation.w
+
+        tf_broadcaster.sendTransform(tf)
 
 
-def publish_markers(pub, xfs, root):
+def publish_markers(pub, xfs, root, tf_prefix=''):
     """
     This function is responsible for publishing markers for each XForm
 
@@ -153,7 +153,7 @@ def publish_markers(pub, xfs, root):
     id_ = 0
     for xf in xfs:
         marker = Marker()
-        marker.header.frame_id = xf.ref_frame
+        marker.header.frame_id = tf_prefix + '/' + xf.ref_frame if (tf_prefix) else xf.ref_frame
         marker.header.stamp = rospy.Time.now()
         marker.id = id_
         marker.type = Marker.SPHERE
