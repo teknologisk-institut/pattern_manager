@@ -150,12 +150,19 @@ def publish_markers(pub, xfs, root, tf_prefix=''):
 
     arr = MarkerArray()
 
-    id_ = 0
+    marker_id = 0
     for xf in xfs:
+        
+        if not tf_prefix:
+            frame_id = xf.ref_frame
+        else:
+            frame_id = tf_prefix + '/' + xf.ref_frame
+    
         marker = Marker()
-        marker.header.frame_id = tf_prefix + '/' + xf.ref_frame if (tf_prefix) else xf.ref_frame
+        marker.header.frame_id = frame_id
         marker.header.stamp = rospy.Time.now()
-        marker.id = id_
+        marker.ns = tf_prefix
+        marker.id = marker_id
         marker.type = Marker.SPHERE
         marker.action = marker.ADD
         marker.pose.position.x = xf.translation.x
@@ -183,6 +190,6 @@ def publish_markers(pub, xfs, root, tf_prefix=''):
 
         arr.markers.append(marker)
 
-        id_ += 1
+        marker_id += 1
 
     pub.publish(arr)

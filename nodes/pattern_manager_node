@@ -927,7 +927,7 @@ if __name__ == "__main__":
     tf_broadcaster = tf2_ros.TransformBroadcaster()
     
     # Published Topics
-    visualization_marker_array_pub = rospy.Publisher("visualization_marker_array", MarkerArray, queue_size=10)
+    visualization_marker_array_pub = rospy.Publisher("/visualization_marker_array", MarkerArray, queue_size=10)
 
 
     # Pattern Manager
