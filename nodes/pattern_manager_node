@@ -720,11 +720,16 @@ class PatternManagerNode(object):
         rospy.logdebug("Received request to retrieve current transform id")
         resp = pm_srv.GetCurrentIdResponse()
 
-        n = self.root.get_current_node()
+        node = self.root.get_current_node()
 
-        if n:
-            resp.id = id(n)
-            resp.name = n.name
+        if node:
+            resp.id = id(node)
+
+            if not tf_prefix:
+                resp.name = node.name  
+            else:
+                resp.name = tf_prefix + '/' + node.name
+            
             resp.success = True
         else:
             resp.success = False
