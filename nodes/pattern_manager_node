@@ -188,7 +188,12 @@ class PatternManagerNode(object):
         try:
             for n in self.root.get_nodes():
                 if id(n) == req.id:
-                    resp.name = n.name
+
+                    if not tf_prefix:
+                        resp.name = n.name  
+                    else:
+                        resp.name = tf_prefix + '/' + n.name
+        
         except rospy.ROSException as e:
             rospy.logerr(e)
 
@@ -729,7 +734,7 @@ class PatternManagerNode(object):
                 resp.name = node.name  
             else:
                 resp.name = tf_prefix + '/' + node.name
-            
+   
             resp.success = True
         else:
             resp.success = False
