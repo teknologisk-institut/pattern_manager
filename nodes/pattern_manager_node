@@ -17,7 +17,7 @@
 # Author: Mads Vainoe Baatrup
 
 import rospy
-import tf
+import tf2_ros
 import yaml
 # import pluginlib
 import os
@@ -64,6 +64,7 @@ class PatternManagerNode(object):
         rospy.Service('~create_rectangular_pattern', pm_srv.CreateRectangularPattern, self._cb_create_rectangular_pattern)
         rospy.Service('~create_circular_pattern', pm_srv.CreateCircularPattern, self._cb_create_circular_pattern)
         rospy.Service('~create_scatter_pattern', pm_srv.CreateScatterPattern, self._cb_create_scatter_pattern)
+        rospy.Service('~create_honeycomb_pattern', pm_srv.CreateHoneycombPattern, self._cb_create_honeycomb_pattern)
         rospy.Service('~set_iteration_order', pm_srv.SetIterationOrder, self._cb_set_iteration_order)
         rospy.Service('~set_transform_parent', pm_srv.SetParent, self._cb_set_transform_parent)
         rospy.Service('~save', pm_srv.Filename, self._cb_save)
@@ -98,7 +99,7 @@ class PatternManagerNode(object):
                 name_and_id.name = n.name
                 name_and_id.id = id(n)
                 resp.names_and_ids.append(name_and_id)
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -132,7 +133,7 @@ class PatternManagerNode(object):
                     t_params.parent_id = id(t.parent)
 
                 resp.transforms.append(t_params)
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -166,7 +167,7 @@ class PatternManagerNode(object):
                     t_params.parent_id = id(t.parent)
 
                 resp.transforms.append(t_params)
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -187,8 +188,13 @@ class PatternManagerNode(object):
         try:
             for n in self.root.get_nodes():
                 if id(n) == req.id:
-                    resp.name = n.name
-        except rospy.ROSException, e:
+
+                    if not tf_prefix:
+                        resp.name = n.name  
+                    else:
+                        resp.name = tf_prefix + '/' + n.name
+        
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -210,7 +216,7 @@ class PatternManagerNode(object):
             t = self.root.get_node(req.id)
             t.name = req.name
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -233,7 +239,7 @@ class PatternManagerNode(object):
             t = self.root.get_node(req.id)
             t.ref_frame = req.name
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -256,7 +262,7 @@ class PatternManagerNode(object):
             t = self.root.get_node(req.id)
             t.rotation = req.rotation
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -279,7 +285,7 @@ class PatternManagerNode(object):
             t = self.root.get_node(req.id)
             t.translation = req.translation
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -321,7 +327,7 @@ class PatternManagerNode(object):
 
                 resp.transforms.append(t_params)
 
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -345,7 +351,7 @@ class PatternManagerNode(object):
 
             resp.message = 'Tree sent to node output'
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -368,7 +374,7 @@ class PatternManagerNode(object):
             for n in self.root.get_nodes():
                 if n.name == req.name:
                     resp.id = id(n)
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -388,7 +394,7 @@ class PatternManagerNode(object):
 
         try:
             with open(req.path, 'r') as file_:
-                tree = yaml.load(file_)
+                tree = yaml.safe_load(file_)
 
             self.root.recursive_remove_node(id(self.root))
             self.root.from_dict(tree)
@@ -396,7 +402,7 @@ class PatternManagerNode(object):
             file_.close()
 
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -422,7 +428,7 @@ class PatternManagerNode(object):
             file_.close()
 
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -448,7 +454,7 @@ class PatternManagerNode(object):
             new_parent.add_node(t)
 
             t.ref_frame = new_parent.name
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -475,7 +481,7 @@ class PatternManagerNode(object):
                 resp.names_and_ids.append(name_and_id)
 
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -504,7 +510,7 @@ class PatternManagerNode(object):
             t.children = ordered
 
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -537,7 +543,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Linear pattern successfully created!")
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -570,7 +576,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Rectangular pattern successfully created!")
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -606,7 +612,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Scatter pattern successfully created!")
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -640,7 +646,40 @@ class PatternManagerNode(object):
 
             rospy.logout("Circular pattern successfully created!")
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
+            rospy.logerr(e)
+            resp.success = False
+
+        return resp
+
+    def _cb_create_honeycomb_pattern(self, req):
+        """
+        This callback function creates a pattern of XForms in an honeycomb shape
+
+        :param req: A request object containing the number of points, step sizes, and lengths of the pattern
+        :type req: CreateHoneycombPatternRequest
+        :return: A response object containing a boolean whether the call was successful or not
+        :rtype: CreateHoneycombPatternResponse
+        """
+
+        rospy.logdebug("Received request to create an honeycomb pattern")
+        resp = pm_srv.CreateHoneycombPatternResponse()
+
+        try:
+            args = [req.num_points, req.step_sizes, req.lengths]
+
+            t = XForm(self.root.get_node(req.parent.parent_id), name=req.parent.name)
+            t.translation = req.parent.translation
+
+            if not util.is_zero_element(req.parent.rotation):
+                t.rotation = req.parent.rotation
+
+            self.plugin = self.plugins['pattern_honeycomb'](t, *args)
+            self.plugin.process()
+
+            rospy.logout("Honeycomb pattern successfully created!")
+            resp.success = True
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -667,7 +706,7 @@ class PatternManagerNode(object):
                 resp.names_and_ids.append(name_and_id)
 
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             resp.success = False
             rospy.logerr(e)
 
@@ -686,11 +725,16 @@ class PatternManagerNode(object):
         rospy.logdebug("Received request to retrieve current transform id")
         resp = pm_srv.GetCurrentIdResponse()
 
-        n = self.root.get_current_node()
+        node = self.root.get_current_node()
 
-        if n:
-            resp.id = id(n)
-            resp.name = n.name
+        if node:
+            resp.id = id(node)
+
+            if not tf_prefix:
+                resp.name = node.name  
+            else:
+                resp.name = tf_prefix + '/' + node.name
+   
             resp.success = True
         else:
             resp.success = False
@@ -710,11 +754,10 @@ class PatternManagerNode(object):
         rospy.logdebug('Received request to iterate')
         resp = TriggerResponse()
 
+        self.root.iterate()
+
         cur_node = self.root.get_current_node()
-
         if cur_node:
-            self.root.iterate()
-
             resp.message = 'New current transform: {}'.format(self.root.get_current_node())
             resp.success = True
         else:
@@ -751,7 +794,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Transform %s succesfully updated" % req.id)
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -788,7 +831,7 @@ class PatternManagerNode(object):
                 t_params.parent_id = id(t.parent)
 
             resp.params = t_params
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
 
         return resp
@@ -822,7 +865,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Transform {} successfully created!".format(req.params.name))
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -846,7 +889,7 @@ class PatternManagerNode(object):
 
             rospy.logout("Transform {} successfully (de)activated!".format(req.id))
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -875,7 +918,7 @@ class PatternManagerNode(object):
             self.root.recursive_remove_node(req.id)
             rospy.logout("Transform {} successfully removed!".format(req.id))
             resp.success = True
-        except rospy.ROSException, e:
+        except rospy.ROSException as e:
             rospy.logerr(e)
             resp.success = False
 
@@ -883,21 +926,31 @@ class PatternManagerNode(object):
 
 
 if __name__ == "__main__":
-    rospy.init_node("pattern_manager", log_level=rospy.DEBUG)
+    
+    # Node
+    rospy.init_node("pattern_manager", log_level=rospy.INFO)
 
+    # Parameters
+    tf_prefix = rospy.get_param("~tf_prefix", default='')
+
+    # TF2
+    tf_broadcaster = tf2_ros.TransformBroadcaster()
+    
+    # Published Topics
+    visualization_marker_array_pub = rospy.Publisher("/visualization_marker_array", MarkerArray, queue_size=10)
+
+
+    # Pattern Manager
     pmn = PatternManagerNode()
     rospy.loginfo("Pattern manager node started")
 
-    br = tf.TransformBroadcaster()
-    pub = rospy.Publisher("visualization_marker_array", MarkerArray, queue_size=10)
-
-    r = rospy.Rate(5)
-
+    # Loop
+    rate = rospy.Rate(5)
     while not rospy.is_shutdown():
         nodes = pmn.root.get_nodes(pmn.root)
         actv_nodes = pmn.root.get_active_nodes(pmn.root)
 
-        util.broadcast_transforms(br, nodes)
-        util.publish_markers(pub, actv_nodes, pmn.root)
+        util.broadcast_transforms(tf_broadcaster, nodes, tf_prefix)
+        util.publish_markers(visualization_marker_array_pub, actv_nodes, pmn.root, tf_prefix)
 
-        r.sleep()
+        rate.sleep()

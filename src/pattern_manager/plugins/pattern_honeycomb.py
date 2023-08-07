@@ -14,18 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Author: Mads Vainoe Baatrup
+# Author: Nicola Conti
 
 import rospy
+import numpy as np
 
 from pattern_manager.plugin import Plugin
 from pattern_manager.util import handle_input_1d
 from pattern_manager.xform import XForm
 
 
-class RectangularPattern(Plugin):
+class HoneycombPattern(Plugin):
     """
-    This plugin class specifies the attributes of, and is responsible for the generation of, a rectangular XForm pattern
+    This plugin class specifies the attributes of, and is responsible for the generation of, an honeycomb XForm pattern
 
     :param parent: An XForm parent object under which to create the XForm pattern
     :type parent: XForm
@@ -38,7 +39,7 @@ class RectangularPattern(Plugin):
     """
 
     def __init__(self, parent, num_points=(0, 0), step_sizes=(0, 0), line_lens=(0.0, 0.0)):
-        super(RectangularPattern, self).__init__()
+        super(HoneycombPattern, self).__init__()
 
         self.parent = parent
         self.num_points = num_points
@@ -60,9 +61,21 @@ class RectangularPattern(Plugin):
 
         xy_set = set()
 
-        for i in range(po_x):
-            for j in range(po_y):
-                xy_set.add((i * st_x, j * st_y))
+        # for i in range(po_x):
+        #     for j in range(po_y):
+        #         xy_set.add((i * st_x, j * st_y))
+        #
+        # for i in range(po_x - 1):
+        #     for j in range(po_y - 1):
+        #         xy_set.add((i * st_x + st_x/2, j * st_y + st_y/2))
+
+        for of_x in np.arange(0., le_x, st_x):
+            for of_y in np.arange(0., le_y, st_y):
+                xy_set.add((of_x, of_y))
+
+        for of_x in np.arange(st_x/2., le_x, st_x):
+            for of_y in np.arange(st_y/2., le_y, st_y):
+                xy_set.add((of_x, of_y))
 
         tfs = []
         c = 0

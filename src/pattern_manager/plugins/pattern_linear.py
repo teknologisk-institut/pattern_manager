@@ -52,7 +52,7 @@ class LinearPattern(Plugin):
 
         try:
             (po, st, le) = handle_input_1d(self.num_points, self.step_size, self.line_len)
-        except TypeError, e:
+        except TypeError as e:
             rospy.logerr(e)
 
             return None

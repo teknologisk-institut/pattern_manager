@@ -1,26 +1,36 @@
 <?xml version="1.0"?>
-<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
-<package format="2">
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>pattern_manager</name>
   <url>http://www.ros.org/wiki/pattern_manager</url>
   <version>1.0.0</version>
-  <description>A ROS package for defining, configuring, and working with patterns in robotics applications. This allows a robotics application developer to easily define a pattern, or group of patterns, for batch processing of structured parts, e.g. palletizing operations.</description>
+  <description>
+    A ROS package for defining, configuring, and working with patterns in robotics applications.
+    This allows a robotics application developer to easily define a pattern, or group of patterns,
+    for batch processing of structured parts, e.g. palletizing operations.
+  </description>
   <maintainer email="mrp@teknologisk.dk">Mikkel Rath Hansen</maintainer>
   <maintainer email="mvb@teknologisk.dk">Mads Vainoe Baatrup</maintainer>
   <license>Apache-2.0</license>
   <author>Mads Vainoe Baatrup, Mikkel Rath Hansen</author>
+
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>python-catkin-pkg</build_depend>
-  
+  <buildtool_depend condition="$ROS_PYTHON_VERSION == 2">python-setuptools</buildtool_depend>
+  <buildtool_depend condition="$ROS_PYTHON_VERSION == 3">python3-setuptools</buildtool_depend>
+
+  <build_depend condition="$ROS_PYTHON_VERSION == 2">python2-catkin-pkg</build_depend>
+  <build_depend condition="$ROS_PYTHON_VERSION == 3">python3-catkin-pkg</build_depend>
+
   <depend>rospy</depend>
   <depend>std_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>visualization_msgs</depend>
-  <depend>tf</depend>
-  <depend>python-numpy</depend>
-  <depend>python-yaml</depend>
+  <depend>tf2_ros</depend>
 
-  <build_depend>python-catkin-pkg</build_depend>
+  <depend condition="$ROS_PYTHON_VERSION == 2">python-numpy</depend>
+  <depend condition="$ROS_PYTHON_VERSION == 2">python-yaml</depend>
+  <depend condition="$ROS_PYTHON_VERSION == 3">python3-numpy</depend>
+  <depend condition="$ROS_PYTHON_VERSION == 3">python3-yaml</depend>
 
   <test_depend>rostest</test_depend>
   <test_depend>rosunit</test_depend>
